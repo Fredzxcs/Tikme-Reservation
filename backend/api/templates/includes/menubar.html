@@ -1,19 +1,18 @@
-{% load static %} 
-    <!-- Include the reusable menubar -->
-    <div class="menubar-wrapper">
-        <div class="menubar-wrapper">
-    <ul class="menubar-list">
-        <li class="profile-icon">
-            <i class="fa fa-user" onclick="toggleProfileDropdown()"></i>
-            
-            <!-- Profile dropdown menu -->
-            <div class="profile-dropdown">
-                <p>Account ID: user123</p>
-                <a href="#">Settings</a>
-                <a class="logout" href="/admin_login/">Logout</a> <!-- Updated to call the logout function -->
-            </div>
-        </li>
+{% load static %}
 
-
-    </ul>
+{% block content %}
+<div class="topbar">
+    <div class="search">
+        <input type="text" name="search" placeholder="search here">
+        <label for="search"><i class="fas fa-search"></i></label>
+    </div>
+    <i class="fas fa-bell"></i>
+    <div class="user">
+        <img src="{% static 'images/user.png' %}" alt="User Profile">
+    </div>
+    <label for="check">
+        <i class="fas fa-bars" id="menu-toggle-btn"></i>
+    </label>
 </div>
+
+{% endblock %}

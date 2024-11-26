@@ -1,54 +1,85 @@
-{% load static %} 
+{% load static %}
 
-<div class="sidebar-wrapper" id="sidebar">
+{% block content %}
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Search...">
+        </div>
+        <div class="user-container">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <!-- Hamburger Menu Icon -->
+        <label for="check">
+            <i class="fas fa-bars" id="btn"></i>
+            <i class="fas fa-times" id="cancel"></i>
+        </label>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <input type="checkbox" id="check">
     <div class="sidebar">
-        <div class="sidebar-header">
-            <h2>Restaurant Reservation Admin</h2>
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fa fa-bars"></i>
-            </button>
-        </div>
-
-        <a class="active" href="#admin_dashboard">
-            <i class="fa fa-fw fa-home"></i><span>Dashboard</span>
+        <header>Reservation</header>
+        <a href="#" class="active">
+            <i class="fas fa-qrcode"></i>
+            <span>Dashboard</span>
         </a>
-        <a href="#guests">
-            <i class="fa fa-fw fa-users"></i><span>Guests</span>
+        <a href="#" class="dropdown-btn">
+            <i class="fas fa-link"></i>
+            <span>Shortcuts</span>
+            <i class="fas fa-chevron-down dropdown-icon"></i> <!-- Dropdown Icon -->
         </a>
-
-        <a href="{% url 'create_reservation' %}">
-            <i class="fa fa-fw fa-chair"></i> 
-            <span>Create Reservations</span>
-        </a>
-        
-        
-        <button class="dropdown-btn">
-            <i class="fa fa-fw fa-utensils"></i> <span>Dine In</span> 
-            <i class="fa fa-caret-down"></i> 
-        </button>
-        
         <div class="dropdown-container">
-            <a href="#"><i class="fa fa-fw fa-chair"></i><span>Tables</span></a>
+            <a href="#"><i class="fas fa-cogs"></i> Submenu 1</a>
+            <a href="#"><i class="fas fa-pencil-alt"></i> Submenu 2</a>
+            <a href="#"><i class="fas fa-calendar"></i> Submenu 3</a>
         </div>
-        <button class="dropdown-btn">
-            <i class="fa fa-fw fa-calendar"></i> <span>Event</span> 
-            <i class="fa fa-caret-down"></i> 
-        </button>   
-        
+        <a href="#" class="dropdown-btn">
+            <i class="fas fa-stream"></i>
+            <span>Overview</span>
+            <i class="fas fa-chevron-down dropdown-icon"></i> <!-- Dropdown Icon -->
+        </a>
         <div class="dropdown-container">
-            <a href="#"><i class="fa fa-fw fa-map-marker-alt"></i><span>Event Place</span></a>
+            <a href="#"><i class="fas fa-chart-line"></i> Submenu 1</a>
+            <a href="#"><i class="fas fa-user-circle"></i> Submenu 2</a>
+            <a href="#"><i class="fas fa-tasks"></i> Submenu 3</a>
         </div>
         <a href="#">
-            <i class="fa fa-fw fa-cog"></i> <span>Settings</span>
+            <i class="fas fa-calendar"></i>
+            <span>Events</span>
         </a>
-        <a href="{% url 'admin_login' %}">
-            <i class="fa fa-fw fa-sign-out-alt"></i> <span>Logout</span>
+        <a href="#">
+            <i class="far fa-question-circle"></i>
+            <span>About</span>
         </a>
-        
+        <a href="#">
+            <i class="fas fa-sliders-h"></i>
+            <span>Services</span>
+        </a>
+        <a href="#">
+            <i class="far fa-envelope"></i>
+            <span>Contact</span>
+        </a>
+        <!-- Sidebar footer for logo and version -->
         <div class="sidebar-footer">
-            <img src="{% static 'tikme-logo.png' %}" alt="Logo">
-            <p>v1.0.0</p>
+            <img src="{% static 'images/tikme-logo.png' %}" alt="TikmeDineLogo" />
         </div>
     </div>
-</div>
 
+    <!-- Add the script to toggle dropdown visibility -->
+    <script>
+        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Toggle active class to show/hide dropdown menu
+                this.classList.toggle('active');
+                const dropdownContainer = this.nextElementSibling;
+                if (dropdownContainer.style.display === 'block') {
+                    dropdownContainer.style.display = 'none';
+                } else {
+                    dropdownContainer.style.display = 'block';
+                }
+            });
+        });
+    </script>
+{% endblock %}

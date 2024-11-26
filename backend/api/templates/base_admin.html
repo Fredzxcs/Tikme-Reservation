@@ -7,56 +7,48 @@
     {% load static %}
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" >
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
 
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" rel="stylesheet">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
-   
-    <!-- Icon Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <!-- Includes Page Admin -->
-    <link rel="stylesheet" href="{% static 'css/includesAdmin.css' %}">
-    <link rel="stylesheet" href="{% static 'css/createReservation.css' %}">
+    <!-- Custom Styles -->
+    <!-- <link rel="stylesheet" href="{% static 'css/createReservation.css' %}">
     <link rel="stylesheet" href="{% static 'css/styleReservation.css' %}">
     <link rel="stylesheet" href="{% static 'css/reservationTheme.css' %}">
     <link rel="stylesheet" href="{% static 'css/corePayment.css' %}">
-    <link rel="stylesheet" href="{% static 'css/paymentFeature.css' %}">
+    <link rel="stylesheet" href="{% static 'css/paymentFeature.css' %}"> -->
+  
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
     
-    <!-- Menu Bar
-    <link rel="stylesheet" href="{% static 'css/menubar.css' %}">
-     -->
 
-    <!-- Home, Menu, Reservation, FAQ, Contact Page -->
     {% block extra_css %}
     {% endblock %}
 </head>
 <body>
+
+
+    <!-- Sidebar -->
     {% include 'includes/sidebar.html' %}
-    <!-- Home, Menu, Reservation, FAQ, Contact Page 
-    {% include 'includes/menubar.html' %} -->
+
+    <!-- Main Content -->
     <div id="main-content">
         <main>
             {% block content %}
             {% endblock %}
         </main>
     </div>
-        
-    </div>
 
-    <!-- Includes Page -->
-    <script src="{% static 'js/includesAdmin.js' %}" defer></script>
+    <!-- Scripts -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="{% static 'js/sidebar.js' %}" defer></script>
 
-    <!-- Bootstrap JS and dependencies -->
-
-    <!-- Home, Menu, Reservation, FAQ, Contact Page -->
     {% block extra_js %}
     {% endblock %}
 </body>
