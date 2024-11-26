@@ -1,0 +1,42 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container"> 
+        <a href="#home" class="navbar-brand">
+            <h1>Tikme Dine</h1>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="fa fa-bars"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <!-- Center the nav links using mx-auto -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a href="#home" class="nav-link">HOME</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#about" class="nav-link">ABOUT</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#menu" class="nav-link">MENU</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#events" class="nav-link">EVENTS</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#services" class="nav-link">SERVICES</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#team" class="nav-link">TEAM</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#faqs" class="nav-link">FAQ'S</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#contact" class="nav-link">CONTACT</a>
+                </li>
+            </ul>
+            <!-- Align the "Reserve Now" button to the right -->
+            <a href="{% url 'reservation' %}" target="_blank" class="btn btn-primary ms-auto">Reserve Now!</a>
+        </div>
+    </div>
+</nav>

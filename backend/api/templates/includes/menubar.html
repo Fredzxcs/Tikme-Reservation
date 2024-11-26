@@ -1,0 +1,19 @@
+{% load static %} 
+    <!-- Include the reusable menubar -->
+    <div class="menubar-wrapper">
+        <div class="menubar-wrapper">
+    <ul class="menubar-list">
+        <li class="profile-icon">
+            <i class="fa fa-user" onclick="toggleProfileDropdown()"></i>
+            
+            <!-- Profile dropdown menu -->
+            <div class="profile-dropdown">
+                <p>Account ID: user123</p>
+                <a href="#">Settings</a>
+                <a class="logout" href="/admin_login/">Logout</a> <!-- Updated to call the logout function -->
+            </div>
+        </li>
+
+
+    </ul>
+</div>

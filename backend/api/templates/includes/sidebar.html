@@ -1,0 +1,54 @@
+{% load static %} 
+
+<div class="sidebar-wrapper" id="sidebar">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Restaurant Reservation Admin</h2>
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+
+        <a class="active" href="#admin_dashboard">
+            <i class="fa fa-fw fa-home"></i><span>Dashboard</span>
+        </a>
+        <a href="#guests">
+            <i class="fa fa-fw fa-users"></i><span>Guests</span>
+        </a>
+
+        <a href="{% url 'create_reservation' %}">
+            <i class="fa fa-fw fa-chair"></i> 
+            <span>Create Reservations</span>
+        </a>
+        
+        
+        <button class="dropdown-btn">
+            <i class="fa fa-fw fa-utensils"></i> <span>Dine In</span> 
+            <i class="fa fa-caret-down"></i> 
+        </button>
+        
+        <div class="dropdown-container">
+            <a href="#"><i class="fa fa-fw fa-chair"></i><span>Tables</span></a>
+        </div>
+        <button class="dropdown-btn">
+            <i class="fa fa-fw fa-calendar"></i> <span>Event</span> 
+            <i class="fa fa-caret-down"></i> 
+        </button>   
+        
+        <div class="dropdown-container">
+            <a href="#"><i class="fa fa-fw fa-map-marker-alt"></i><span>Event Place</span></a>
+        </div>
+        <a href="#">
+            <i class="fa fa-fw fa-cog"></i> <span>Settings</span>
+        </a>
+        <a href="{% url 'admin_login' %}">
+            <i class="fa fa-fw fa-sign-out-alt"></i> <span>Logout</span>
+        </a>
+        
+        <div class="sidebar-footer">
+            <img src="{% static 'tikme-logo.png' %}" alt="Logo">
+            <p>v1.0.0</p>
+        </div>
+    </div>
+</div>
+

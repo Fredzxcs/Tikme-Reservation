@@ -1,0 +1,578 @@
+/* Loader Style */
+.loading-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white; /* Ensure plain white background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 1s ease-out; /* For smooth fade-out */
+    opacity: 1; /* Start fully visible */
+}
+
+.loading-container i {
+    font-size: 50px;
+    color: #333;
+}
+
+.loader {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border: 5px solid #333;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear;
+    z-index: -1; /* Place behind the icon */
+}
+
+/* Fade-out Effect */
+.fade-out {
+    opacity: 0; /* Make loader invisible */
+    transition: opacity 5s ease-out; /* Fade out duration */
+}
+
+/* Keyframes for Spinning Animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Main Text Animation */
+.main-text {
+    font-size: 5rem;
+    color: #FF69B4; /* Start with no fill */
+    font-family: 'Cinzel Decorative', cursive;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+    display: inline-block;
+    opacity: 1; /* Ensure visibility during animation */
+    position: relative; /* Allows positioning of individual letters */
+    transition: color 0.4s; /* Smooth color transition on hover */
+}
+
+.main-text span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: buildUp 0.5s ease forwards;
+}
+
+@keyframes buildUp {
+    to {
+        opacity: 2;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fillText {
+    30% {
+        color: transparent;
+    }
+    50% {
+        color: #FFEA00; /* Bright yellow */
+    }
+    100% {
+        color: #FF69B4; /* Hot Pink */
+    }
+}
+
+/* Sub-text Animation */
+.sub-text {
+    margin-top: -10px;
+    margin-left: 220px;
+    font-size: 1.5rem;
+    color: #fff;
+    opacity: 0;
+    animation: fadeInGlow 3s ease forwards 1.5s;
+}
+
+@keyframes fadeInGlow {
+    0% {
+        opacity: 0;
+        text-shadow: none;
+    }
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff;
+    }
+}
+
+/* Flag-bar Styling */
+.flag-bar {
+    height: 4px;
+    width: 410px;
+    margin: 0 0 15px 220px;
+    background: linear-gradient(to right, green, white, red);
+    border-radius: 2px;
+    position: relative;
+    animation: barGlowCenter 2s ease-in-out forwards;
+}
+
+.flag-bar::before,
+.flag-bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    border-radius: 2px;
+}
+
+.flag-bar::before {
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    animation: centerGlow 2s ease-in-out forwards;
+}
+
+@keyframes centerGlow {
+    0% {
+        box-shadow: 0 0 5px rgba(0, 255, 0, 0.5), 0 0 5px rgba(255, 255, 255, 0.5), 0 0 5px rgba(255, 0, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.8), 0 0 15px rgba(255, 0, 0, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(0, 255, 0, 1), 0 0 30px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 0, 0, 1);
+        transform: scaleX(1); /* Expand the glow outward */
+    }
+}
+
+.flag-bar::after {
+    right: 50%;
+    transform: translateX(50%);
+    background: none;
+    animation: centerGlow 2s ease-in-out forwards;
+}
+
+/* Button Styling */
+.btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 500;
+    transition: .5s;
+}
+
+.btn.btn-primary,
+.btn.btn-secondary {
+    background-color: #FEA116;
+    border-color: #FEA116;
+    box-shadow: #333;
+}
+
+.btn-primary:hover:hover {
+    background-color: #FEA116;
+    border-color: #333;
+}
+
+/* Home Section Styling */
+.home {
+    min-height: 100vh;
+    width: 100vw;
+    background-image: url('../images/tikme.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-flow: column;
+    text-align: center;
+    padding: 0 1rem;
+    position: relative;
+    overflow: hidden !important;
+    padding-top: 80px;
+}
+
+.home::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Adjust opacity (0.5) to control darkness */
+}
+
+.home .wave {
+    position: absolute;
+    bottom: -.5rem;
+    left: 0;
+    height: 11rem;
+    width: 100%;
+    background: url('../images/wave.png');
+    background-size: 100rem 11rem;
+    animation: waves 8s linear infinite;
+    background-repeat: repeat-x;
+}
+
+.home .wave2 {
+    animation-direction: reverse;
+    animation-duration: 6s;
+    opacity: .3;
+}
+
+.home .wave3 {
+    animation-duration: 4s;
+    opacity: .5;
+}
+
+@keyframes waves {
+    0% {
+        background-position-x: 0;
+    }
+    100% {
+        background-position-x: 100rem;
+    }
+}
+
+/* Menu Section */
+.menu-section {
+    padding: 50px 0;
+    position: relative;
+    background-image: url('your-background-image.jpg'); /* Add your background image URL */
+    background-size: cover; /* Ensure the image covers the entire section */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    z-index: 0; /* Ensure it appears behind other elements */
+}
+
+/* Menu Container */
+.menu-wrapper {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Menu Item */
+.menu-item {
+    padding: 15px 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+    position: relative; /* Allows positioning of the hover effect */
+    border-bottom: 2px solid #8A0EB5; /* Add a bottom border for separation */
+}
+
+.menu-item:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Light hover effect */
+}
+
+/* New addition for text */
+.menu-item h3 {
+    font-size: 1.5rem;
+    margin: 0;
+    font-family: 'Nunito', sans-serif; /* Change font family */
+}
+
+/* Menu item price */
+.menu-item .price-text {
+    color: #FEA116; /* Set your desired color here */
+    font-weight: bold; /* Optional: Make it bold */
+}
+
+/* Menu container */
+.menu-items-container {
+    max-height: 600px; 
+    overflow-y: auto; 
+    overflow-x: hidden;
+    padding: 10px; 
+    border: 1px solid #ddd; 
+    border-radius: 10px; 
+    margin-top: 15px; 
+}
+
+
+/* Adjustments for small screens */
+@media (max-width: 768px) {
+    .menu-column {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+
+    .menu-item img {
+        width: 60px;
+    }
+}
+
+@media (max-width: 576px) {
+    .menu-item img {
+        width: 50px;
+    }
+    .menu-title {
+        font-size: 28px;
+    }
+}
+
+/* Event Style */
+.event {
+    position:relative;
+    margin:15px 0px;
+}
+
+.event .event-img {
+    position:absolute;
+    left:0;
+    top:0;
+    width: 160px;
+}
+
+.event .event-img img {
+    width:100%;
+}
+
+.event .event-day {
+    position: absolute;
+    top: 0;
+    width: 60px;
+    height: 60px;
+    background: #FEA116;
+    text-align: center;
+}
+
+.event .event-day span {
+    color: #FFF;
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    font-weight: 700;
+}
+
+.event  .event-day:after , .event  .event-day:before{
+    content:"";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    position:absolute;
+    bottom:-20px;
+}
+
+.event  .event-day:before {
+    left:0;
+    border-width: 20px 60px 0 0;
+    border-color: #FEA116 transparent transparent;
+}
+
+.event  .event-day:after {
+    right:0;
+    border-width: 0 60px 20px 0;
+    border-color: transparent #FEA116 transparent;
+}
+
+.event .event-content {
+    min-height: 160px;
+    padding-left: 175px;
+}
+
+.event .event-content h3 {
+    margin-top:0px;
+}
+
+/* Ensures uniform size for gallery items */
+.gallery-item {
+    width: 100%;
+    height: 400px; /* Fixed height */
+    overflow: hidden; /* Hides the overflow */
+    position: relative;
+}
+
+/* Ensures images are centered and cover the gallery container */
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the box without distortion */
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-item img:hover {
+    transform: scale(1.05);
+}
+
+.modal-body {
+    padding: 0;
+}
+
+.carousel .carousel-item img {
+    max-height: 500px;
+    object-fit: cover;
+}
+
+.section-title h2 {
+    font-size: 36px;
+    color: #ff9800;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.section-title p {
+    text-align: center;
+    font-size: 30px;
+    margin-top: 0;
+    margin-bottom: .5rem;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #0F172B;
+}
+
+/* Team */
+.gallery .row.g-0 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.team-section {
+    padding: 60px 0;
+
+}
+.team-section h2 {
+    color: #ff9800;
+    font-weight: normal;
+}
+.team-description {
+    max-width: 800px;
+    margin: 20px auto;
+    color: #333;
+}
+.team-photo img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* FAQ Section */
+.faq {
+    padding: 2rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 8px; /* Optional rounded corners */
+    
+}
+
+.faq h2 {
+    font-size: 36px; /* Decreased font size for better readability */
+    color: #8A0EB5;
+    margin-bottom: 1.5rem; /* Adjusted margin for better spacing */
+    text-align: center;
+}
+
+.faq .faq-container {
+    display: flex;
+    flex-direction: column; /* Change to column for a single column layout */
+    gap: 6px; /* Adjust gap between items */
+}
+
+.faq .faq-item {
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+    background: white; /* Background for each FAQ item */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    padding: 1rem; /* Inner padding */
+}
+
+.faq .faq-item h3 {
+    font-size: 1.5rem;
+    margin: 0;
+    cursor: pointer;
+    position: relative;
+    padding-left: 40px; /* Increased padding to accommodate the icon */
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bold;
+    color: #333; /* Default question text color */
+}
+
+.faq .faq-item h3 .toggle-icon {
+    position: absolute;
+    left: 10px; /* Position the icon closer to the question */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #FEA116; /* Color for the plus/minus sign */
+    transition: color 0.3s ease;
+}
+
+.faq-item p {
+    display: none;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-top: 10px;
+    font-family: 'Heebo', sans-serif; /* Set to Heebo for answers */
+    font-weight: 400; /* Regular weight for answer text */
+    color: #666; /* Answer text color */
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.faq .faq-item.active p {
+    display: block; /* Show the answer */
+}
+
+/* Contact Style */
+.contact-section {
+    padding: 40px 15px;
+}
+
+.form-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #ff9800;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: #ff9800;
+    border: none;
+}
+
+.map-container {
+    height: 300px; /* Default height for smaller screens */
+    overflow: hidden;
+    border-radius: 10px 0 0 10px; /* Rounded corners for the map */
+}
+
+/* Responsive iframe */
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (min-width: 768px) {
+    .map-container {
+        height: 400px; /* Increased height for larger screens */
+    }
+}
+
+@media (min-width: 992px) {
+    .map-container {
+        height: 100%; /* Full height for extra-large screens */
+    }
+}
+
+/* Ensures the entire container is displayed as a card */
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+
