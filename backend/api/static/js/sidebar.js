@@ -1,45 +1,32 @@
-const dropdownBtns = document.querySelectorAll('.dropdown-btn');
-dropdownBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Toggle the 'active' class for the button to change its style
-        btn.classList.toggle('active');
-        
-        // Get the adjacent dropdown container
-        const dropdownContainer = btn.nextElementSibling;
+const body = document.querySelector("body"),
+      modeToggle = body.querySelector(".mode-toggle");
+      sidebar = body.querySelector("nav");
+      sidebarToggle = body.querySelector(".sidebar-toggle");
 
-        // Toggle the display property between 'none' and 'flex'
-        if (dropdownContainer.style.display === 'block') {
-            dropdownContainer.style.display = 'none';
-        } else {
-            // Hide other dropdowns if they're open
-            document.querySelectorAll('.dropdown-container').forEach(container => {
-                if (container !== dropdownContainer) {
-                    container.style.display = 'none';
-                }
-            });
-            // Show the clicked dropdown container
-            dropdownContainer.style.display = 'block';
-        }
-    });
-});
+let getMode = localStorage.getItem("mode");
+if(getMode && getMode ==="dark"){
+    body.classList.toggle("dark");
+}
 
-// Close any open dropdown when clicking outside
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.dropdown-btn')) {
-        document.querySelectorAll('.dropdown-container').forEach(container => {
-            container.style.display = 'none';
-        });
+let getStatus = localStorage.getItem("status");
+if(getStatus && getStatus ==="close"){
+    sidebar.classList.toggle("close");
+}
+
+modeToggle.addEventListener("click", () =>{
+    body.classList.toggle("dark");
+    if(body.classList.contains("dark")){
+        localStorage.setItem("mode", "dark");
+    }else{
+        localStorage.setItem("mode", "light");
     }
 });
 
-// Toggle dropdown menus
-document.querySelectorAll('.dropdown-btn').forEach(button => {
-    button.addEventListener('click', function () {
-        let dropdown = this.nextElementSibling;
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        
-        // Toggle the dropdown icon rotation
-        let icon = this.querySelector('.dropdown-icon');
-        icon.style.transform = icon.style.transform === 'rotate(180deg)' ? 'rotate(0)' : 'rotate(180deg)';
-    });
-});
+sidebarToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("close");
+    if(sidebar.classList.contains("close")){
+        localStorage.setItem("status", "close");
+    }else{
+        localStorage.setItem("status", "open");
+    }
+})

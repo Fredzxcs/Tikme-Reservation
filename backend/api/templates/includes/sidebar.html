@@ -1,85 +1,59 @@
 {% load static %}
 
 {% block content %}
-    <!-- Top Navigation Bar -->
-    <div class="top-navbar">
-        <div class="search-container">
-            <input type="text" class="search-box" placeholder="Search...">
+<body>
+    <nav>
+        <div class="logo-name">
+            <span class="logo_name">Tikme Dine</span>
         </div>
-        <div class="user-container">
-            <i class="fas fa-user-circle"></i>
-        </div>
-        <!-- Hamburger Menu Icon -->
-        <label for="check">
-            <i class="fas fa-bars" id="btn"></i>
-            <i class="fas fa-times" id="cancel"></i>
-        </label>
-    </div>
 
-    <!-- Sidebar Navigation -->
-    <input type="checkbox" id="check">
-    <div class="sidebar">
-        <header>Reservation</header>
-        <a href="#" class="active">
-            <i class="fas fa-qrcode"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="#" class="dropdown-btn">
-            <i class="fas fa-link"></i>
-            <span>Shortcuts</span>
-            <i class="fas fa-chevron-down dropdown-icon"></i> <!-- Dropdown Icon -->
-        </a>
-        <div class="dropdown-container">
-            <a href="#"><i class="fas fa-cogs"></i> Submenu 1</a>
-            <a href="#"><i class="fas fa-pencil-alt"></i> Submenu 2</a>
-            <a href="#"><i class="fas fa-calendar"></i> Submenu 3</a>
-        </div>
-        <a href="#" class="dropdown-btn">
-            <i class="fas fa-stream"></i>
-            <span>Overview</span>
-            <i class="fas fa-chevron-down dropdown-icon"></i> <!-- Dropdown Icon -->
-        </a>
-        <div class="dropdown-container">
-            <a href="#"><i class="fas fa-chart-line"></i> Submenu 1</a>
-            <a href="#"><i class="fas fa-user-circle"></i> Submenu 2</a>
-            <a href="#"><i class="fas fa-tasks"></i> Submenu 3</a>
-        </div>
-        <a href="#">
-            <i class="fas fa-calendar"></i>
-            <span>Events</span>
-        </a>
-        <a href="#">
-            <i class="far fa-question-circle"></i>
-            <span>About</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-sliders-h"></i>
-            <span>Services</span>
-        </a>
-        <a href="#">
-            <i class="far fa-envelope"></i>
-            <span>Contact</span>
-        </a>
-        <!-- Sidebar footer for logo and version -->
-        <div class="sidebar-footer">
-            <img src="{% static 'images/tikme-logo.png' %}" alt="TikmeDineLogo" />
-        </div>
-    </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="{% url 'admin_dashboard' %}">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="#">
+                    <i class="uil uil-files-landscapes"></i>
+                    <span class="link-name">Dine in</span>
+                </a></li>
+                <li><a href="{% url 'event_reservation' %}">
+                    <i class="uil uil-chart"></i>
+                    <span class="link-name">Event</span>
+                </a></li>
+        
+            </ul>
+            
+            <ul class="logout-mode">
+                <li><a href="{% url 'admin_login' %}">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
 
-    <!-- Add the script to toggle dropdown visibility -->
-    <script>
-        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
-        dropdownBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Toggle active class to show/hide dropdown menu
-                this.classList.toggle('active');
-                const dropdownContainer = this.nextElementSibling;
-                if (dropdownContainer.style.display === 'block') {
-                    dropdownContainer.style.display = 'none';
-                } else {
-                    dropdownContainer.style.display = 'block';
-                }
-            });
-        });
-    </script>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+
+                    <div class="mode-toggle">
+                      <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+            <div class="search-box">
+                <i class="uil uil-search"></i>
+                <input type="text" placeholder="Search here...">
+            </div>
+            
+            <img src="{% static 'images/profile.png' %}" alt="Profile">
+        </div>
 {% endblock %}
+

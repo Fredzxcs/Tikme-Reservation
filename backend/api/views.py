@@ -9,6 +9,10 @@ def admin_dashboard(request):
     return render(request, 'admin_dashboard.html')
 
 
-def create_reservation(request):
+def admin_dashboard(request):
     # Your logic for creating a reservation
-    return render(request, 'create_reservation.html')
+    return render(request, 'event_reservation.html')
+
+# def create_reservation(request):
+#     # Your logic for creating a reservation
+#     return render(request, 'create_reservation.html')

@@ -1,0 +1,86 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+
+{% block extra_css %}
+<link href="{% static 'css/event_reservation.css' %}" rel="stylesheet">
+<link href="{% static 'css/modal.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="scrollable-content">
+        <div class="calendar-container">
+            <!-- Calendar Section -->
+            <div class="calendar-section">
+                <h2>Select a Date & Time</h2>
+                <div class="calendar-header">
+                    <button id="prevMonth" class="nav-btn">&larr;</button>
+                    <h3 id="currentMonth">November 2024</h3>
+                    <button id="nextMonth" class="nav-btn">&rarr;</button>
+                </div>
+                <div class="calendar">
+                    <div class="weekdays">
+                        <div>SUN</div>
+                        <div>MON</div>
+                        <div>TUE</div>
+                        <div>WED</div>
+                        <div>THU</div>
+                        <div>FRI</div>
+                        <div>SAT</div>
+                    </div>
+                    <div id="calendar-days" class="days">
+                        <!-- Days will be inserted by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Reservations Section -->
+            <div class="daily-reservations">
+                <h3 id="selected-date">NOVEMBER 29, 2024 (current date)</h3>
+                <div id="reservations-list">
+                    <!-- Reservations will be inserted by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- All Reservations Section -->
+        <div class="all-reservations">
+            <h2>All Reservations</h2>
+            <div class="sort-container">
+                <select id="sortSelect" class="sort-select">
+                    <option value="date">Sort by: Date (Ascending)</option>
+                    <option value="date-desc">Sort by: Date (Descending)</option>
+                    <option value="name">Sort by: Customer Name (A-Z)</option>
+                    <option value="name-desc">Sort by: Customer Name (Z-A)</option>
+                    <option value="type">Sort by: Event Type (A-Z)</option>
+                    <option value="type-desc">Sort by: Event Type (Z-A)</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table id="all-reservations-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type of Event</th>
+                            <th>Customer Name</th>
+                            <th>Contact Number</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- All reservations will be inserted by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<script src="{% static 'js/event_reservation.js' %}"></script>
+<script src="{% static 'js/modal.js' %}"></script>
+{% endblock %}
