@@ -9,7 +9,7 @@ def admin_dashboard(request):
     return render(request, 'admin_dashboard.html')
 
 
-def admin_dashboard(request):
+def event_reservation(request):
     # Your logic for creating a reservation
     return render(request, 'event_reservation.html')
 

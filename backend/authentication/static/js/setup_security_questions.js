@@ -50,7 +50,7 @@ function submitSecurityAnswers(event) {
 
     if (!uidb64 || !token) {
         console.error("Invalid UID or token.");
-        window.location.href = "/api-auth/invalid_link/";
+        window.location.href = "/auth/invalid_link/";
         return;
     }
 
@@ -58,7 +58,7 @@ function submitSecurityAnswers(event) {
     sessionStorage.setItem('security_answers', JSON.stringify({ questions, answers }));
 
     // Redirect to the password setup page
-    window.location.href = `/api-auth/setup_password/${uidb64}/${token}/`;
+    window.location.href = `/auth/setup_password/${uidb64}/${token}/`;
 }
 
 document.getElementById('security-questions-form')?.addEventListener('submit', submitSecurityAnswers);

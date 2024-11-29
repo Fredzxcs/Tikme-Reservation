@@ -17,7 +17,7 @@ from .views.views_system_admin import (
     send_onboarding_email,
 )
 
-from .views.views import (
+from .views.views_admin import (
     # Admin Actions
     admin_login,
     send_reset_password_email,

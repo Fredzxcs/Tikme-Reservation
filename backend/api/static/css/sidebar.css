@@ -215,7 +215,6 @@ body.dark .switch:before{
     background-image: var(--panel-color);
     min-height: 100vh;
     width: calc(100% - 250px);
-    padding: 0px 14px;
     transition: var(--tran-05);
 }
 nav.close ~ .dashboard{
@@ -235,6 +234,8 @@ nav.close ~ .dashboard{
     transition: var(--tran-05);
     z-index: 10;
 }
+
+
 nav.close ~ .dashboard .top{
     left: 73px;
     width: calc(100% - 73px);
