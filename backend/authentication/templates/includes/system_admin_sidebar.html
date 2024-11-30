@@ -1,24 +1,50 @@
-<!-- authentication/templates/sidebar.html -->
 {% load static %}
-{% block extra_css %}
-<!-- System Admin Sidebar CSS -->
-<link rel="stylesheet" href="{% static 'css/system_admin_sidebar.css' %}">
+
+{% block content %}
+<body>
+    <nav>
+        <div class="logo-name">
+            <span class="logo_name">Tikme Dine</span>
+        </div>
+
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="{% url 'system_admin_dashboard' %}">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+            </ul>
+            
+            <ul class="logout-mode">
+                <li><a href="{% url 'admin_login' %}">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+
+                    <div class="mode-toggle">
+                      <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+            <div class="search-box">
+                <i class="uil uil-search"></i>
+                <input type="text" placeholder="Search here...">
+            </div>
+            
+            <img src="{% static 'images/profile.png' %}" alt="Profile">
+        </div>
 {% endblock %}
- 
-<div class="sidebar-wrapper">
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h2>System Admin</h2>
-            <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
-        </div>
-        <ul>
-            <li><a href="{% url 'system_admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
-            <li><a href="#"><i class="fas fa-cogs"></i> <span>Settings</span></a></li>
-            <li><a href="{% url 'system_admin_login' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
-        </ul>
-        <div class="sidebar-footer">
-            <img src="{% static 'assets/images/tikme-logo.png' %}" alt="Logo">
-            <p>System Admin</p>
-        </div>
-    </div>
-</div>
+

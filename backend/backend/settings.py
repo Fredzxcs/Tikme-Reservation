@@ -14,8 +14,8 @@ SECRET_KEY = 'django-insecure-yda!aa3&5g&fi(7q9-n$@g=n^lu^@p-7j)9e1@=vy2a9xav9^+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Add this to your settings.py
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# Allow local and specific IPs
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.1.28').split(',')
 
 
 # JWT Settings

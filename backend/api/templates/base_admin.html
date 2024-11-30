@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="{% static 'css/corePayment.css' %}">
     <link rel="stylesheet" href="{% static 'css/paymentFeature.css' %}"> -->
   
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_sidebar.css' %}">
     
 
     {% block extra_css %}
@@ -36,7 +36,7 @@
 
 
     <!-- Sidebar -->
-    {% include 'includes/sidebar.html' %}
+    {% include 'includes/admin_sidebar.html' %}
 
     <!-- Main Content -->
     <div id="main-content">
@@ -47,7 +47,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{% static 'js/sidebar.js' %}" defer></script>
+    <script src="{% static 'js/admin_sidebar.js' %}" defer></script>
 
     {% block extra_js %}
     {% endblock %}

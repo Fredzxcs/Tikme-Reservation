@@ -1,3 +1,4 @@
+// Helper function to show error messages
 function showError(message) {
     const errorElement = document.getElementById('error-message');
     if (errorElement) {
@@ -6,6 +7,7 @@ function showError(message) {
     }
 }
 
+// Helper function to clear error messages
 function clearError() {
     const errorElement = document.getElementById('error-message');
     if (errorElement) {
@@ -14,6 +16,12 @@ function clearError() {
     }
 }
 
+// Helper function to get the token (either from the form or sessionStorage)
+function getToken() {
+    return document.querySelector('input[name="token"]')?.value || sessionStorage.getItem('token');
+}
+
+// Helper function to validate the security answers
 function validateSecurityAnswers(questions, answers) {
     const uniqueQuestions = new Set(questions);
     if (questions.length !== uniqueQuestions.size) {
@@ -27,6 +35,7 @@ function validateSecurityAnswers(questions, answers) {
     return true;
 }
 
+// Function to dynamically fetch `uidb64`
 function getUidb64() {
     const uidb64Field = document.querySelector('input[name="uidb64"]');
     if (uidb64Field) {
@@ -36,6 +45,7 @@ function getUidb64() {
     return urlParams.get('uidb64') || "default-uidb64";
 }
 
+// Submit security answers
 function submitSecurityAnswers(event) {
     event.preventDefault();
 
@@ -45,7 +55,7 @@ function submitSecurityAnswers(event) {
 
     if (!validateSecurityAnswers(questions, answers)) return;
 
-    const token = document.querySelector('input[name="token"]').value;
+    const token = getToken();
     const uidb64 = getUidb64();
 
     if (!uidb64 || !token) {
@@ -54,11 +64,30 @@ function submitSecurityAnswers(event) {
         return;
     }
 
-    // Save the security questions and answers in sessionStorage
-    sessionStorage.setItem('security_answers', JSON.stringify({ questions, answers }));
-
-    // Redirect to the password setup page
+    sessionStorage.setItem('security_answers', JSON.stringify(answers));
     window.location.href = `/auth/setup_password/${uidb64}/${token}/`;
 }
 
+// Event listeners for form submission and validations
 document.getElementById('security-questions-form')?.addEventListener('submit', submitSecurityAnswers);
+
+document.querySelectorAll('input[name^="security_answer"]').forEach(input => {
+    input.addEventListener('input', () => {
+        if (input.value.trim() !== "") {
+            input.classList.remove('is-invalid');
+        }
+    });
+});
+
+document.querySelectorAll('select[name^="security_question"]').forEach(select => {
+    select.addEventListener('change', () => {
+        const questions = Array.from(document.querySelectorAll('select[name^="security_question"]')).map(select => select.value);
+        const uniqueQuestions = new Set(questions);
+
+        if (questions.length !== uniqueQuestions.size) {
+            showError("Please choose different questions for each field.");
+        } else {
+            clearError();
+        }
+    });
+});

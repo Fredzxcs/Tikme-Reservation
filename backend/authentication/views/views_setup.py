@@ -1,19 +1,23 @@
 import logging
-import json
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.urls import reverse
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes, force_str
-from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from ..models import Employee, Token
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.exceptions import TokenError
+
+from ..models import Employee
 from ..forms import SetupSecurityQuestionsForm, SetupPasswordForm
 from ..serializers import SetupSecurityQuestionsSerializer, SetupPasswordSerializer
+from ..utils import jwt_authenticate
+
 
 logger = logging.getLogger(__name__)
+
 
 def generate_uidb64(user):
     return urlsafe_base64_encode(force_bytes(user.pk))
@@ -24,35 +28,22 @@ def setup_account(request, uidb64, token):
     View to handle account setup using a JWT and user ID.
     """
     try:
+        # Validate and decode the token
+        access_token = AccessToken(token)
+        user_id_from_token = access_token['user_id']  # Assumes token payload includes 'user_id'
+
         # Decode the UID and retrieve the employee
         uid = force_str(urlsafe_base64_decode(uidb64))
         employee = get_object_or_404(Employee, pk=uid)
 
-        # Validate the token
-        token_obj = Token.objects.get(token=token, user=employee)
+        # Ensure the token user matches the employee
+        if str(employee.pk) != str(user_id_from_token):
+            logger.error("Token does not match the user.")
+            return HttpResponse("Token does not match the user.", status=400)
 
-        # Check if the token is expired
-        if token_obj.expiration_time < timezone.now():
-            logger.error("Token is expired.")
-            return render(request, 'invalid_link.html', {
-                'token_status': 'invalid',
-                'message': "The link you have used is invalid or has expired. Please ensure you have copied the link correctly. If the issue persists, contact your system administrator."
-            })
-
-        # Check if the token has already been used
-        if token_obj.used:
-            logger.error("Token has already been used.")
-            return render(request, 'invalid_link.html', {
-                'token_status': 'used',
-                'message': "The link you have used has already been completed or activated. If you believe this is an error, please contact your system administrator for assistance."
-            })
-
-    except (Token.DoesNotExist, ValueError, OverflowError, Employee.DoesNotExist):
+    except (TokenError, ValueError, OverflowError, Employee.DoesNotExist):
         logger.error("Invalid or expired token.")
-        return render(request, 'invalid_link.html', {
-            'token_status': 'invalid',
-            'message': "Invalid or expired token. Please check the link and try again."
-        })
+        return HttpResponse("Invalid or expired token.", status=401)
 
     # Render the security questions form
     form = SetupSecurityQuestionsForm()
@@ -69,54 +60,75 @@ def setup_security_questions(request):
     """
     API view for submitting the security questions form.
     """
+    logger.debug("Attempting to authenticate user...")
+    user = jwt_authenticate(request)
+    if not user:
+        logger.error("Authentication failed. Token missing or invalid.")
+        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    logger.debug(f"Authenticated user: {user}")
+
     serializer = SetupSecurityQuestionsSerializer(data=request.data)
     if serializer.is_valid():
         try:
-            user = serializer.save()
-            uidb64 = generate_uidb64(user)
-            token_obj = Token.generate_token(user)  # Generate a token for the user
-            token = token_obj.token  # Get the generated token
+            serializer.save(user=user)
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            token = str(AccessToken.for_user(user))
             return Response({
                 "message": "Security questions set up successfully.",
                 "redirect_url": reverse('setup_password', kwargs={'uidb64': uidb64, 'token': token}),
+                "security_answers": request.data.get('security_answers')  # Add security answers to the response
             }, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error saving security questions: {e}")
             return Response({"detail": f"Error: {e}"}, status=status.HTTP_400_BAD_REQUEST)
 
+    logger.debug(f"Validation errors: {serializer.errors}")
     return Response({"detail": "Invalid data submitted.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 def setup_password(request, uidb64, token):
+    """
+    View for setting a new password.
+    """
     try:
+        # Decode the UID and get the employee   
         uid = force_str(urlsafe_base64_decode(uidb64))
         employee = get_object_or_404(Employee, pk=uid)
-        token_obj = Token.objects.get(token=token, user=employee)
+        AccessToken(token)  # Validate the token
+    except (TypeError, ValueError, OverflowError, Employee.DoesNotExist, TokenError) as e:
+        logger.error(f"Error with token or user ID: {e}")
+        return render(request, 'setup_password.html', {
+            'error_message': "Invalid link or expired token.",
+            'uidb64': uidb64,
+            'token': token,
+        })
 
-        if token_obj.is_expired() or token_obj.used:
-            return Response({"detail": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST':
+        serializer = SetupPasswordSerializer(data=request.POST)  # Use request.POST here
+        
+        if serializer.is_valid():
+            # Save the new password to the employee instance
+            serializer.save(employee=employee)
+            logger.info("Password set successfully.")
+            return render(request, 'setup_password.html', {
+                'success_message': "Password set successfully! You can now log in.",
+                'uidb64': uidb64,
+                'token': token,
+            })
 
-        security_questions = request.data.get('security_questions', [])
-        security_answers = request.data.get('security_answers', [])
-        new_password = request.data.get('new_password')
+        # Handle form validation errors
+        return render(request, 'setup_password.html', {
+            'form': serializer.errors,  # Display the form with errors
+            'error_message': "Invalid data submitted. Please correct the errors.",
+            'uidb64': uidb64,
+            'token': token,
+        })
 
-        if not security_questions or not security_answers:
-            return Response({"detail": "Security questions and answers are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if not new_password:
-            return Response({"detail": "Password is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Save security questions and answers
-        for question, answer in zip(json.loads(security_questions), json.loads(security_answers)):
-            employee.securityquestion_set.create(question=question, answer=answer)
-
-        # Set new password
-        employee.set_password(new_password)
-        employee.save()
-
-        token_obj.mark_as_used()
-        return Response({"detail": "Password and security questions updated successfully."}, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        logger.error(f"Error updating password and security questions: {e}")
-        return Response({"detail": "An error occurred."}, status=status.HTTP_400_BAD_REQUEST)
+    # Render the password setup form for GET requests
+    serializer = SetupPasswordSerializer()  # Blank form on GET request
+    return render(request, 'setup_password.html', {
+        'form': serializer.data,
+        'uidb64': uidb64,
+        'token': token,
+    })

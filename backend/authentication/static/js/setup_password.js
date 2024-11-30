@@ -1,12 +1,15 @@
+// Show modal function
 function showModal(modalId) {
     const modal = new bootstrap.Modal(document.getElementById(modalId));
     modal.show();
 }
 
+// Redirect to login after success
 function redirectToLogin() {
     window.location.href = "{% url 'admin_login' %}";
 }
 
+// Check password strength
 function checkPasswordStrength(password) {
     const lengthCriteria = /.{8,}/;
     const digitCriteria = /\d/;
@@ -22,6 +25,7 @@ function checkPasswordStrength(password) {
     }
 }
 
+// Validate password
 function validatePassword(password, confirmPassword) {
     if (password !== confirmPassword) {
         return 'Passwords do not match.';
@@ -35,6 +39,7 @@ function validatePassword(password, confirmPassword) {
     return null;
 }
 
+// Handle form submission
 document.getElementById('password-setup-form')?.addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -44,38 +49,45 @@ document.getElementById('password-setup-form')?.addEventListener('submit', async
 
     const validationError = validatePassword(password, confirmPassword);
     if (validationError) {
-        document.getElementById('error-message').textContent = validationError;
-        document.getElementById('error-message').classList.remove('d-none');
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = validationError;
+        errorMessage.classList.remove('d-none');
         return;
     }
-
-    const securityData = JSON.parse(sessionStorage.getItem('security_answers') || '{}');
-    const formData = new FormData(form);
-
-    formData.append('security_questions', JSON.stringify(securityData.questions || []));
-    formData.append('security_answers', JSON.stringify(securityData.answers || []));
-    formData.append('new_password', password);
 
     showModal('loadingModal');
 
     try {
         const response = await fetch(form.action, {
             method: 'POST',
-            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: new FormData(form),
         });
 
-        bootstrap.Modal.getInstance(document.getElementById('loadingModal')).hide();
+        const loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+        loadingModal.hide();
 
         if (response.ok) {
             showModal('successModal');
-            setTimeout(redirectToLogin, 2000);
         } else {
-            const errorData = await response.json();
-            document.getElementById('error-message').textContent = errorData.detail || "An error occurred.";
-            document.getElementById('error-message').classList.remove('d-none');
+            showModal('errorModal');
         }
     } catch (error) {
-        bootstrap.Modal.getInstance(document.getElementById('loadingModal')).hide();
+        const loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+        loadingModal.hide();
         showModal('errorModal');
     }
+});
+
+// Update password strength indicator on input
+document.querySelector('input[name="new_password1"]')?.addEventListener('input', function () {
+    const password = this.value;
+    const strengthIndicator = document.getElementById('password-strength-indicator');
+
+    const strength = checkPasswordStrength(password);
+    strengthIndicator.textContent = `Password strength: ${strength}`;
+    strengthIndicator.className = '';
+    strengthIndicator.classList.add(strength.toLowerCase());
 });
