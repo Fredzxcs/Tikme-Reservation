@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const password = document.getElementById('password').value;
 
             // Send login request to the server
-            fetch('/api-auth/admin_login/', {
+            fetch('/auth/admin_login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function refreshAccessToken() {
         const refreshToken = sessionStorage.getItem('refreshToken');
         if (refreshToken) {
-            fetch('/api-auth/token/refresh/', {
+            fetch('/auth/token/refresh/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,14 +106,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleLogout() {
         sessionStorage.removeItem('accessToken');
         sessionStorage.removeItem('refreshToken');
-        window.location.href = '/api-auth/system_admin_login/'; // Redirect to login page
+        window.location.href = '/auth/system_admin_login/'; // Redirect to login page
     }
 
     // Example of calling a protected resource on dashboard load
     const dashboardButton = document.getElementById('dashboard-button');
     if (dashboardButton) {
         dashboardButton.addEventListener('click', function () {
-            handleAPICall('/api-auth/system_admin_dashboard/');
+            handleAPICall('/auth/system_admin_dashboard/');
         });
     }
 

@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure-yda!aa3&5g&fi(7q9-n$@g=n^lu^@p-7j)9e1@=vy2a9xav9^+
 DEBUG = True
 
 # Allow local and specific IPs
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.1.28').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 
 # JWT Settings
@@ -64,14 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-     # Add your middleware here
-  
 ]
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -171,10 +164,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Mail Configuration
+# Email Backend Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+# Tikme Dine Email Account
+EMAIL_HOST_USER_1 = os.getenv('EMAIL_HOST_USER_1')
+EMAIL_HOST_PASSWORD_1 = os.getenv('EMAIL_HOST_PASSWORD_1')
+
+# Tikme Dine Support Email Account
+EMAIL_HOST_USER_2 = os.getenv('EMAIL_HOST_USER_2')
+EMAIL_HOST_PASSWORD_2 = os.getenv('EMAIL_HOST_PASSWORD_2')
+
+# Default sender for Django emails
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER_1

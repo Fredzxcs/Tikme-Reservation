@@ -108,6 +108,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Adding an event listener to the button to navigate to admin login
     document.getElementById('adminLoginButton').addEventListener('click', function () {
-        window.location.href = '/api-auth/admin_login/';  // Replace '/admin-login' with the correct URL for your admin login page
+        window.location.href = '/auth/admin_login/';  // Replace '/admin-login' with the correct URL for your admin login page
     });
 });

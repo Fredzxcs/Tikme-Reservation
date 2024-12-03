@@ -1,240 +1,382 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const reservationsByDate = {
-        '2024-11-29': [
-            {
-                type: 'Birthday Party',
-                customerName: 'John Smith',
-                contactNumber: '123-456-7890'
-            },
-            {
-                type: 'Wedding Reception',
-                customerName: 'Mary Johnson',
-                contactNumber: '234-567-8901'
-            },
-            {
-                type: 'Corporate Event',
-                customerName: 'Tech Corp',
-                contactNumber: '345-678-9012'
-            },
-            {
-                type: 'Anniversary Party',
-                customerName: 'David & Sarah',
-                contactNumber: '456-789-0123'
-            }
-        ],
-        '2024-11-14': [
-            {
-                type: 'Birthday Party',
-                customerName: 'Alice Brown',
-                contactNumber: '567-890-1234'
-            }
-        ],
-        '2024-12-05': [
-            {
-                type: 'Christmas Party',
-                customerName: 'XYZ Company',
-                contactNumber: '678-901-2345'
-            }
-        ],
-        '2024-12-20': [
-            {
-                type: 'New Year Eve Party',
-                customerName: 'City Hall',
-                contactNumber: '789-012-3456'
-            }
-        ]
-    };
+let currentDate = new Date();
+let selectedDate = new Date();
+let reservationsByDate = {};
+let currentSortOption = 'date';
+let currentSearchTerm = '';
 
-    let currentDate = new Date(2024, 10, 29);
-    let selectedDate = new Date(2024, 10, 29);
+const currentMonthElement = document.getElementById('current-month');
+const prevMonthBtn = document.getElementById('prev-month');
+const nextMonthBtn = document.getElementById('next-month');
+const calendarDays = document.getElementById('calendar-days');
+const selectedDateElement = document.getElementById('selected-date');
+const reservationsList = document.getElementById('reservations-list');
+const sortSelect = document.getElementById('sortSelect');
+const searchInput = document.getElementById('searchInput');
 
-    const prevMonthBtn = document.getElementById('prevMonth');
-    const nextMonthBtn = document.getElementById('nextMonth');
-    const currentMonthElement = document.getElementById('currentMonth');
-    const sortSelect = document.getElementById('sortSelect');
+prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+nextMonthBtn.addEventListener('click', () => changeMonth(1));
+sortSelect.addEventListener('change', handleSort);
+searchInput.addEventListener('input', handleSearch);
 
-    prevMonthBtn.addEventListener('click', () => changeMonth(-1));
-    nextMonthBtn.addEventListener('click', () => changeMonth(1));
-    sortSelect.addEventListener('change', handleSort);
+function changeMonth(delta) {
+    currentDate.setMonth(currentDate.getMonth() + delta);
+    generateCalendar();
+}
 
-    let currentSortOption = 'date';
-
-    function changeMonth(delta) {
-        currentDate.setMonth(currentDate.getMonth() + delta);
-        generateCalendar();
+function generateCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    currentMonthElement.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    calendarDays.innerHTML = '';
+    
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        calendarDays.appendChild(document.createElement('div'));
     }
-
-    function generateCalendar() {
-        const daysContainer = document.getElementById('calendar-days');
-        daysContainer.innerHTML = '';
-
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-
-        currentMonthElement.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
-
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-
-        for (let i = 0; i < firstDay.getDay(); i++) {
-            const emptyDay = document.createElement('div');
-            emptyDay.className = 'day other-month';
-            daysContainer.appendChild(emptyDay);
+    
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('day');
+        dayElement.textContent = day;
+        
+        const currentDateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        if (reservationsByDate[currentDateString]) {
+            dayElement.classList.add('has-reservations');
         }
-
-        for (let i = 1; i <= lastDay.getDate(); i++) {
-            const dayElement = document.createElement('div');
-            dayElement.className = 'day';
-            dayElement.textContent = i;
-
-            const currentDateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-
-            if (reservationsByDate[currentDateString]) {
-                dayElement.classList.add('highlighted');
-            }
-
-            if (i === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
-                dayElement.classList.add('selected');
-            }
-
-            dayElement.addEventListener('click', () => {
-                selectedDate = new Date(year, month, i);
-                generateCalendar();
-                updateReservationsDisplay();
-            });
-
-            daysContainer.appendChild(dayElement);
+        
+        if (day === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
+            dayElement.classList.add('selected');
         }
+        
+        const today = new Date();
+        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            dayElement.classList.add('today');
+        }
+        
+        dayElement.addEventListener('click', () => selectDate(new Date(year, month, day)));
+        
+        calendarDays.appendChild(dayElement);
     }
+}
 
-    function updateReservationsDisplay() {
-        const dateString = selectedDate.toISOString().split('T')[0];
-        const reservations = reservationsByDate[dateString] || [];
-        const reservationsList = document.getElementById('reservations-list');
-        const selectedDateElement = document.getElementById('selected-date');
+function selectDate(date) {
+    selectedDate = date;
+    generateCalendar();
+    updateReservationsDisplay();
+}
 
-        selectedDateElement.textContent = `${selectedDate.toLocaleString('default', { month: 'long' }).toUpperCase()} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
-
+function updateReservationsDisplay() {
+    const dateString = selectedDate.toISOString().split('T')[0];
+    selectedDateElement.textContent = `Reservations for ${selectedDate.toLocaleDateString()}`;
+    
+    const reservations = reservationsByDate[dateString] || [];
+    
+    if (reservations.length === 0) {
+        reservationsList.innerHTML = '<p>No reservations for this date.</p>';
+    } else {
         reservationsList.innerHTML = `
             <table class="daily-reservations-table">
                 <thead>
                     <tr>
-                        <th>Type of Event</th>
-                        <th>Customer Name</th>
-                        <th>Contact Number</th>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Customer</th>
+                        <th>Contact</th>
+                        <th>Ongoing</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
+                    ${reservations.map((reservation, index) => `
+                        <tr>
+                            <td>${reservation.time}</td>
+                            <td>${reservation.type}</td>
+                            <td>${reservation.customerName}</td>
+                            <td>${reservation.contactNumber}</td>
+                            <td>
+                                <label class="ongoing-label">
+                                    <input 
+                                        type="checkbox" 
+                                        class="ongoing-checkbox" 
+                                        ${reservation.ongoing ? 'checked' : ''} 
+                                        onchange="updateOngoingStatus('${dateString}', ${index}, this.checked)"
+                                    >
+                                </label>
+                            </td>
+                            <td>
+                                <button class="action-btn view" onclick="viewReservation('${dateString}', ${index})">View</button>
+                                <button class="action-btn edit" onclick="editReservation('${dateString}', ${index})">Edit</button>
+                                <button class="action-btn cancel" onclick="cancelReservation('${dateString}', ${index})">Cancel</button>
+                            </td>
+                        </tr>
+                    `).join('')}
                 </tbody>
             </table>
         `;
-
-        const tableBody = reservationsList.querySelector('tbody');
-
-        if (reservations.length === 0) {
-            const noReservationsRow = document.createElement('tr');
-            noReservationsRow.innerHTML = '<td colspan="4" class="no-reservations">No reservations for this date</td>';
-            tableBody.appendChild(noReservationsRow);
-        } else {
-            reservations.forEach((reservation, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${reservation.type}</td>
-                    <td>${reservation.customerName}</td>
-                    <td>${reservation.contactNumber}</td>
-                    <td>
-                        <button class="edit-btn" onclick="editReservation('${dateString}', ${index})">
-                            Edit
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        updateAllReservations();
     }
+}
 
-    function updateAllReservations() {
-        const allReservationsTable = document.getElementById('all-reservations-table').getElementsByTagName('tbody')[0];
-        allReservationsTable.innerHTML = '';
+function handleSort() {
+    currentSortOption = sortSelect.value;
+    updateAllReservations();
+}
 
-        let allReservations = [];
-        for (const [date, reservations] of Object.entries(reservationsByDate)) {
-            reservations.forEach((reservation, index) => {
-                allReservations.push({ date, index, ...reservation });
-            });
-        }
+function handleSearch() {
+    currentSearchTerm = searchInput.value.toLowerCase();
+    updateAllReservations();
+}
 
-        // Sort based on selected option
-        switch (currentSortOption) {
-            case 'date':
-                allReservations.sort((a, b) => new Date(a.date) - new Date(b.date));
-                break;
-            case 'date-desc':
-                allReservations.sort((a, b) => new Date(b.date) - new Date(a.date));
-                break;
-            case 'name':
-                allReservations.sort((a, b) => a.customerName.localeCompare(b.customerName));
-                break;
-            case 'name-desc':
-                allReservations.sort((a, b) => b.customerName.localeCompare(a.customerName));
-                break;
-            case 'type':
-                allReservations.sort((a, b) => a.type.localeCompare(b.type));
-                break;
-            case 'type-desc':
-                allReservations.sort((a, b) => b.type.localeCompare(a.type));
-                break;
-        }
-
-        allReservations.forEach(reservation => {
-            const row = allReservationsTable.insertRow();
-            row.innerHTML = `
-                <td>${formatDate(reservation.date)}</td>
-                <td>${reservation.type}</td>
-                <td>${reservation.customerName}</td>
-                <td>${reservation.contactNumber}</td>
-                <td>
-                    <button class="edit-btn" onclick="editReservation('${reservation.date}', ${reservation.index})">
-                        Edit
-                    </button>
-                </td>
-            `;
+function updateAllReservations() {
+    const allReservationsTable = document.getElementById('all-reservations-table').getElementsByTagName('tbody')[0];
+    allReservationsTable.innerHTML = '';
+    
+    let allReservations = [];
+    for (const [date, reservations] of Object.entries(reservationsByDate)) {
+        reservations.forEach((reservation, index) => {
+            allReservations.push({ date, index, ...reservation });
         });
     }
+    
+    // Filter reservations based on search term
+    allReservations = allReservations.filter(reservation => 
+        reservation.customerName.toLowerCase().includes(currentSearchTerm) ||
+        reservation.type.toLowerCase().includes(currentSearchTerm) ||
+        reservation.contactNumber.includes(currentSearchTerm) ||
+        formatDate(reservation.date).toLowerCase().includes(currentSearchTerm)
+    );
 
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    // Sort reservations
+    switch (currentSortOption) {
+        case 'date':
+            allReservations.sort((a, b) => new Date(a.date) - new Date(b.date));
+            break;
+        case 'date-desc':
+            allReservations.sort((a, b) => new Date(b.date) - new Date(a.date));
+            break;
+        case 'name':
+            allReservations.sort((a, b) => a.customerName.localeCompare(b.customerName));
+            break;
+        case 'name-desc':
+            allReservations.sort((a, b) => b.customerName.localeCompare(a.customerName));
+            break;
+        case 'type':
+            allReservations.sort((a, b) => a.type.localeCompare(b.type));
+            break;
+        case 'type-desc':
+            allReservations.sort((a, b) => b.type.localeCompare(a.type));
+            break;
     }
+    
+    // Render reservations
+    allReservations.forEach(reservation => {
+        const row = allReservationsTable.insertRow();
+        row.innerHTML = `
+            <td>${formatDate(reservation.date)}</td>
+            <td>${reservation.type}</td>
+            <td>${reservation.customerName}</td>
+            <td>${reservation.contactNumber}</td>
+            <td>
+                <label class="ongoing-label">
+                    <input type="checkbox" class="ongoing-checkbox" ${reservation.ongoing ? 'checked' : ''} onchange="updateOngoingStatus('${reservation.date}', ${reservation.index}, this.checked)">
+                </label>
+            </td>
+            <td>
+                <button class="action-btn view" onclick="viewReservation('${reservation.date}', ${reservation.index}')">
+                    View
+                </button>
+                <button class="action-btn edit" onclick="editReservation('${reservation.date}', ${reservation.index}')">
+                    Edit
+                </button>
+                <button class="action-btn cancel" onclick="cancelReservation('${reservation.date}', ${reservation.index}')">
+                    Cancel
+                </button>
+            </td>
+        `;
+    });
+}
 
-    function handleSort(event) {
-        currentSortOption = event.target.value;
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function viewReservation(date, index) {
+    const reservation = reservationsByDate[date][index];
+    const modal = createViewModal('View Reservation', reservation);
+    modal.show();
+}
+
+function editReservation(date, index) {
+    const reservation = reservationsByDate[date][index];
+    const modal = createEditModal('Edit Reservation', reservation, (formData) => {
+        reservationsByDate[date][index] = { ...reservationsByDate[date][index], ...formData };
+        updateReservationsDisplay();
+        updateAllReservations();
+    });
+    modal.show();
+}
+
+function cancelReservation(date, index) {
+    if (confirm('Are you sure you want to cancel this reservation?')) {
+        reservationsByDate[date].splice(index, 1);
+        if (reservationsByDate[date].length === 0) {
+            delete reservationsByDate[date];
+        }
+        updateReservationsDisplay();
         updateAllReservations();
     }
+}
 
-    function openEditForm(date, index, reservation) {
-        const newType = prompt('Edit Type of Event:', reservation.type);
-        const newCustomerName = prompt('Edit Customer Name:', reservation.customerName);
-        const newContactNumber = prompt('Edit Contact Number:', reservation.contactNumber);
+function updateOngoingStatus(date, index, isOngoing) {
+    reservationsByDate[date][index].ongoing = isOngoing;
+    updateAllReservations();
+}
 
-        if (newType && newCustomerName && newContactNumber) {
-            reservationsByDate[date][index] = {
-                type: newType,
-                customerName: newCustomerName,
-                contactNumber: newContactNumber
-            };
-            updateReservationsDisplay();
-        }
-    }
+function populateTemporaryData() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    window.editReservation = function(date, index) {
-        const reservation = reservationsByDate[date][index];
-        openEditForm(date, index, reservation);
+    reservationsByDate = {
+        [today.toISOString().split('T')[0]]: [
+            { time: '10:00 AM', type: 'Meeting', customerName: 'John Doe', contactNumber : '123-456-7890', ongoing: false },
+            { time: '2:00 PM', type: 'Event', customerName: 'Jane Smith', contactNumber: '098-765-4321', ongoing: true }
+        ],
+        [tomorrow.toISOString().split('T')[0]]: [
+            { time: '11:30 AM', type: 'Conference', customerName: 'Bob Johnson', contactNumber: '555-123-4567', ongoing: false }
+        ]
     };
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+    populateTemporaryData();
     generateCalendar();
     updateReservationsDisplay();
+    updateAllReservations();
 });
+
+function createViewModal(title, reservation) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>${title}</h2>
+                <button class="exit-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Type of Event:</label>
+                    <p>${reservation.type}</p>
+                </div>
+                <div class="form-group">
+                    <label>Customer Name:</label>
+                    <p>${reservation.customerName}</p>
+                </div>
+                <div class="form-group">
+                    <label>Contact Number:</label>
+                    <p>${reservation.contactNumber}</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="close-btn">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const closeBtn = modal.querySelector('.exit-btn');
+    const closeButton = modal.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+        modal.remove();
+    });
+
+    closeButton.addEventListener('click', () => {
+        modal.remove();
+    });
+
+    return {
+        show: () => {
+            modal.style.display = 'flex';
+        }
+    };
+}
+
+function createEditModal(title, reservation, onSave) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>${title}</h2>
+                <button class="exit-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="eventType">Type of Event:</label>
+                    <input type="text" id="eventType" class="form-input" value="${reservation.type}">
+                </div>
+                <div class="form-group">
+                    <label for="customerName">Customer Name:</label>
+                    <input type="text" id="customerName" class="form-input" value="${reservation.customerName}">
+                </div>
+                <div class="form-group">
+                    <label for="contactNumber">Contact Number:</label>
+                    <input type="text" id="contactNumber" class="form-input" value="${reservation.contactNumber}">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn">Cancel</button>
+                <button class="save-btn">Save Changes</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+
+    const closeBtn = modal.querySelector('.exit-btn');
+    const cancelBtn = modal.querySelector('.cancel-btn');
+    const saveBtn = modal.querySelector('.save-btn');
+
+    closeBtn.addEventListener('click', () => {
+        modal.remove();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        modal.remove();
+    });
+
+    saveBtn.addEventListener('click', () => {
+        const formData = {
+            type: modal.querySelector('#eventType').value,
+            customerName: modal.querySelector('#customerName').value,
+            contactNumber: modal.querySelector('#contactNumber').value
+        };
+
+        if (formData.type && formData.customerName && formData.contactNumber) {
+            onSave(formData);
+            modal.remove();
+        } else {
+            alert('Please fill in all fields');
+        }
+    });
+
+    return {
+        show: () => {
+            modal.style.display = 'flex';
+        }
+    };
+}
+
+window.viewReservation = viewReservation;
+window.editReservation = editReservation;
+window.cancelReservation = cancelReservation;
+window.updateOngoingStatus = updateOngoingStatus;
+
+export { createViewModal, createEditModal };

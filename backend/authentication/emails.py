@@ -12,55 +12,76 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from datetime import timedelta
 from django.utils import timezone
 from .models import Token
+from django.core.mail import EmailMessage, get_connection
 
 def send_onboarding_email(request, employee):
-    # Generate a JWT token with an expiration time
-    refresh = RefreshToken.for_user(employee)
-    access_token = str(refresh.access_token)  # Generate a short-lived JWT token
+    """
+    Sends an onboarding email to the employee using the second email account (EMAIL_HOST_USER_2).
+    """
+    try:
+        # Generate a JWT token with an expiration time
+        refresh = RefreshToken.for_user(employee)
+        access_token = str(refresh.access_token)  # Generate a short-lived JWT token
 
-    # Set a custom expiration time for the token (e.g., 1 day)
-    expiration_time = timezone.now() + timedelta(days=1)
+        # Set a custom expiration time for the token (e.g., 1 day)
+        expiration_time = timezone.now() + timedelta(days=1)
 
-    # Create the Token record in the database
-    token_record = Token.objects.create(
-        user=employee,
-        token=access_token,
-        expiration_time=expiration_time,
-        used=False  # Initially, the token is unused
-    )
+        # Create the Token record in the database
+        token_record = Token.objects.create(
+            user=employee,
+            token=access_token,
+            expiration_time=expiration_time,
+            used=False  # Initially, the token is unused
+        )
 
-    # Build the URL for account setup
-    uid = urlsafe_base64_encode(force_bytes(employee.pk))
-    link = reverse('setup_account', kwargs={'uidb64': uid, 'token': access_token})
-    full_link = request.build_absolute_uri(link)
+        # Build the URL for account setup
+        uid = urlsafe_base64_encode(force_bytes(employee.pk))
+        link = reverse('setup_account', kwargs={'uidb64': uid, 'token': access_token})
+        full_link = request.build_absolute_uri(link)
 
-    # Static image URL
-    image_url = staticfiles_storage.url('images/tikme-logo.png')
+        # Static image URL
+        image_url = staticfiles_storage.url('images/tikme-logo.png')
 
-    # Extract the username (assuming your employee object has a username field)
-    username = employee.username  # Or employee.user.username, if it's a related field
+        # Extract the username
+        username = employee.username
 
-    # Email subject and content
-    email_subject = "Welcome to Tikme Dine!"
-    email_body = render_to_string('email_templates/onboarding_email.html', {
-        'employee': employee,
-        'username': username,  # Pass the username to the template
-        'full_link': full_link,
-        'image_url': image_url
-    })
+        # Email subject and content
+        email_subject = "Welcome to Tikme Dine!"
+        email_body = render_to_string('email_templates/onboarding_email.html', {
+            'employee': employee,
+            'username': username,
+            'full_link': full_link,
+            'image_url': image_url,
+        })
 
-    # Send email
-    email = EmailMessage(
-        email_subject,
-        email_body,
-        settings.DEFAULT_FROM_EMAIL,
-        [employee.email]
-    )
-    email.content_subtype = "html"  # Ensure email is sent as HTML
-    email.send()
+        # Use the second email account explicitly
+        from_email = settings.EMAIL_HOST_USER_2  # Use the second email account
 
-    return token_record  # Return the token record for tracking
+        # Send email using a custom SMTP connection for the second account
+        connection = get_connection(
+            host=settings.EMAIL_HOST,
+            port=settings.EMAIL_PORT,
+            username=settings.EMAIL_HOST_USER_2,
+            password=settings.EMAIL_HOST_PASSWORD_2,
+            use_tls=settings.EMAIL_USE_TLS,
+        )
 
+        email = EmailMessage(
+            email_subject,
+            email_body,
+            from_email,  # Specify the second email account
+            [employee.email],
+            connection=connection,
+        )
+        email.content_subtype = "html"  # Ensure email is sent as HTML
+        email.send()
+
+        return token_record  # Return the token record for tracking
+
+    except Exception as e:
+        # Log the error and return None for better debugging
+        print(f"Error sending onboarding email: {e}")
+        return None
 
 def send_reset_password_email(request, employee, is_reset_notification=False):
     """

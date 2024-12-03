@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (loadingIndicator) loadingIndicator.style.display = 'block'; // Show loading spinner
 
             // Send login request to the server
-            fetch('/api-auth/admin_login/', {
+            fetch('/auth/admin_login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
