@@ -1,0 +1,70 @@
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cancellation_email.css' %}">
+{% endblock %}
+
+{% block content %}
+<body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <!-- LOGO -->
+        <tr>
+            <td bgcolor="#f4f4f4" align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
+                            <img src="{% static 'images/tikme-logo.png' %}" alt="tikme-logo" style="width: 200px;">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <!-- HEADER -->
+        <tr>
+            <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 2px 2px 0px 0px;">
+                            <h2 style="font-family: 'Montserrat Bold', Helvetica, Arial, sans-serif; color: #333333; margin: 0;">Reservation Cancellation Confirmation</h2>
+                        </td>   
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <!-- MAIN CONTENT -->
+        <tr>
+            <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <!-- Reservation Details -->
+                        <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 20px 30px; color: #000000; font-family: 'Montserrat', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 25px;">
+                            <p style="margin: 0;">Dear {{ customer_name }},</p>
+                            <p style="margin: 20px 0;">We regret to inform you that your reservation has been canceled. Below are the details of your reservation:</p>
+                            <ul style="padding-left: 20px;">
+                                <li><strong>Reservation ID:</strong> {{ reservation_id }}</li>
+                                <li><strong>Service Type:</strong> {{ service_type }}</li>
+                                <li><strong>Venue:</strong> {{ venue }}</li>
+                                <li><strong>Reservation Date:</strong> {{ reservation_date }}</li>
+                                <li><strong>Reservation Time:</strong> {{ reservation_time }}</li>
+                                <li><strong>Status:</strong> Canceled</li>
+                            </ul>
+
+                            {% if comments %}
+                                <p style="margin: 20px 0;"><strong>Cancellation Comments:</strong> {{ comments }}</p>
+                            {% endif %}
+
+                            <p style="margin: 20px 0;">If you have any questions or concerns regarding your cancellation, please don't hesitate to contact us.</p>
+                        </td>
+                    </tr>
+                    <!-- CONTACT -->
+                    <tr>
+                        <td bgcolor="#ffffff" align="center" style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #000000; font-family: 'Montserrat', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">Thank you,<br>The Tikme Team</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+{% endblock %}

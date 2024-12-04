@@ -58,3 +58,10 @@ def send_contact_email_view(request):
 
     # If the request is not POST, return an error response
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+
+def survey_view(request):
+    return render(request, 'survey.html')
+
+
+

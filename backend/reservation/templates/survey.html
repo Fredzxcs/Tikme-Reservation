@@ -1,0 +1,184 @@
+
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/survey.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="survey-container">
+    <div class="survey-header">
+      <h1>Tikme Dine</h1>
+      <h2>Customer Satisfaction Survey</h2>
+    </div>
+    <form id="surveyForm">
+        <!-- Personal Information -->
+        <div class="form-grid">
+            <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" placeholder="Enter your age">
+            </div>
+            <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" placeholder="Enter your phone number">
+            </div>
+            <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" placeholder="Enter your address">
+            </div>
+            <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="Enter your company">
+            </div>
+            <div class="form-group">
+            <label for="position">Position</label>
+            <input type="text" id="position" placeholder="Enter your position">
+            </div>
+            <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email">
+            </div>
+        </div>
+
+            <!-- Rating Section -->
+            <div class="rating-legend">
+                <p>EXCELLENT-5; GOOD-4; AVERAGE-3; DISSATISFIED-2; NEEDS IMPROVEMENT-1</p>
+            </div>
+            <!-- Rating Section -->
+            <div class="rating-section">
+                <h4>Rate the following:</h4>
+                <table class="rating-table">
+                <thead>
+                    <tr>
+                    <th>Criteria</th>
+                    <th>5</th>
+                    <th>4</th>
+                    <th>3</th>
+                    <th>2</th>
+                    <th>1</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td>Food Quality</td>
+                    <td><input type="radio" id="food5" name="foodQuality" value="5"><label for="food5">★</label></td>
+                    <td><input type="radio" id="food4" name="foodQuality" value="4"><label for="food4">★</label></td>
+                    <td><input type="radio" id="food3" name="foodQuality" value="3"><label for="food3">★</label></td>
+                    <td><input type="radio" id="food2" name="foodQuality" value="2"><label for="food2">★</label></td>
+                    <td><input type="radio" id="food1" name="foodQuality" value="1"><label for="food1">★</label></td>
+                    </tr>
+                    <tr>
+                        <td>Order Accuracy</td>
+                        <td><input type="radio" id="food5" name="foodQuality" value="5"><label for="food5">★</label></td>
+                        <td><input type="radio" id="food4" name="foodQuality" value="4"><label for="food4">★</label></td>
+                        <td><input type="radio" id="food3" name="foodQuality" value="3"><label for="food3">★</label></td>
+                        <td><input type="radio" id="food2" name="foodQuality" value="2"><label for="food2">★</label></td>
+                        <td><input type="radio" id="food1" name="foodQuality" value="1"><label for="food1">★</label></td>
+                    </tr>
+                    <tr>
+                        <td>Speed of service</td>
+                        <td><input type="radio" id="food5" name="foodQuality" value="5"><label for="food5">★</label></td>
+                        <td><input type="radio" id="food4" name="foodQuality" value="4"><label for="food4">★</label></td>
+                        <td><input type="radio" id="food3" name="foodQuality" value="3"><label for="food3">★</label></td>
+                        <td><input type="radio" id="food2" name="foodQuality" value="2"><label for="food2">★</label></td>
+                        <td><input type="radio" id="food1" name="foodQuality" value="1"><label for="food1">★</label></td>
+                    </tr>
+                    <tr>
+                        <td>Price</td>
+                        <td><input type="radio" id="food5" name="foodQuality" value="5"><label for="food5">★</label></td>
+                        <td><input type="radio" id="food4" name="foodQuality" value="4"><label for="food4">★</label></td>
+                        <td><input type="radio" id="food3" name="foodQuality" value="3"><label for="food3">★</label></td>
+                        <td><input type="radio" id="food2" name="foodQuality" value="2"><label for="food2">★</label></td>
+                        <td><input type="radio" id="food1" name="foodQuality" value="1"><label for="food1">★</label></td>
+                    </tr>
+                    <tr>
+                        <td>Ambiance</td>
+                        <td><input type="radio" id="food5" name="foodQuality" value="5"><label for="food5">★</label></td>
+                        <td><input type="radio" id="food4" name="foodQuality" value="4"><label for="food4">★</label></td>
+                        <td><input type="radio" id="food3" name="foodQuality" value="3"><label for="food3">★</label></td>
+                        <td><input type="radio" id="food2" name="foodQuality" value="2"><label for="food2">★</label></td>
+                        <td><input type="radio" id="food1" name="foodQuality" value="1"><label for="food1">★</label></td>
+                    </tr>
+                    <tr>
+                        <td>Cleanliness</td>
+                        <td><input type="radio" id="food5" name="foodQuality" value="5"><label for="food5">★</label></td>
+                        <td><input type="radio" id="food4" name="foodQuality" value="4"><label for="food4">★</label></td>
+                        <td><input type="radio" id="food3" name="foodQuality" value="3"><label for="food3">★</label></td>
+                        <td><input type="radio" id="food2" name="foodQuality" value="2"><label for="food2">★</label></td>
+                        <td><input type="radio" id="food1" name="foodQuality" value="1"><label for="food1">★</label></td>
+                    </tr>
+                    <tr>
+                        <td>Overall Experience</td>
+                        <td><input type="radio" id="food5" name="foodQuality" value="5"><label for="food5">★</label></td>
+                        <td><input type="radio" id="food4" name="foodQuality" value="4"><label for="food4">★</label></td>
+                        <td><input type="radio" id="food3" name="foodQuality" value="3"><label for="food3">★</label></td>
+                        <td><input type="radio" id="food2" name="foodQuality" value="2"><label for="food2">★</label></td>
+                        <td><input type="radio" id="food1" name="foodQuality" value="1"><label for="food1">★</label></td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+
+            <!-- Yes/No Section -->
+        <div class="yes-no">
+            <label>Will you recommend our restaurant to your friend?</label>
+            <div>
+            <label><input type="radio" name="recommend" value="yes"> Yes</label>
+            <label><input type="radio" name="recommend" value="no"> No</label>
+            </div>
+        </div>
+        <div class="yes-no">
+            <label>Will you come back to our restaurant to dine again?</label>
+            <div>
+            <label><input type="radio" name="return" value="yes"> Yes</label>
+            <label><input type="radio" name="return" value="no"> No</label>
+            </div>
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <br><label for="comments">What could we do to improve your experience at our restaurant?</label>
+            <textarea id="comments" placeholder="Write your feedback"></textarea>
+        </div>
+        
+        <!-- Ordered Menu Feedback -->
+        <div class="ordered-menu">
+            <div class="form-group">
+                <label>From your ordered menu:</label>
+            </div>
+            <div class="form-group">
+            <label for="mostLiked">Most Liked</label>
+            <input type="text" id="mostLiked" placeholder="What did you like the most?">
+            </div>
+            <div class="form-group">
+            <label for="leastLiked">Least Liked</label>
+            <input type="text" id="leastLiked" placeholder="What did you like the least?">
+            </div>
+            <div class="form-group">
+            <label for="additionalComments">Comments</label>
+            <textarea id="additionalComments" placeholder="Additional comments"></textarea>
+            </div>
+        </div>
+        
+            <!-- Submit Button -->
+        <button type="submit" class="submit-btn">Submit</button>
+        <button type="back" class="back-btn">Go Back</button>
+    </form>
+
+  <!-- Footer Section -->
+  <p class="footer-text">Thank you for your time and feedback!</p>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/survey.js' %}"></script>
+{% endblock %}

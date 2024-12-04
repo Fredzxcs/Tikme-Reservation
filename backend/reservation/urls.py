@@ -7,7 +7,8 @@ urlpatterns = [
     path('', views_.reservation_customer_view, name='reservation-customer'),
     path('reservation/', views_.reservation_view, name='reservation'),
     path('send_contact_email/', views_.send_contact_email_view, name='send_contact_email'),
-    
+    path('survey/', views_.survey_view, name='survey'),
+ 
 
 
     path('customers/', views_customers.CustomerListCreateView.as_view(), name='customer-list-create'),
@@ -28,6 +29,8 @@ urlpatterns = [
     # Reservation URLs
     path('reservations/', views_reservations.ReservationsListCreateView.as_view(), name='reservation-list-create'),
     path('reservations/<int:pk>/', views_reservations.ReservationsDetailView.as_view(), name='reservation-detail'),
+    path('reservations/status-check/', views_reservations.ReservationStatusCheckView.as_view(), name='reservation-status-check'),
+    path('reservations/cancel/', views_reservations.ReservationCancelView.as_view(), name='reservation-cancel'),
 
     # Equipment URLs
     path('equipments/', views_equipments.EquipmentListCreateView.as_view(), name='equipment-list'),  # List all equipment

@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'reservation',
     'api',
-    'authentication',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -111,9 +110,6 @@ DATABASES = {
 }
 
 
-AUTH_USER_MODEL = 'authentication.Employee'
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -153,7 +149,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'reservation/static'),
     os.path.join(BASE_DIR, 'api/static'),
-    os.path.join(BASE_DIR, 'authentication/static'),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -164,19 +159,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Email Backend Configuration
+
+# Mail Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-# Tikme Dine Email Account
-EMAIL_HOST_USER_1 = os.getenv('EMAIL_HOST_USER_1')
-EMAIL_HOST_PASSWORD_1 = os.getenv('EMAIL_HOST_PASSWORD_1')
 
-# Tikme Dine Support Email Account
-EMAIL_HOST_USER_2 = os.getenv('EMAIL_HOST_USER_2')
-EMAIL_HOST_PASSWORD_2 = os.getenv('EMAIL_HOST_PASSWORD_2')
-
-# Default sender for Django emails
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER_1

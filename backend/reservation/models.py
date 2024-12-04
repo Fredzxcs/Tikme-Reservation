@@ -55,6 +55,7 @@ class Reservations(models.Model):
     guest_count = models.IntegerField()
     reservation_date = models.DateTimeField()
     reservation_time = models.TimeField()
+    status = models.CharField(max_length=50, choices=[('Confirmed', 'Confirmed'), ('Canceled', 'Canceled')], default='Confirmed')
     created_at = models.DateTimeField(auto_now_add=True)
     
     
