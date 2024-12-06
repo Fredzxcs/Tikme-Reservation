@@ -64,4 +64,11 @@ def survey_view(request):
     return render(request, 'survey.html')
 
 
+def cancel_reservation_view(request):
+    return render(request, 'cancel_reservation.html')
+
+def reservation_dinein_view(request):
+    return render(request, 'reservation_dinein.html')
+
+
 

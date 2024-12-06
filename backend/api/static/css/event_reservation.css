@@ -103,8 +103,8 @@ table {
 }
 
 th, td {
-    padding: 5px;
-    text-align: left;
+    padding: 2px;
+    text-align: center;
     border-bottom: 1px solid #ddd;
 }
 

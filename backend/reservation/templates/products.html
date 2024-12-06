@@ -1,0 +1,53 @@
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/event_reservation.css' %}">
+{% endblock %}
+
+{% block content %}
+<body>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservations List</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <h1>Product List</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Product_ID</th>
+                <th>ProductName</th>
+                <th>ProductDescription</th>
+                <th>ProductCategory</th>
+                <th>PurchasePrice</th>
+                <th>Created at</th>
+            
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.ProductName }}</td>
+                <td>{{ product.ProductDescription }}</td>
+                <td>{{ product.ProductCategory }}</td>
+                <td>{{ product.PurchasePrice  }}</td>
+                <td>{{ product.Created_At }}</td>
+              
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No products available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
+</body>
+
+{% endblock %}

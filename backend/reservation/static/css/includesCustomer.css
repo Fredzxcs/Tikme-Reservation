@@ -1,4 +1,3 @@
-
 /* Navbar Style */
 .navbar {
     background-color: #743C88;
@@ -14,41 +13,106 @@
     z-index: 1;
 }
 
-.navbar-brand  h1 {
+/* Navbar Brand */
+.navbar-brand h1 {
     color: #ffffff;
     font-size: 40px;
     font-family: 'Meow Script', cursive;
 }
 
+/* Navbar Links */
 .navbar-nav .nav-link {
     color: #ffffff;
     font-size: 16px;
     margin-right: 20px;
+    text-decoration: none; /* Remove underline */
 }
 
 .navbar-nav .nav-link:hover {
     color: #FEA116;
 }
 
+/* Dropdown Button */
+.navbar .dropdown {
+    position: relative;
+}
+
+.navbar .dropdown-toggle {
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: 1px solid #007bff;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.navbar .dropdown-toggle:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Dropdown Menu */
+.navbar .dropdown-menu {
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+/* Dropdown Menu Items */
+.navbar .dropdown-item {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    color: #333;
+    transition: background-color 0.3s ease;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: #f1f1f1;
+    color: #0056b3;
+}
+
+/* Navbar Links Spacing */
+.navbar-nav .nav-item {
+    margin-right: 1rem;
+}
+
+/* Responsive Navbar - Collapse on Small Screens */
+@media (max-width: 992px) {
+    .navbar .navbar-nav {
+        text-align: center;
+    }
+
+    .navbar .navbar-toggler {
+        display: block;
+    }
+}
 
 /* Footer Style */
 .footer {
     background-color: #743C88;
     color: #ffffff;
     padding-top: 40px;
+    padding-bottom: 40px;
+    text-align: center;
 }
 
+/* Footer Links */
 .footer a {
     color: #ccc;
     margin-bottom: 10px;
     display: block;
+    text-decoration: none;
 }
 
 .footer a:hover {
     color: #6c63ff;
 }
 
-.btn-social {
+/* Social Media Button in Footer */
+.footer .btn-social {
     margin-right: 10px;
 }
 
@@ -60,13 +124,15 @@
     right: 45px;
     bottom: 45px;
     z-index: 99;
+    border-radius: 50%;
+    padding: 10px;
 }
 
 .back-to-top:hover {
     background-color: #FEA116;
 }
 
-/*** Footer ***/
+/* Footer Social Buttons */
 .footer .btn.btn-social {
     margin-right: 5px;
     width: 35px;
@@ -84,6 +150,7 @@
     color: #FEA116;
 }
 
+/* Footer Links */
 .footer .btn.btn-link {
     display: block;
     margin-bottom: 5px;
@@ -109,6 +176,7 @@
     box-shadow: none;
 }
 
+/* Footer Copyright */
 .footer .copyright {
     padding: 25px 0;
     font-size: 15px;
@@ -119,6 +187,7 @@
     color: #fff;
 }
 
+/* Footer Menu */
 .footer .footer-menu a {
     margin-right: 15px;
     padding-right: 15px;

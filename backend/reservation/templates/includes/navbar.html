@@ -35,8 +35,16 @@
                     <a href="#contact" class="nav-link">CONTACT</a>
                 </li>
             </ul>
-            <!-- Align the "Reserve Now" button to the right -->
-            <a href="{% url 'reservation' %}" target="_blank" class="btn btn-primary ms-auto">Reserve Now!</a>
+            <!-- Dropdown for "Reserve Now" button -->
+            <div class="dropdown ms-auto">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Reserve Now!
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item" href="{% url 'reservation_dinein' %}" target="_blank">Dine-in</a></li>
+                    <li><a class="dropdown-item" href="#" target="_blank">Event</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>

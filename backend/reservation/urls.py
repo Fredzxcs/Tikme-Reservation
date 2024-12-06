@@ -3,13 +3,12 @@ from .views import *
 
 urlpatterns = [
     # Customer URLs
-
     path('', views_.reservation_customer_view, name='reservation-customer'),
     path('reservation/', views_.reservation_view, name='reservation'),
     path('send_contact_email/', views_.send_contact_email_view, name='send_contact_email'),
     path('survey/', views_.survey_view, name='survey'),
- 
-
+    path('cancel_reservation/', views_.cancel_reservation_view, name='cancel_reservation'),
+    path('reservation_dinein/', views_.reservation_dinein_view, name='reservation_dinein'),
 
     path('customers/', views_customers.CustomerListCreateView.as_view(), name='customer-list-create'),
     path('customers/<int:pk>/', views_customers.CustomerDetailView.as_view(), name='customer-detail'),
@@ -36,5 +35,6 @@ urlpatterns = [
     path('equipments/', views_equipments.EquipmentListCreateView.as_view(), name='equipment-list'),  # List all equipment
     path('equipments/<int:pk>/', views_equipments.EquipmentDetailView.as_view(), name='equipment-detail'),  # Get specific equipment by ID
 
-    
+    # Your new API URL for Products
+    path('products_api/', views_api.ProductsView.as_view(), name='product-list'),
 ]

@@ -12,9 +12,6 @@ from ..emails import send_cancellation_email
 
 # View to list all reservations or create a new reservation
 class ReservationsListCreateView(views.APIView):
-    """
-    List all reservations or create a new reservation.
-    """
     def get(self, request):
         reservations = Reservations.objects.all()
         serializer = ReservationsSerializer(reservations, many=True)
