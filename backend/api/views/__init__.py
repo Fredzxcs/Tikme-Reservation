@@ -6,6 +6,7 @@ from .views_services import *
 from .views_venue import *
 from .views_equipments import *
 from .views_ import *
+
 __all__ = [
     "views_api",
     "views_customers",

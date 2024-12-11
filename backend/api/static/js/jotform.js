@@ -376,6 +376,8 @@ var JotForm = {
       // feature flag --> window.enableEventObserver is set in buildsource.js
       if (!(window.enableEventObserver || isObserverEnabledByUrlParam)) return null;
 
+      if(getQuerystring('offline_forms') === 'true') return null;
+
       const CONST = {
         SUBMIT_OBSERVER_NAME: 'submitObserverHandler'
       };
@@ -445,8 +447,8 @@ var JotForm = {
           _originalFormSubmitMethod.apply(this);
           return;
         }
-        const statck = new Error().stack || '';
-        const splitStack = statck.split('    at ');
+        const stack = new Error().stack || '';
+        const splitStack = stack.split('    at ');
         // Log methods calling form.submit()
         // to avoid possiblility of infinite loops, return void if form.submit() was called by the same function 4 times in a short timespan
         if (Array.isArray(splitStack) && splitStack.length > 2) {
@@ -536,8 +538,8 @@ var JotForm = {
         const stackTrace = newStack ? newStack.split('    at ').splice(2).join('\n') : '';
         trackExecution('observerSubmitHandler_received-submit-event');
         // create Observer's Immutable SubmitEvent.
-        /** @type {observer.observerSubmitEvent} */
         const observerSubmitEvent = {
+          id: generateUUID(formId),
           createdAt: new Date().getTime(),
           validationAttempts: 0,
           submitted: null,
@@ -583,6 +585,7 @@ var JotForm = {
                 stopImmediatePropagation() { logEventMethod('stopImmediatePropagation'); },
                 composedPath() { logEventMethod('composedPath'); },
                 get valid() { return _valid },
+                get eventId() { return observerSubmitEvent.id },
                 set valid(status) {
                   if (typeof status !== 'boolean' && status !== null) return;
                   const newStack = new Error().stack;
@@ -639,6 +642,17 @@ var JotForm = {
         value: CONST.SUBMIT_OBSERVER_NAME
       });
     
+      EventObserver.getLatestSubmitLog = () => {
+        const form = document.querySelector('form.jotform-form');
+        if (!(form instanceof HTMLFormElement)) return null;
+
+        const formObserver = JotForm.EventObserver[form.id];
+        if (!formObserver || !formObserver.submit || !Object.keys(formObserver.submit).length) return null;
+        const lastInstance = formObserver.submit[Object.keys(formObserver.submit).length - 1];
+        if (!lastInstance) return null;
+        return lastInstance.log;
+      };
+
       EventObserver[CONST.SUBMIT_OBSERVER_NAME] = eventObserverSubmitHandler;
       return EventObserver;
     })(),
@@ -766,125 +780,48 @@ var JotForm = {
             const formUrlParams = new URLSearchParams(formQueryString);
             const agentChatID = formUrlParams.get('agentChatID');
             const chatID = agentChatID ? `chatID=${agentChatID}` : '';
+            const urlParams = new URLSearchParams(window.location.search);
+            const isInitialOpenParam = urlParams.get('isAgentInitialOpen');
+
+            const isInitialOpen =
+              isInitialOpenParam === 'true' ? true :
+              isInitialOpenParam === 'false' ? false :
+              undefined;
+            
 
             let helperAgentProps = {
                 formID: this.getFormId(),
                 queryParams: ['projectName=formHelperAgent', 'skipWelcome=1', chatID, fullStoryUrl ? `fullStoryUrl=${fullStoryUrl}` : '','maximizable=1'],
                 domain: window.location.origin,
-                isInitialOpen: !window.location.href.includes('isAgentInitialOpen=false'),
+                isInitialOpen,
                 isDraggable: window.location.href.includes('isAgentDraggable')
             }
 
             if (window.formHelperAgentProp) {
-                const {agentHeaderBackgroundColor, avatarIconLink, ...rest} = JSON.parse(window.formHelperAgentProp);
-                helperAgentProps = {...helperAgentProps, background: agentHeaderBackgroundColor, avatarURL:avatarIconLink, ...rest}
+                const {agentHeaderBackgroundColor, avatarIconLink, agentRenderURL, ...rest} = JSON.parse(window.formHelperAgentProp);
+                putChatIDInForm(new URL(agentRenderURL).origin);
+                helperAgentProps = {...helperAgentProps, background: agentHeaderBackgroundColor, avatarURL:avatarIconLink, agentRenderURL, ...rest}
             }
 
             window.agentInitialized = true;
-            window.AgentInitializer.init(helperAgentProps)
-        }
-    },
+            const isCardformWithWelcome = window.FORM_MODE === 'cardform' && document.querySelector('.welcomeMode') !== null;
+            const isPDFFormWithWelcome = !!JotForm.importedPDF && document.querySelector('html').getAttribute('data-mode') === 'welcomeMode';
 
-    initSentry: function() {
-        const origin = window.location.origin ?
-            window.location.origin :
-            // Fix for Internet Exporer 10 - window.location doesn't have origin property in IE10
-            window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
-
-        const isHIPAAEnterprise = typeof JotForm.enterprise !== 'undefined' && JotForm.enterprise && typeof JotForm.hipaa !== 'undefined' && JotForm.hipaa;
-        if (!window.Sentry && window.FORM_MODE !== 'cardform' && !origin.includes('jotform.pro') && !isHIPAAEnterprise) {
-            const script = document.createElement('script');
-            script.src = 'https://browser.sentry-cdn.com/5.19.0/bundle.min.js';
-            script.integrity = 'sha384-edPCPWtQrj57nipnV3wt78Frrb12XdZsyMbmpIKZ9zZRi4uAxNWiC6S8xtGCqwDG';
-            script.crossOrigin = 'anonymous';
-
-            script.addEventListener('load', function() {
-                if (window.Sentry) {
-                    window.Sentry.init({
-                        // ignore common browser extensions, plugins and only allow jotform domain errors
-                        dsn: 'https://fc3f70667fb1400caf8c27ed635bd4e1@sentry.io/4142374',
-                        enviroment: 'production',
-                        whitelistUrls: [
-                            /https?:\/\/.*jotform\.com/,
-                            /https?:\/\/cdn\.jotfor\.ms/
-                        ],
-                        integrations: [
-                          new Sentry.Integrations.GlobalHandlers({
-                            onunhandledrejection: false
-                          })
-                        ],
-                        denyUrls: [
-                            // Facebook flakiness
-                            /graph\.facebook\.com/i,
-                            // Facebook blocked
-                            /connect\.facebook\.net\/en_US\/all\.js/i,
-                            // Woopra flakiness
-                            /eatdifferent\.com\.woopra-ns\.com/i,
-                            /static\.woopra\.com\/js\/woopra\.js/i,
-                            // Chrome extensions
-                            /extensions\//i,
-                            /^chrome:\/\//i,
-                            // Other plugins
-                            /127\.0\.0\.1:4001\/isrunning/i, // Cacaoweb
-                            /webappstoolbarba\.texthelp\.com\//i,
-                            /metrics\.itunes\.apple\.com\.edgesuite\.net\//i,
-                            /tinymce/i
-                        ],
-                        ignoreErrors: [
-                            // Random plugins/extensions
-                            'top.GLOBALS',
-                            // See: http://blog.errorception.com/2012/03/tale-of-unfindable-js-error. html
-                            'originalCreateNotification',
-                            'canvas.contentDocument',
-                            'MyApp_RemoveAllHighlights',
-                            'http://tt.epicplay.com',
-                            'Can\'t find variable: ZiteReader',
-                            'jigsaw is not defined',
-                            'ComboSearch is not defined',
-                            'http://loading.retry.widdit.com/',
-                            'atomicFindClose',
-                            // Facebook borked
-                            'fb_xd_fragment',
-                            // ISP "optimizing" proxy - `Cache-Control: no-transform` seems to
-                            // reduce this. (thanks @acdha)
-                            // See http://stackoverflow.com/questions/4113268
-                            'bmi_SafeAddOnload',
-                            'EBCallBackMessageReceived',
-                            // See http://toolbar.conduit.com/Developer/HtmlAndGadget/Methods/JSInjection.aspx
-                            'conduitPage',
-                            'tinymce',
-                            // Common error caused by test software on a specific chrome version
-                            'GetScreenshotBoundingBox',
-                            'Can\'t execute code from a freed script',
-                            'for=',
-                            'JotForm.handleIFrameHeight',
-                            // See https://stackoverflow.com/questions/49384120
-                            'ResizeObserver loop limit exceeded',
-                            // variables that does not originate from our codebase
-                            'SB_ModifyLinkTargets',
-                            'RegisterEvent'
-                        ],
-                        beforeSend: function(event){
-                            // whitelistUrls paramater is unreliable
-                            // do not collect errors from source code embed
-                            if(window.parent === window && event.request && event.request.url &&
-                            !event.request.url.match(/(https?:\/\/.*jotform\.com)|(https?:\/\/cdn\.jotfor\.ms)/)){
-                                return null;
-                            }
-
-                            // Don't log errors that comes from the facebook browser
-                            if (window.navigator.userAgent.indexOf('FB_IAB') !== -1) {
-                                return null;
-                            }
-
-                            return event;
-                        }
+            if (isCardformWithWelcome || isPDFFormWithWelcome) {
+                const startButtonQuery = isPDFFormWithWelcome ? '.js-pdfStartFilling' : '#jfCard-welcome-start';
+                const startButton = document.querySelector(startButtonQuery);
+                if (startButton) {
+                    startButton.addEventListener('click', () => {
+                        window.AgentInitializer.init(helperAgentProps);
                     });
                 }
-            });
-            document.querySelector('head').appendChild(script);
+            }
+            else {
+                window.AgentInitializer.init(helperAgentProps);
+            }
         }
     },
+
     getAPIEndpoint: function() {
         if(!this.APIUrl){
             this.setAPIUrl();
@@ -1091,7 +1028,6 @@ var JotForm = {
                 }
 
                 trackExecution('init-started');
-                // this.initSentry();
 
                 if (window.FS) {
                   window.onFSError = () => this.initEmbeddedAgent();
@@ -1113,7 +1049,7 @@ var JotForm = {
                   this.initEmbeddedAgent();
                 }
 
-                if (document.get.agentPhoneCall == 1) {
+                if (document.get.agentPhoneCall == 1 || document.get.chatID) {
                     appendHiddenInput("chatID", document.get.chatID);
                 }
                 
@@ -1154,12 +1090,6 @@ var JotForm = {
                     },
                     { order: -1 }
                   );
-                  
-                  if (JotForm.isEncrypted || (JotForm.isEditMode() && !!JotForm.submissionDecryptionKey)) {
-                    jotformForm.addEventListener("submit", function formEncryption(e) {
-                        JotForm.prepareEncyptedFormValues(e)
-                    });
-                  }
                 }
 
                 // Extend the submit method to track the submit source. This helps with identifying empty/blank submissions.
@@ -5541,7 +5471,6 @@ var JotForm = {
     },
 
     prepareCalculationsOnTheFly: function (questions) {
-        JotForm.errorCatcherLog({}, 'JOT3_IS_USED_PREPARE_CALCULATIONS_ON_THE_FLY_FUNC');
         var questions_by_name = [];
         var questions_by_type = [];
 
@@ -10635,6 +10564,15 @@ var JotForm = {
 
             if (typeof val !== 'number') {
                 val = val.replace(/[^0-9\.]/gi, "");
+
+                // put only two decimal points if there is more
+                if (val !== '') {
+                    try {
+                        val = val.match(/^([0-9]{1,15})(?:\.(\d{0,2}))?/)[0];
+                    } catch (error) {
+                        console.log('Error from "Get Price From" on donation input:', error);
+                    }
+                }
             }
             return !isNaN(val) && val > 0 ? val : 0;
         }
@@ -14056,7 +13994,7 @@ var JotForm = {
     hasMinTotalOrderAmount: function () {
         var minTotalOrderAmountHiddenField = document.getElementsByName('minTotalOrderAmount');
         var hasMinTotalOrderAmount = typeof minTotalOrderAmountHiddenField !== 'undefined' && minTotalOrderAmountHiddenField.length > 0;
-        var minTotalOrderAmount = hasMinTotalOrderAmount === true ? minTotalOrderAmountHiddenField[0].value : '0';
+        var minTotalOrderAmount = hasMinTotalOrderAmount === true && window.paymentType === 'product' ? minTotalOrderAmountHiddenField[0].value : '0';
 
         JotForm.minTotalOrderAmount = minTotalOrderAmount;
 
@@ -16586,7 +16524,7 @@ var JotForm = {
 
             if (isPaymentVisible) {
                 const invalidPaymentStock = window.FORM_MODE != 'cardform' && typeof PaymentStock !== 'undefined' && !PaymentStock.validations.validateStock();
-                const invalidMinTotalAmount = JotForm.handleMinTotalOrderAmount() === true && window.paymentType === 'product';
+                const invalidMinTotalAmount = JotForm.handleMinTotalOrderAmount() === true;
                 if (invalidPaymentStock || invalidMinTotalAmount) {
                     ret = false;
                 }
@@ -16734,6 +16672,14 @@ var JotForm = {
         error_message_span = document.createElement('span');
         error_message_span.className = 'error-navigation-message';
         error_message_span.innerText= message;
+        
+        if ((new URLSearchParams(window.location.search)).get('ariaLabelOnRequiredError')) {
+            var closestSublabel = input.parentElement.querySelector(`[for="${input.id}"`);
+            var closestSublabelName = closestSublabel && closestSublabel.innerText;
+            if (closestSublabelName) {
+                error_message_span.ariaLabel = `${message} (${closestSublabelName})`
+            }
+        }
 
         var formErrorMessageEl = document.createElement('div');
         formErrorMessageEl.className = 'form-error-message';
@@ -17105,21 +17051,6 @@ var JotForm = {
                         }));
                     }
 
-                    if (!window.agentHelperChatID) {
-                        var agentHelperIframe = document.getElementById('form-agent-helper');
-                        if (agentHelperIframe) {
-                            var iframeWindow = agentHelperIframe.contentWindow;
-                            var agentHelperID = iframeWindow.chatID;
-                            if (agentHelperID) {
-                                form.appendChild(createHiddenInputElement({
-                                    name: 'agentHelperChatID',
-                                    value: agentHelperID
-                                }));
-                                window.agentHelperChatID = agentHelperID;
-                            }
-                        }   
-                    }
-
                     if (window.location.href.includes('agentImplementationID') && !window.agentImplementationID) {
                         var agentQueryString = window.location.search;
                         var agentUrlParams = new URLSearchParams(agentQueryString);
@@ -17277,8 +17208,7 @@ var JotForm = {
                 }
 
                 var numberOfInputs = form.querySelectorAll('.form-all input, select').length;
-                var pciLimit = ['bluesnap', 'cybersource'].includes(JotForm.payment) && numberOfInputs > 1000;
-                if (numberOfInputs > 3000 || pciLimit){ // to bypass max_input_vars - 3000 limit
+                if (numberOfInputs > 4500){ // to bypass max_input_vars - 4500 limit for v3, 9K for pci
                   JotForm.removeNonselectedProducts(form);
                 }
 
@@ -17316,8 +17246,6 @@ var JotForm = {
                     }
                 }
 
-                JotForm.prepareEncyptedFormValues(e, {form:form});
-
                 const dateElements = document.querySelectorAll('[data-type=control_datetime] input[class*="validate"][class*="limitDate"]');
                 if (dateElements.length > 0) {
                     JotForm.errorCatcherLog({ message: {
@@ -17329,6 +17257,7 @@ var JotForm = {
 
                 history.replaceState(Object.assign({}, history.state, { submitted: true }), null, null);
                 e.valid = true;
+                JotForm.prepareEncyptedFormValues(e, { form });
             };
 
             // Set on submit validation
@@ -18377,6 +18306,14 @@ var JotForm = {
                                     }
                                 }
                             }
+
+                            // correcting input if total is 0, and discount applied to subtotal
+                            // BUGFIX:#17621671
+                            // couponApplied should've been true logically, but changing data might cause problems
+                            const isFixedSubtotalDiscount = JotForm.discounts && JotForm.discounts.total && JotForm.discounts.type === 'fixed';
+                            if (!JotForm.couponApplied && isFixedSubtotalDiscount) {
+                                return JotForm.corrected(input);
+                            }
                         }
 
                         if (checkValues.any()) {
@@ -18394,7 +18331,7 @@ var JotForm = {
                             var errorMessage = JotForm.texts.required;
 
                             checkValues.map(function(isErrored, index) {
-                                if(isErrored) {
+                                if(isErrored && !isErrorExists) {
                                     var input = inputs[index];
                                     if (input.hasClassName('js-forMixed')){
                                       errorMessage = JotForm.texts.incompleteFields;
@@ -20819,36 +20756,8 @@ var JotForm = {
         var url = JotForm.server + '?action=getPrefillData&formID=' + _form.id + '&key=' + prefillToken;
         var data = {};
 
-        const isUpgradePrefillTicketForm = JotForm.enterprise && JotForm.enterprise.includes('upgrade') && _form && _form.id === '242486710294965';
-        if (isUpgradePrefillTicketForm) {
-            JotForm.errorCatcherLog({
-                message: {
-                    currentTimeInClient: new Date().toUTCString(),
-                    message: 'FORM_PREFILL_START'
-                }
-            }, 'FORM_PREFILL_DEBUG');
-        }
         JotForm.createXHRRequest(url, 'get', null, function(res) {
             try {
-                if (isUpgradePrefillTicketForm) {
-                    const prefillData = Object.entries(res.data || {}).map(([key, value]) => {
-                        let maskedValue = value || '';
-                        if (value.length === 2) {
-                            maskedValue = value[0] + '#';
-                        }
-                        if (value.length > 2) {
-                            maskedValue = value[0] + value[1] + '#'.repeat(value.length - 2);
-                        }
-                        return { id: key, maskedValue };
-                    })
-
-                    JotForm.errorCatcherLog({
-                        message: {
-                            prefillData: res && res.data ? prefillData : 'RESPONSE EMPTY',
-                            message: 'FORM_PREFILL_REQUEST_RESPONDED'
-                        }
-                    }, 'FORM_PREFILL_DEBUG');
-                }
             $H(res.data).each(function(pair) {
                 if (pair.value === true) pair.value = 'true';
                 else if (pair.value === false) pair.value = 'false';
@@ -21032,24 +20941,10 @@ var JotForm = {
             JotForm.onTranslationsFetch(dispatchCompletedEvent);
             } catch (error) {
                 console.log(error);
-                // TODO: Delete this logs when 19959791 ticket resolves;
-                if (isUpgradePrefillTicketForm) {
-                    JotForm.errorCatcherLog({message: {
-                        error,
-                        message: 'FORM_PREFILL_IMPLEMENTATION_ERROR'
-                    }}, 'FORM_PREFILL_DEBUG');
-                }
             }
 
         }, function(err) {
             console.log(err);
-            // TODO: Delete this logs when 19959791 ticket resolves;
-            if (isUpgradePrefillTicketForm) {
-                JotForm.errorCatcherLog({message: {
-                    error: err,
-                    message: 'FORM_PREFILL_REQUEST_ERROR'
-                }}, 'FORM_PREFILL_DEBUG');
-            }
             dispatchCompletedEvent();
         });
         function dispatchCompletedEvent() {
@@ -21057,14 +20952,6 @@ var JotForm = {
                 var event = document.createEvent('CustomEvent');
                 event.initEvent('PrefillCompleted', false, false);
                 document.dispatchEvent(event);
-                if (isUpgradePrefillTicketForm) {
-                    JotForm.errorCatcherLog({
-                        message: {
-                            currentTimeInClient: new Date().toUTCString(),
-                            message: 'FORM_PREFILL_END'
-                        }
-                    }, 'FORM_PREFILL_DEBUG');
-                }
             }
         }
 
@@ -22155,3 +22042,20 @@ function generateUUID(formID) {
 
 // We have to put this event because it's the only way to catch FB load
 window.fbAsyncInit = JotForm.FBInit.bind(JotForm);
+
+function putChatIDInForm(agentOrigin) {
+  window.addEventListener('message', ({ data, origin }) => {
+      if (origin !== agentOrigin || !data || typeof data.chatID !== 'string' || !data.chatID) return;
+
+      try {
+        const agentHelperID = data.chatID;;
+        const agentHelperInput = createHiddenInputElement({ name: 'agentHelperChatID', value: agentHelperID });
+        const form = document.querySelector('form.jotform-form');
+        if (!form) return;
+        form.appendChild(agentHelperInput);
+        window.agentHelperChatID = agentHelperID;
+      } catch (e) {
+        console.error(e);
+      }
+  });
+}
