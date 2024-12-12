@@ -3,12 +3,13 @@ from .views import *
 
 urlpatterns = [
     # Customer URLs
-    path('', views_.reservation_customer_view, name='reservation-customer'),
-    path('reservation/', views_.reservation_view, name='reservation'),
+    path('', views_.customer_website_view, name='customer_website'),
     path('send_contact_email/', views_.send_contact_email_view, name='send_contact_email'),
     path('survey/', views_.survey_view, name='survey'),
     path('cancel_reservation/', views_.cancel_reservation_view, name='cancel_reservation'),
-    path('reservation_dinein/', views_.reservation_dinein_view, name='reservation_dinein'),
+    path('dine_in_reservation/', views_.dine_in_reservation_view, name='dine_in_reservation'),
+    path('event_calendar/', views_.event_calendar_view, name='event_calendar'),
+    path('event_reservation/', views_.event_reservation_view, name='event_reservation'),
 
     path('customers/', views_customers.CustomerListCreateView.as_view(), name='customer-list-create'),
     path('customers/<int:pk>/', views_customers.CustomerDetailView.as_view(), name='customer-detail'),

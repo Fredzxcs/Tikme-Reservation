@@ -1,3 +1,6 @@
+{% load static %}
+
+{% block content %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en"  class="supernova "><head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -314,7 +317,7 @@ div.form-header-group.hasImage {
     }
   
   .supernova {
-    background-color: undefined;
+    background-color: #f1f1f1;
   }
   .supernova body {
     background: transparent;
@@ -357,7 +360,6 @@ div.form-header-group.hasImage {
 <script src="https://cdn03.jotfor.ms/js/payments/PaymentListSettings/searchInProducts.js?v=3.3.59235" type="text/javascript"></script>
 <script src="https://cdn01.jotfor.ms/js/payments/paymentUtils.js?v=3.3.59235" type="text/javascript"></script>
 <script src="https://cdn02.jotfor.ms/js/payments/validategateways.js?v=3.3.59235" type="text/javascript"></script>
-<script src="https://cdn01.jotfor.ms/s/umd/e643271c0eb/for-form-branding-footer.js?v=3.3.59235" type="text/javascript" defer></script>
 <script src="https://cdn03.jotfor.ms/js/vendor/smoothscroll.min.js?v=3.3.59235" type="text/javascript"></script>
 <script src="https://cdn01.jotfor.ms/js/errorNavigation.js?v=3.3.59235" type="text/javascript"></script>
 <script type="text/javascript">	JotForm.newDefaultTheme = true;
@@ -3360,3 +3362,4 @@ JotForm.paymentExtrasOnTheFly([null,null,null,null,null,{"description":"","name"
   </script>
 </form></body>
 </html><script type="text/javascript">JotForm.ownerView=true;</script><script type="text/javascript">JotForm.isNewSACL=true;</script>
+{% endblock %}

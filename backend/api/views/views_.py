@@ -10,11 +10,8 @@ from ..emails import send_contact_email
 logger = logging.getLogger(__name__)
 
 # Authentication Rendering
-def reservation_customer_view(request):
-    return render(request, 'reservation_customer.html')
-
-def reservation_view(request):
-    return render(request, 'reservation.html')
+def customer_website_view(request):
+    return render(request, 'customer_website.html')
 
 def send_contact_email_view(request):
     if request.method == 'POST':
@@ -63,12 +60,17 @@ def send_contact_email_view(request):
 def survey_view(request):
     return render(request, 'survey.html')
 
-
 def cancel_reservation_view(request):
     return render(request, 'cancel_reservation.html')
 
-def reservation_dinein_view(request):
-    return render(request, 'reservation_dinein.html')
+def dine_in_reservation_view(request):
+    return render(request, 'dine_in_reservation.html')
+
+def event_calendar_view(request):
+    return render(request, 'event_calendar.html')
+
+def event_reservation_view(request):
+    return render(request, 'event_reservation.html')
 
 
 
