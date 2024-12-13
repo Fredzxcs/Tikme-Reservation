@@ -378,7 +378,142 @@
     margin-top:0px;
 }
 
-
+/* SERVICES */
+/* General Styles */
+/* General Styles */
+::-webkit-scrollbar {
+    width: 1.3rem;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    border-radius: 1rem;
+    background: #797979;
+    transition: all 0.5s ease-in-out;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #222224;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f9f9f9;
+  }
+  
+  .container {
+    max-width: 124rem;
+    margin: 0 auto;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .section-heading {
+    font-size: 3rem;
+    color: var(--primary);
+    padding: 2rem 0;
+    padding-bottom: 0;
+    color: #FEA116;
+  }
+  
+  /* Carousel Section */
+  #tranding {
+    padding: 4rem 0;
+  }
+  
+  #tranding .tranding-slider {
+    height: auto;
+    padding: 2rem 0;
+    position: relative;
+    padding-top: 10px;
+  }
+  
+  .tranding-slide {
+    width: 90%;
+    max-width: 37rem;
+    margin: auto;
+    position: relative;
+    display: flex;
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .tranding-slide:hover {
+    transform: scale(1.05); /* Slight zoom on hover */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .tranding-slide .tranding-slide-img img {
+    width: 100%;
+    max-height: 50rem;
+    border-radius: 2rem;
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  .tranding-slide .tranding-slide-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .tranding-slide-content .tranding-slide-content-bottom {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+  }
+  
+  .tranding-slider-control {
+    position: relative;
+    bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .tranding-slider-control .swiper-pagination {
+    position: relative;
+    width: 15rem;
+    bottom: 1rem;
+  }
+  
+  .tranding-slider-control .swiper-pagination .swiper-pagination-bullet {
+    filter: drop-shadow(0px 8px 24px rgba(18, 28, 53, 0.1));
+  }
+  
+  .tranding-slider-control .swiper-pagination .swiper-pagination-bullet-active {
+    background: var(--primary);
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .tranding-slide {
+      width: 95%;
+      height: auto;
+    }
+  
+    .tranding-slide:hover {
+      transform: scale(1.02); /* Adjust hover effect for smaller screens */
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    }
+  }
+  
+  @media (max-width: 500px) {
+    .tranding-slide {
+      width: 100%;
+      height: auto;
+    }
+  
+    .tranding-slide .tranding-slide-img img {
+      max-width: 28rem;
+      max-height: 36rem;
+    }
+  }
+  
+  
 /* Ensures uniform size for gallery items */
 .gallery-item {
     width: 100%;
