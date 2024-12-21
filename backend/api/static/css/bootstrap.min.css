@@ -146,7 +146,9 @@ h6, .h6 {
 
 p {
     margin-top: 0;
-    margin-bottom: 1rem
+    margin-bottom: 1rem;
+    text-align: left;
+
 }
 
 abbr[title],abbr[data-bs-original-title] {
@@ -634,7 +636,8 @@ progress {
     max-width: 100%;
     padding-right: calc(var(--bs-gutter-x) / 2);
     padding-left: calc(var(--bs-gutter-x) / 2);
-    margin-top: var(--bs-gutter-y)
+    margin-top: var(--bs-gutter-y);
+    text-align: left;
 }
 
 .col {
@@ -2830,7 +2833,7 @@ textarea.form-control-lg {
 .btn {
     display: inline-block;
     font-weight: 400;
-    line-height: 1.5;
+    line-height: normal;
     color: #666565;
     text-align: center;
     vertical-align: middle;
