@@ -1,0 +1,1697 @@
+{% extends 'base_customer.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/customer_website.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+<!-- Home Section -->
+<section id="home" class="home">
+    <div class="logo-container">
+        <div class="logo-text">
+            <span class="main-text">
+            <span>T</span>
+            <span>i</span>
+            <span>k</span>
+            <span>m</span>
+            <span>e</span>
+            <span> </span>
+            <span>D</span>
+            <span>i</span>
+            <span>n</span>
+            <span>e</span>
+            </span>
+            <div class="flag-bar"></div>
+            <div class="sub-text">at the RoyalCare Venue</div>
+        </div>
+    </div>
+
+    <div class="wave wave1"></div>
+    <div class="wave wave2"></div>
+    <div class="wave wave3"></div>
+</section>
+
+ <!-- About Section -->
+<section id="about" class="container-xxl py-5">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <!-- Images Section -->
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6 text-start">
+                        <img class="img-fluid rounded w-100 wow zoomIn" data-wow-delay="0.1s" src="{% static 'images/about-1.png' %}">
+                    </div>
+                    <div class="col-6 text-start">
+                        <img class="img-fluid rounded w-75 wow zoomIn" data-wow-delay="0.3s" src="{% static 'images/about-2.png' %}" style="margin-top: 25%;">
+                    </div>
+                    <div class="col-6 text-end">
+                        <img class="img-fluid rounded w-75 wow zoomIn" data-wow-delay="0.5s" src="{% static 'images/about-3.png' %}">
+                    </div>
+                    <div class="col-6 text-end">
+                        <img class="img-fluid rounded w-100 wow zoomIn" data-wow-delay="0.7s" src="{% static 'images/about-4.png' %}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Us Content Section -->
+            <div class="col-lg-6">
+                <h5 class="section-title ff-secondary text-start text-primary fw-normal wow fadeInLeft" data-wow-delay="0.1s">About Us</h5>
+                <h1 class="mb-4 wow fadeInLeft" data-wow-delay="0.2s">Welcome to Tikme Dine</h1>
+                <p class="mb-4 wow fadeInLeft" data-wow-delay="0.3s">
+                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos erat ipsum et lorem et sit, sed stet lorem sit.
+                </p>
+                <p class="mb-4 wow fadeInLeft" data-wow-delay="0.4s">
+                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet.
+                </p>
+                <div class="row g-4 mb-4">
+                    <div class="col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                        <div class="d-flex align-items-center border-start border-5 border-primary px-3">
+                            <h1 class="flex-shrink-0 display-5 text-primary mb-0" data-toggle="counter-up">10</h1>
+                            <div class="ps-4">
+                                <p class="mb-0">Years of</p>
+                                <h6 class="text-uppercase mb-0">Experience</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                        <div class="d-flex align-items-center border-start border-5 border-primary px-3">
+                            <h1 class="flex-shrink-0 display-5 text-primary mb-0" data-toggle="counter-up">3000</h1>
+                            <div class="ps-4">
+                                <p class="mb-0">Number of</p>
+                                <h6 class="text-uppercase mb-0">Customers</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="btn btn-primary py-3 px-5 mt-2" href="">Read More</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Menu Section -->
+<section id="menu" class="menu-section">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 menu-wrapper">
+                <h2 class="menu-title wow fadeIn" data-wow-delay="0.1s">Our Menu</h2>
+
+                <!-- Menu Tabs -->
+                <ul class="nav nav-tabs justify-content-center wow fadeIn" data-wow-delay="0.2s" id="menuTabs" role="tablist">
+                    <!-- Snacks & Appetizers Tab -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="snacks-tab" data-bs-toggle="tab" data-bs-target="#snacks" type="button" role="tab" aria-controls="snacks" aria-selected="true">
+                            <img src="{% static 'images/snacks.png' %}" alt="Snacks & Appetizers Icon" width="30px" />
+                            Snacks & Appetizers
+                        </button>
+                    </li>
+
+                    <!-- Breakfast & Meals Tab -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="breakfast-tab" data-bs-toggle="tab" data-bs-target="#breakfast" type="button" role="tab" aria-controls="breakfast" aria-selected="false">
+                            <img src="{% static 'images/breakfast.png' %}" alt="Breakfast & Meals Icon" width="30px" />
+                            Breakfast & Meals
+                        </button>
+                    </li>
+
+                    <!-- Desserts & Beverages Tab -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="desserts-tab" data-bs-toggle="tab" data-bs-target="#desserts" type="button" role="tab" aria-controls="desserts" aria-selected="false">
+                            <img src="{% static 'images/appetizers.png' %}" alt="Desserts & Beverages Icon" width="30px" />
+                            Desserts & Beverages
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="menuContent">
+                    <div class="tab-pane fade show active wow fadeIn" data-wow-delay="0.3s" id="snacks" role="tabpanel" aria-labelledby="snacks-tab">
+                      <div class="menu-items-container">
+                        <div class="row menu-items">
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicharon Bulaklak</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱248.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the first column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Veggie Okoy</h4>
+                                        <p>A mountain of deep fried sweet potatoes, shrimp, carrots and spring beans served to perfection. Good for 5-10 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱418.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Veggie Okoy Jr.</h4>
+                                        <p>Good for 3-5 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱298.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the first column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Batangas Pupod</h4>
+                                        <p>A popular Batangueño dish that is similar to Chicharon but is more flavorful and appetizing. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱278.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicken Fillet Fingers</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱388.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the first column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Fish Fillet Fingers</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱378.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Quirky Nachos</h4>
+                                        <p>Homemade nacho chips served with ground beef and special combination of sauces and onions. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱248.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the first column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Fish 'n Chips</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱448.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the first column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Tokwa't Pupod</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱298.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Garlic Bread</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱148.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Calamari</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱388.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Gambas Al Ajillo</h4>
+                                        <p>Shrimp sauteed in olive oil, garlic butter, and tomato sauce. Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Bihon small 3 to 4</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Bihon medium 7 to 10</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱988.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Bihon large 11 to 16</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,399.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Bihon extra large 17 to 20</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,818.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+                            
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Canton Guisado small 3 to 4</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱588.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Canton Guisado medium 7 to 10</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,118.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Canton Guisado large 11 to 16</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,428.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pansit Canton Guisado extra large 17 to 20</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,988.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Canton small 3 to 4</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱688.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Canton medium 7 to 10</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,288.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Canton large 11 to 16</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,588.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Canton extra large 17 to 20</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱2,188.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Miki Bihon  small 3 to 4</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱518.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Miki Bihon medium 7 to 10</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,198.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Miki Bihon large 11 to 16</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,428.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Miki Bihon extra large 17 to 20</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,988.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Caesar Salad</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱248.00
+                                        </h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicken Salad</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱398.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Royal Garden Salad</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱398.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="tab-pane fade" data-wow-delay="0.3s" id="breakfast" role="tabpanel" aria-labelledby="breakfast-tab">
+                      <div class="menu-items-container">
+                        <div class="row menu-items">
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Daing na Bangus</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱388.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pork Tocino</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱218.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pork Tapang Taal</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱318.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Tapa</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱398.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Longganisang Taal</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱228.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Pares</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱298.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sinaing na Tulingan</h4>
+                                        <p>A traditional Batangueño dish for tuna that is slowly cooked and boiled until the meat is tender.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱298.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicken Longganisa</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱218.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Italian Garlic Sausage</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱288.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Barako Breakfast</h4>
+                                        <p>A feast which consists of 2 eggs, pork tapa, tulingan, tawilis, and longganisang taal.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱498.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Corned Beef</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱318.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>American Breakfast</h4>
+                                        <p>A feast consisting of 2 eggs, bacon, ham, sausage, pancakes, and kapeng barako.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Wonton Mami</h4>
+                                        <p>Egg noodles with savory stock soup and homemade wonton dumplings.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱288.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Mami</h4>
+                                        <p>Made with lean beef and egg noodles</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱288.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Wonton Mami</h4>
+                                        <p>Traditional Wonton Mami combined with tenderized beef, beef stock soup, wonton dumplings, and handful of spices.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱388.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Plain Rice Platter</h4>
+                                        <p>Extra Plain Rice 50.00 PHP</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱248.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+                            
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Garlic Rice Platter</h4>
+                                        <p>Extra Garlic Rice 68.00 PHP</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱338.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Karibok Rice Platter</h4>
+                                        <p>Mixed with Batangas fried pork, shrimp and vegetables.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱398.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicken Binakol</h4>
+                                        <p>A hearty chicken soup that is made from coconut juice, ginger, and lemongrass. Good for 4-6 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱588.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Batangas Bulalo</h4>
+                                        <p>One of Batangas' famous dish of beef shank and bone marrow with a flavorful clear broth, cabbages, corn, and potatoes. Good for 4-6 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,118.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sinigang na Salmon</h4>
+                                        <p>Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sinigang na Pork Belly</h4>
+                                        <p>Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sinigang na Hipon</h4>
+                                        <p>Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱688.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sinigang na Maliputo</h4>
+                                        <p>Traditional sinigang dish fused with Maliputo, a rare delicacy of Batangas that can only be found in Taal Lake. Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱2,488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pinakbet</h4>
+                                        <p>A composition of a variety of vegetables that is stir fried and flavored with Bagoong. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱388.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Laing</h4>
+                                        <p>A traditional Filipino vegetables dish comprised of dried taro leaves and coconut milk. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱348.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chopsuey</h4>
+                                        <p>Stir fried vegetables dish that is cooked with a variety of pork, chicken, and shrimp.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱398.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Ampalaya</h4>
+                                        <p>Tender beef stir fried and combined with a bitter gourd. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱418.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Broccoli</h4>
+                                        <p>Stir-fried beef encoated with rich sauce and combined with broccoli. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sizzling Pork Sisig</h4>
+                                        <p>A combination of juicy pork jowl, ears, and belly along with chicken liver. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱418.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sizzling Bulalo</h4>
+                                        <p>Tender slices of beef, rich bone marrow, and gravy all into one sizzling plate. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱688.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sizzling Tofu Pupod</h4>
+                                        <p>Chinese tofu with batangas chicharon, chillis, garlic, white onion, bell pepper, mayonnaise, and oyster sauce. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱288.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Sizzling Tuna & Shrimp</h4>
+                                        <p>A combination of tuna belly and tuna cubes with shrimp and vegetables on top. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱688.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Tuna Belly</h4>
+                                        <p>Served with veggie side dish and sauce. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱618.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pork Liempo</h4>
+                                        <p>Served with mango salsa.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱408.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Pata</h4>
+                                        <p>Traditional deep fried pork knuckle that is served with a soy-vinegar dip. Good for 6-8 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,188.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Lechon Kawali</h4>
+                                        <p>Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Cordon Bleu</h4>
+                                        <p>A dish cooked with chicken breast, ham, and swiss cheese that us rolled and fried. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱458.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Jumbo Lechon Kawali</h4>
+                                        <p>Good for 5-6 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <<h4 class="price-text">₱989.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy Tawilis</h4>
+                                        <p>Deep fried freshwater sardine. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱418.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chinese Style Fried Chicken</h4>
+                                        <p>Marinated in soy mixture. Light and crisp skin encased with flavorful chicken. Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱699.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicken Longganisa</h4>
+                                        <p>Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱428.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicken Kare-kare</h4>
+                                        <p>Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+                            
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Kare-kare</h4>
+                                        <p>Traditionally cooked beef served in thick and savory peanut stew. Good for 3-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱888.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pork Kalderobo</h4>
+                                        <p>A Batangas Dish, that combines the traditional Kaldereta and Pork Adobo Good for 2-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱888.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Lengua Estofado</h4>
+                                        <p>A Filipino delicacy with ox tongue, mushrooms, and its rich sauce. Good for 2-4 persons</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱688.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pork Embutido</h4>
+                                        <p>Stuffed with lard-boiled eggs and sausage Good for 5-6 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱588.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Stir Fry Beef Salpicao</h4>
+                                        <p>A dish of tender beef that is coated with a rich buttery sauce and flavorful garlic. Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱898.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Shrimp Tempura Jr. 6pcs</h4>
+                                        <p>Good for 2-3 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱458.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Shrimp Tempura</h4>
+                                        <p>Good for 3-5 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱898.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy SeaPod Platter</h4>
+                                        <p>A platter of Crispy Veggie Okoy, Calamari, Fish Fillet Fingers, Tawilis, and Pupod. Good for 8-10 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,888.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Crispy ChickBoy Platter</h4>
+                                        <p>A platter of Crispy Veggie Okoy, Lechon Kawali, Chicharon Bulaklak, Chicken Fillet Fingers, and Pupod. Good for 8-10 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱1,888.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Batangas Loming Lipa Regular</h4>
+                                        <p>Tikme's signature Filipino noodle dish prepared with thick egg noodles served in a delightful thickend sooup topped with pork meat, shrimp, pupod, and kikiam.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱288.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Batangas Loming Lipa Jumbo</h4>
+                                        <p>Tikme's signature Filipino noodle dish prepared with thick egg noodles served in a delightful thickend sooup topped with pork meat, shrimp, pupod, and kikiam. Good for 2-4 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱388.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Batangas Loming Lipa Super Jumbo</h4>
+                                        <p>Tikme's signature Filipino noodle dish prepared with thick egg noodles served in a delightful thickend sooup topped with pork meat, shrimp, pupod, and kikiam. Good for 5-6 persons.</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱488.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Beef Pares Ala Carte</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱499.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Chicken Longganisa Ala Carte</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱428.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+
+                            <div class="col-md-6 menu-column">
+                                <!-- Repeatable Menu Item -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Pork Tapang Taal Ala Carte</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱499.00</h4>
+                                    </div>
+                                </div>
+                                <!-- Add more menu items here for the second column -->
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="desserts" role="tabpanel" aria-labelledby="desserts-tab">
+                        <div class="row menu-items">
+                            <div class="col-md-6 menu-column">
+                                <!-- Menu Item 1 -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Suman Alitagtag per piece</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱28.00</h4>
+                                    </div>
+                                </div>
+                                
+                                <!-- Menu Item 2 -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>3 pieces Suman at Kapeng Barako</h4>
+                                        <p>Unli Barako Upgrade +20.00 PHP</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱148.00</h4>
+                                    </div>
+                                </div>
+                                
+                                <!-- Menu Item 3 -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Barako Jelly</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱98.00</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 menu-column">
+                                <!-- Menu Item 4 -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Suman Pack of (12)</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱278.00</h4>
+                                    </div>
+                                </div>
+                        
+                                <!-- Menu Item 5 -->
+                                <div class="menu-item">
+                                    <div>
+                                        <h4>Special Halo-Halo</h4>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <h4 class="price-text">₱248.00</h4>
+                                    </div>
+                                </div>
+                            </div>                                    
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 wow fadeIn" data-wow-delay="0.6s">
+                    <a href="https://www.canva.com/design/DAFgEKpnjY0/Iv4aSXJHGyyZk8Ir7R9FyQ/view?website#2" class="btn btn-warning" download target="_blank">Download the full menu</a>
+                </div>                
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Event Section -->
+<section id="events" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="section-header text-center wow fadeIn" data-wow-delay="0.1s">
+                <h4 class="sub-title">Special Event</h4>
+                <h2 class="title">Upcoming Events</h2>
+            </div>
+            
+            <!-- Single Event -->
+            <div class="col-md-6 wow fadeIn" data-wow-delay="0.2s">
+                <div class="event">
+                    <div class="event-img">
+                        <img src="{% static 'images/about-1.png' %}" alt="Event 1">
+                        <div class="event-day">
+                            <span>08<br>July</span>
+                        </div>
+                    </div>
+                    <div class="event-content">
+                        <p><i class="fa fa-clock-o"></i> 8:00 PM - 10:00 PM</p>
+                        <h3><a href="blog.html">Tritani Iuvaret: An Evening of Delight</a></h3>
+                        <p>Join us for a night filled with engaging activities and special performances. Experience a memorable evening with good company.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 wow fadeIn" data-wow-delay="0.2s">
+                <div class="event">
+                    <div class="event-img">
+                        <img src="{% static 'images/about-2.png' %}" alt="Event 2">
+                        <div class="event-day">
+                            <span>09<br>July</span>
+                        </div>
+                    </div>
+                    <div class="event-content">
+                        <p><i class="fa fa-clock-o"></i> 7:00 PM - 9:00 PM</p>
+                        <h3><a href="#">Gastronomic Gala: A Culinary Journey</a></h3>
+                        <p>Indulge in an exquisite culinary experience that celebrates flavors from around the world. A feast for your senses!</p>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="col-md-6 wow fadeIn" data-wow-delay="0.2s">
+                <div class="event">
+                    <div class="event-img">
+                        <img src="{% static 'images/about-3.png' %}" alt="Event 3">
+                        <div class="event-day">
+                            <span>10<br>July</span>
+                        </div>
+                    </div>
+                    <div class="event-content">
+                        <p><i class="fa fa-clock-o"></i> 6:00 PM - 8:00 PM</p>
+                        <h3><a href="#">Art and Soul: A Night of Creativity</a></h3>
+                        <p>Unleash your creativity and join us for an evening of artistic expression. Paint, sip, and socialize!</p>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-md-6 wow fadeIn" data-wow-delay="0.2s">
+                <div class="event">
+                    <div class="event-img">
+                        <img src="{% static 'images/about-4.png' %}" alt="Event 4">
+                        <div class="event-day">
+                            <span>11<br>July</span>
+                        </div>
+                    </div>
+                    <div class="event-content">
+                        <p><i class="fa fa-clock-o"></i> 5:00 PM - 7:00 PM</p>
+                        <h3><a href="#">Live Music: An Evening with Local Artists</a></h3>
+                        <p>Enjoy an evening of live music featuring talented local artists. Bring your friends and dance the night away!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section id="tranding" class="wow fadeInLeft" data-wow-delay="0.3s">
+    <div class="container">
+        <h1 class="text-center section-heading mb-4 wow fadeInLeft" data-wow-delay="0.3s">SERVICES</h1>
+    </div>
+    <div class="container">
+        <div class="swiper tranding-slider">
+            <div class="swiper-wrapper">
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/1.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/2.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/3.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/4.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/5.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/6.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/7.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/8.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/9.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/10.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+                <!-- Slide-start -->
+                <div class="swiper-slide tranding-slide">
+                    <div class="tranding-slide-img">
+                        <img src="{% static 'images/11.png' %}" alt="Tranding" class="mb-4 wow fadeIn" data-wow-delay="0.3s">
+                    </div>
+                    <div class="tranding-slide-content">
+                    </div>
+                </div>
+                <!-- Slide-end -->
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- FAQ Section -->
+<section id="faqs" class="faq">
+    <h2 class="wow fadeIn" data-wow-delay="0.2s">Frequently Asked Questions (FAQ)</h2>
+    <div class="faq-container">
+        <div class="faq-item wow fadeIn" data-wow-delay="0.3s">
+            <h3><span class="toggle-icon">+</span> What types of events does TikmeDine cater to?</h3>
+            <p>We cater to a variety of events including weddings, corporate events, birthday parties, and more.</p>
+        </div>
+        <div class="faq-item wow fadeIn" data-wow-delay="0.4s">
+            <h3><span class="toggle-icon">+</span> What sets TikmeDine apart from other event places in Quezon City?</h3>
+            <p>Our unique blend of exceptional service, elegant ambiance, and customizable event options set us apart.</p>
+        </div>
+        <div class="faq-item wow fadeIn" data-wow-delay="0.5s">
+            <h3><span class="toggle-icon">+</span> Where is the TikmeDine Place Located?</h3>
+            <p>Our venue is located in Quezon City, providing a convenient and accessible location for your events.</p>
+        </div>
+        <div class="faq-item wow fadeIn" data-wow-delay="0.7s">
+            <h3><span class="toggle-icon">+</span> Can I customize my event package?</h3>
+            <p>Yes, we offer customizable packages tailored to your specific needs and preferences.</p>
+        </div>
+        <div class="faq-item wow fadeIn" data-wow-delay="0.8s">
+            <h3><span class="toggle-icon">+</span> What is the capacity of your venue?</h3>
+            <p>Our venue can accommodate up to 300 guests comfortably.</p>
+        </div>
+        <div class="faq-item wow fadeIn" data-wow-delay="0.9s">
+            <h3><span class="toggle-icon">+</span> Do you provide catering services?</h3>
+            <p>Yes, we have an in-house catering team that can create a menu to suit your event.</p>
+        </div>
+        <div class="faq-item wow fadeIn" data-wow-delay="1.0s">
+            <h3><span class="toggle-icon">+</span> Is there parking available for guests?</h3>
+            <p>Yes, we have ample parking space available for your guests.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="container contact-section">
+    <div class="card wow fadeIn" data-wow-delay="0.2s">
+        <div class="row g-0">
+            <!-- Google Map Section -->
+            <div class="col-lg-6 col-md-12 wow fadeIn" data-wow-delay="0.3s">
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3703.730051550399!2d121.07504477485818!3d14.68327387504767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b1dd300318b3%3A0x1613ec2e6019107e!2sThe%20RoyalCare%20Venue!5e1!3m2!1sen!2sph!4v1723701797591!5m2!1sen!2sph" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-12 wow fadeIn" data-wow-delay="0.4s">
+                <div class="form-container">
+                    <h2>Contact Us <span>Get In Touch</span></h2>
+                    <p>If you have any questions, feel free to reach out to us!</p>
+                    <form id="contactForm" method="POST" action="{% url 'send_contact_email' %}" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required aria-label="Full Name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required aria-label="Email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number (optional)" aria-label="Phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" placeholder="Type your message here" required aria-label="Message"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>            
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/customer_website.js' %}"></script>
+<script src="{% static 'js/contact_support.js' %}"></script>
+{% endblock %}
