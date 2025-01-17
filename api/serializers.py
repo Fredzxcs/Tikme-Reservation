@@ -1,91 +1,108 @@
 from rest_framework import serializers
-from .models import Customer, Venue, Package, Equipment, ServiceType, Reservations
-
-class EquipmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Equipment
-        fields = ['id', 'name']
-
-
-class PackageSerializer(serializers.ModelSerializer):
-    # Nested serializer to include Equipment details in Package
-    equipment = EquipmentSerializer(read_only=True)  # Use read-only to prevent modification
-
-    class Meta:
-        model = Package
-        fields = ['id', 'package_name', 'created_at', 'area_type', 'location', 'accommodation', 'equipment']
-
-
-class VenueSerializer(serializers.ModelSerializer):
-    # Nested Package serializer to show the associated Package details
-    package = PackageSerializer(read_only=True)
-
-    class Meta:
-        model = Venue
-        fields = ['id', 'venue_name', 'package', 'created_at']
-
-
-class ServiceTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ServiceType
-        fields = ['id', 'service_type', 'service_description', 'created_at']
+from .models import *
 
 
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['id', 'first_name', 'last_name', 'phone_number', 'email_address', 'gender', 'created_at']
+        fields = ['id', 'first_name', 'last_name', 'phone_number', 'email_address', 'created_at']
 
 
-class ReservationsSerializer(serializers.ModelSerializer):
-    # Include Customer and Venue details
+class DiningAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DiningArea
+        fields = ['id', 'area_name', 'created_at']
+
+
+class VenueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Venue
+        fields = ['id', 'venue_name', 'created_at']
+
+
+class PackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = ['id', 'package_name', 'price', 'created_at']
+
+
+class SurveySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Survey
+        fields = '__all__'
+
+
+class DineInReservationSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only=True)
-    venue = VenueSerializer(read_only=True)
-    service_type = ServiceTypeSerializer(read_only=True)
+    customer_id = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(),
+        source='customer',
+        write_only=True
+    )
+    preferred_area_id = serializers.PrimaryKeyRelatedField(
+        queryset=DiningArea.objects.all(),
+        source='preferred_area',
+        write_only=True
+    )
+    preferred_area = serializers.StringRelatedField(read_only=True)  # Add a read-only representation of preferred_area
+    advance_order = serializers.JSONField(required=False, default=[])
+    total_bill = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
+    def validate_advance_order(self, value):
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Advance order must be a list.")
+        for order in value:
+            if not all(key in order for key in ('product_id', 'quantity', 'price')):
+                raise serializers.ValidationError("Each order must have 'product_id', 'quantity', and 'price'.")
+        return value
 
     class Meta:
-        model = Reservations
-        fields = ['id', 'customer', 'venue', 'service_type', 'guest_count', 'reservation_date', 'reservation_time', 'created_at', 'status']
-        
-        # Optional: Add 'status' field if using it for cancellation and status tracking
-        # Assuming 'status' is a field in the Reservations model indicating if the reservation is 'Confirmed', 'Canceled', etc.
-
-        
-class ReservationStatusCheckSerializer(serializers.Serializer):
-    reservation_id = serializers.CharField(max_length=255)
-    email = serializers.EmailField()
-
-    def validate(self, data):
-        # Custom validation to check if reservation_id exists and matches the email
-        reservation_id = data.get('reservation_id')
-        email = data.get('email')
-
-        # Check if reservation exists and matches the provided email
-        try:
-            reservation = Reservations.objects.get(id=reservation_id, customer__email_address=email)
-        except Reservations.DoesNotExist:
-            raise serializers.ValidationError("Reservation ID or Email is incorrect.")
-
-        return data
+        model = DineInReservation
+        fields = [
+            'id', 'customer', 'customer_id', 'number_of_guests', 'reservation_date',
+            'reservation_time', 'preferred_area', 'preferred_area_id',  # Include both preferred_area and preferred_area_id
+            'special_request', 'advance_order', 'payment_method', 'status', 'total_bill', 'created_at'
+        ]
 
 
-class ReservationCancelSerializer(serializers.Serializer):
-    reservation_id = serializers.CharField(max_length=255)
-    email = serializers.EmailField()
-    comments = serializers.CharField(max_length=500, required=False, allow_blank=True)
+class EventReservationSerializer(serializers.ModelSerializer):
+    customer = CustomerSerializer(read_only=True)
+    customer_id = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(),
+        source='customer',
+        write_only=True
+    )
+    venue = VenueSerializer(read_only=True)
+    venue_id = serializers.PrimaryKeyRelatedField(
+        queryset=Venue.objects.all(),
+        source='venue',
+        write_only=True
+    )
+    package = PackageSerializer(read_only=True)
+    package_id = serializers.PrimaryKeyRelatedField(
+        queryset=Package.objects.all(),
+        source='package',
+        write_only=True
+    )
+    total_cost = serializers.SerializerMethodField()
 
-    def validate(self, data):
-        reservation_id = data.get('reservation_id')
-        email = data.get('email')
+    def get_total_cost(self, obj):
+        """
+        Calculate the total cost based on the number of guests and the selected package's price.
+        """
+        if obj.package and obj.number_of_guests:
+            return obj.number_of_guests * obj.package.price
+        return 0
 
-        # Check if reservation exists and matches the provided email
-        try:
-            reservation = Reservations.objects.get(id=reservation_id, customer__email_address=email)
-        except Reservations.DoesNotExist:
-            raise serializers.ValidationError("Reservation ID or Email is incorrect.")
-
-        # Optionally: Validate if the reservation is still in a state where cancellation is allowed
-        if reservation.status == 'Canceled':
-            raise serializers.ValidationError("This reservation has already been canceled.")
-        
-        return data
+    class Meta:
+        model = EventReservation
+        fields = [
+            'id', 'customer', 'customer_id', 'venue', 'venue_id', 'package',
+            'package_id', 'number_of_guests', 'reservation_date', 'reservation_time',
+            'event_date_time', 'parking_slots_needed', 'special_request',
+            'payment_method', 'status', 'created_at', 'total_cost'
+        ]

@@ -3,87 +3,85 @@
 {% block extra_css %}
 <link href="{% static 'css/event_reservation.css' %}" rel="stylesheet">
 {% endblock %}
-  
+
 {% block content %}
 <div class="container">
-    <form id="bookingForm">
+    <!-- Selected Details -->
+    <div class="alert alert-info">
+        <h5>Selected Event Details:</h5>
+        <p><strong>Date:</strong> <span id="selectedDate"></span></p>
+        <p><strong>Place:</strong> <span id="selectedPlace"></span></p>
+        <p><strong>Time:</strong> <span id="selectedTimeSlot"></span></p>
+    </div>
+
+    <form id="bookingForm" method="POST" action="/api/event-reservation/">
+        {% csrf_token %}
         <h2>Booking Form</h2>
         <div class="form-row">
             <div class="form-group">
                 <label for="firstName">First Name <span class="required">*</span></label>
-                <input type="text" id="firstName" name="firstName" required>
+                <input type="text" id="firstName" name="first_name" required>
             </div>
             <div class="form-group">
                 <label for="lastName">Last Name <span class="required">*</span></label>
-                <input type="text" id="lastName" name="lastName" required>
+                <input type="text" id="lastName" name="last_name" required>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="phoneNumber">Phone Number <span class="required">*</span></label>
-                <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="(000) 000-0000" required>
+                <input type="tel" id="phoneNumber" name="phone_number" placeholder="(000) 000-0000" required>
             </div>
             <div class="form-group">
                 <label for="email">Email <span class="required">*</span></label>
-                <input type="email" id="email" name="email" placeholder="ex: myname@example.com" required>
+                <input type="email" id="email" name="email" placeholder="example@example.com" required>
             </div>
         </div>
+        <!-- Updated Row for Guests and Parking -->
         <div class="form-row">
-            <div class="form-group">
+            <div class="form-group" style="flex: 1; margin-right: 15px;">
                 <label for="guests">Number of Guests</label>
-                <input type="number" id="guests" name="guests" placeholder="e.g., 23">
+                <input type="number" id="guests" name="number_of_guests" placeholder="e.g., 23" min="1">
             </div>
-            <div class="form-group">
-                <label for="parking">Number of Parking Slots Needed</label>
-                <input type="number" id="parking" name="parking" placeholder="e.g., 23">
+            <div class="form-group" style="flex: 1;">
+                <label for="parking">Number of Parking Slots</label>
+                <input type="number" id="parking" name="parking_slots_needed" placeholder="e.g., 5" min="0">
             </div>
         </div>
         <div class="form-group">
             <label>Packages <span class="required">*</span></label>
             <div class="package-selection">
                 <label class="package-option">
-                    <input type="radio" name="package" value="Silver" required>
-                    <div class="package-content">
-                        <span class="package-name">Silver</span>
-                        <span class="package-description">
-                            Silver package includes a delightful selection of soup, pasta or vegetables, fish, chicken, steamed rice, dessert, and a refreshing drink.</span>
-                    </div>
+                    <input type="radio" name="package" value="Silver" required> Silver
                 </label>
                 <label class="package-option">
-                    <input type="radio" name="package" value="Diamond">
-                    <div class="package-content">
-                        <span class="package-name">Gold</span>
-                        <span class="package-description">
-                            Diamond package includes a delightful variety of soup, salad, pasta or vegetables, pork, chicken, steamed rice, dessert, and a refreshing drink.</span>
-                    </div>
+                    <input type="radio" name="package" value="Gold"> Gold
                 </label>
                 <label class="package-option">
-                    <input type="radio" name="package" value="Platinum">
-                    <div class="package-content">
-                        <span class="package-name">Diamond</span>
-                        <span class="package-description">
-                            Platinum package offers a sumptuous selection of soup, salad, vegetables, pasta, fish, pork, chicken, beef, steamed rice, dessert, and a refreshing drink.</span>
-                    </div>
+                    <input type="radio" name="package" value="Diamond"> Diamond
                 </label>
             </div>
+        </div>
+        <div class="form-group">
+            <p id="totalCost" style="font-weight: bold; font-size: 18px;">Total Cost: PHP 0</p>
         </div>
         <div class="form-group">
             <label>Payment Method <span class="required">*</span></label>
             <div class="radio-group">
                 <label>
-                    <input type="radio" name="paymentMethod" value="Maya" required> Maya
+                    <input type="radio" name="payment_method" value="Maya" required> Maya
                 </label>
                 <label>
-                    <input type="radio" name="paymentMethod" value="Card"> Card
+                    <input type="radio" name="payment_method" value="Card"> Card
                 </label>
                 <label>
-                    <input type="radio" name="paymentMethod" value="Gcash"> Gcash
+                    <input type="radio" name="payment_method" value="Gcash"> Gcash
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <label for="specialRequest">Do you have any special request?</label>
-            <textarea id="specialRequest" name="specialRequest" rows="4" placeholder="Type here..."></textarea>
+            <label for="specialRequest">Do you have any special requests?</label>
+            <textarea id="specialRequest" name="special_request" rows="4" placeholder="Type here..."></textarea>
         </div>
         <div class="form-group button-group">
             <button type="button" id="cancelButton">Cancel</button>
@@ -93,11 +91,7 @@
 </div>
 {% endblock %}
 
-
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'js/event_reservation.js' %}"></script>
 {% endblock %}
-
-  
-
-

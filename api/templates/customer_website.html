@@ -1663,7 +1663,7 @@
                 <div class="form-container">
                     <h2>Contact Us <span>Get In Touch</span></h2>
                     <p>If you have any questions, feel free to reach out to us!</p>
-                    <form id="contactForm" method="POST" action="{% url 'send_contact_email' %}" novalidate>
+                    <form id="contactForm" method="POST" novalidate>
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="name" class="form-label">Full Name</label>

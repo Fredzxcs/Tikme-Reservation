@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from rest_framework import views
 from ..forms import ContactForm
 from ..emails import send_contact_email
+from ..models import *
+from ..serializers import *
 
 class ContactView(views.APIView):
     def post(self, request):
@@ -31,3 +33,4 @@ class ContactView(views.APIView):
             {"success": False, "error": form.errors},
             status=400
         )
+

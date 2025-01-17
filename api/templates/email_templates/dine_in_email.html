@@ -1,0 +1,72 @@
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dine_in_email.css' %}">
+{% endblock %}
+
+{% block content %}
+<body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <!-- LOGO -->
+        <tr>
+            <td bgcolor="#f4f4f4" align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
+                            <img src="{% static 'images/tikme-logo.png' %}" alt="tikme-logo" style="width: 200px;">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <!-- HEADER -->
+        <tr>
+            <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 2px 2px 0px 0px;">
+                            <h2 style="font-family: Poppins, sans-serif; color: #333333; margin: 0;">Dine-In Reservation Confirmation</h2>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <!-- MAIN CONTENT -->
+        <tr>
+            <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <!-- Reservation Details -->
+                        <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 20px 30px; color: #000000; font-family: 'Montserrat', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 25px;">
+                            <p style="margin: 0;">Dear {{ customer_name }},</p>
+                            <p style="margin: 20px 0;">Thank you for choosing Tikme for your dine-in reservation. Below are the details of your reservation:</p>
+                            <ul style="padding-left: 20px; margin: 20px 0;">
+                                <li><strong>Date:</strong> {{ reservation_date }}</li>
+                                <li><strong>Time:</strong> {{ reservation_time }}</li>
+                                <li><strong>Preferred Area:</strong> {{ preferred_area }}</li>
+                                <li><strong>Number of Guests:</strong> {{ guests }}</li>
+                                <li><strong>Parking Slots:</strong> {{ parking_slots }}</li>
+                                <li><strong>Special Requests:</strong> {{ special_request }}</li>
+                            </ul>
+                            <p><strong>Total Bill:</strong> PHP {{ total_bill }}</p>
+                            <p>Advance Order:</p>
+                            <ul style="padding-left: 20px;">
+                                {% for item in advance_order %}
+                                    <li>{{ item.product_name }} (x{{ item.quantity }}) - PHP {{ item.price }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p style="margin: 20px 0;">If you have any further questions or need assistance, feel free to contact us.</p>
+                        </td>
+                    </tr>
+                    <!-- FOOTER -->
+                    <tr>
+                        <td bgcolor="#ffffff" align="center" style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #000000; font-family: 'Montserrat', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">Thank you for choosing Tikme.<br>The Tikme Team</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+{% endblock %}

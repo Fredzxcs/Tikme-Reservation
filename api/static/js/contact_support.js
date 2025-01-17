@@ -26,7 +26,7 @@ document.getElementById('contactForm').addEventListener('submit', function (even
     console.log('Sending data:', emailData);
 
     // Send data to backend
-    fetch('/send_contact_email/', {
+    fetch('/send-contact-email/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

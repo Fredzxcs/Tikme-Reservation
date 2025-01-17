@@ -10,11 +10,8 @@ logger = logging.getLogger(__name__)
 def customer_website_view(request):
     return render(request, 'customer_website.html')
 
-def survey_view(request):
-    return render(request, 'survey.html')
-
-def cancel_reservation_view(request):
-    return render(request, 'cancel_reservation.html')
+def dine_in_calendar_view(request):
+    return render(request, 'dine_in_calendar.html')
 
 def dine_in_reservation_view(request):
     return render(request, 'dine_in_reservation.html')
@@ -25,5 +22,10 @@ def event_calendar_view(request):
 def event_reservation_view(request):
     return render(request, 'event_reservation.html')
 
+def cancel_reservation_view(request):
+    return render(request, 'cancel_reservation.html')
+
+def survey_view(request):
+    return render(request, 'survey.html')
 
 

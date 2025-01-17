@@ -1,4 +1,58 @@
-# Byte-compiled / optimized / DLL files
+
+# Logs and databases
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.pid
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.bak
+*.orig
+*.rej
+
+# Compiled files
+*.class
+*.o
+*.so
+*.obj
+*.dll
+*.exe
+*.out
+*.app
+
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.egg
+*.egg-info/
+dist/
+build/
+*.pytest_cache/
+.coverage
+
+# Environment variables
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Django
+*.pyc
+*.pyo
+__pycache__/
+db.sqlite3
+/staticfiles/
+.env
+
+# Logs
+*.log
+*.log.*
+

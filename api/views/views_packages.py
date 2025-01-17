@@ -1,54 +1,48 @@
 from rest_framework.response import Response
 from rest_framework import status, views
-from ..models import ServiceType
-from ..serializers import ServiceTypeSerializer
+from ..models import *
+from ..serializers import *
 
-# Service Type Views
-class ServiceTypeListCreateView(views.APIView):
-    # GET: List all service types
+class PackageListCreateView(views.APIView):
     def get(self, request):
-        service_types = ServiceType.objects.all()
-        serializer = ServiceTypeSerializer(service_types, many=True)
+        packages = Package.objects.all()
+        serializer = PackageSerializer(packages, many=True)
         return Response(serializer.data)
 
-    # POST: Create a new service type
     def post(self, request):
-        serializer = ServiceTypeSerializer(data=request.data)
+        serializer = PackageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ServiceTypeDetailView(views.APIView):
-    # GET: Retrieve a specific service type by ID
+class PackageDetailView(views.APIView):
     def get(self, request, pk):
         try:
-            service_type = ServiceType.objects.get(pk=pk)
-        except ServiceType.DoesNotExist:
+            package = Package.objects.get(pk=pk)
+        except Package.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ServiceTypeSerializer(service_type)
+        serializer = PackageSerializer(package)
         return Response(serializer.data)
 
-    # PUT: Update a specific service type
     def put(self, request, pk):
         try:
-            service_type = ServiceType.objects.get(pk=pk)
-        except ServiceType.DoesNotExist:
+            package = Package.objects.get(pk=pk)
+        except Package.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ServiceTypeSerializer(service_type, data=request.data)
+        serializer = PackageSerializer(package, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # DELETE: Delete a specific service type
     def delete(self, request, pk):
         try:
-            service_type = ServiceType.objects.get(pk=pk)
-        except ServiceType.DoesNotExist:
+            package = Package.objects.get(pk=pk)
+        except Package.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        service_type.delete()
+        package.delete()
         return Response({"detail": "Deleted"}, status=status.HTTP_204_NO_CONTENT)

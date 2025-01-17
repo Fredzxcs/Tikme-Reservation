@@ -1,10 +1,8 @@
-# from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, views
-from ..models import Customer
-from ..serializers import CustomerSerializer
+from ..models import *
+from ..serializers import *
 
-# Customer Views
 class CustomerListCreateView(views.APIView):
     def get(self, request):
         customers = Customer.objects.all()
@@ -24,7 +22,7 @@ class CustomerDetailView(views.APIView):
             customer = Customer.objects.get(pk=pk)
         except Customer.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         serializer = CustomerSerializer(customer)
         return Response(serializer.data)
 
