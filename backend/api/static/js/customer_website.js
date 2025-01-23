@@ -1,3 +1,36 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const navbarToggler = document.getElementById('navbarToggler');
+    const navbarCollapse = document.getElementById('navbarCollapse');
+
+    navbarToggler.addEventListener('click', function () {
+        const isExpanded = navbarToggler.getAttribute('aria-expanded') === 'true';
+
+        if (isExpanded) {
+            navbarCollapse.style.maxHeight = null; // Collapse the menu
+            navbarToggler.setAttribute('aria-expanded', 'false');
+        } else {
+            navbarCollapse.style.maxHeight = `${navbarCollapse.scrollHeight}px`; // Expand the menu
+            navbarToggler.setAttribute('aria-expanded', 'true');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const navbarLinks = document.querySelectorAll('.nav-link'); // Select all nav links
+    const navbarCollapse = document.getElementById('navbarCollapse'); // Get the navbar collapse element
+
+    // Add click event listeners to each nav link
+    navbarLinks.forEach(link => {
+        link.addEventListener('click', function () {
+            // If the navbar is expanded (has the 'show' class), collapse it
+            if (navbarCollapse.classList.contains('show')) {
+                const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                bsCollapse.hide();
+            }
+        });
+    });
+});
+
 window.onload = function () {
     // Get the loader element
     var loader = document.querySelector('.loading-container');
