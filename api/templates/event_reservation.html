@@ -66,19 +66,18 @@
             <p id="totalCost" style="font-weight: bold; font-size: 18px;">Total Cost: PHP 0</p>
         </div>
         <div class="form-group">
-            <label>Payment Method <span class="required">*</span></label>
-            <div class="radio-group">
-                <label>
-                    <input type="radio" name="payment_method" value="Maya" required> Maya
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Card"> Card
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Gcash"> Gcash
-                </label>
-            </div>
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod" class="form-control" required>
+                <option value="gcash">GCash</option>
+                <option value="grab_pay">GrabPay</option>
+                <option value="card">Card</option>
+                <option value="qrph">QRPH</option>
+                <option value="brankas_bdo">Brankas BDO</option>
+                <option value="brankas_landbank">Brankas Landbank</option>
+                <option value="paymaya">PayMaya</option>
+            </select>
         </div>
+
         <div class="form-group">
             <label for="specialRequest">Do you have any special requests?</label>
             <textarea id="specialRequest" name="special_request" rows="4" placeholder="Type here..."></textarea>

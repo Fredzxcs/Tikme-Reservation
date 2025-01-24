@@ -137,22 +137,39 @@
         <div class="my-4 text-end">
             <h4>Total: <span id="totalPrice">0.00 PHP</span></h4>
         </div>
-
         <!-- Payment Method -->
         <div class="form-group">
-            <label class="form-label">Payment Method *</label>
-            <div class="radio-group">
-                <label>
-                    <input type="radio" name="payment_method" value="MAYA" required> Maya
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Card"> Card
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Gcash"> Gcash
-                </label>
+            <label>Payment Method</label>
+            <div class="payment-methods">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="gcash" value="gcash" required>
+                    <label class="form-check-label" for="gcash">GCash</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="grab_pay" value="grab_pay">
+                    <label class="form-check-label" for="grab_pay">GrabPay</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
+                    <label class="form-check-label" for="card">Card</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="qrph" value="qrph">
+                    <label class="form-check-label" for="qrph">QRPH</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="brankas_bdo" value="brankas_bdo">
+                    <label class="form-check-label" for="brankas_bdo">Brankas BDO</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="brankas_landbank" value="brankas_landbank">
+                    <label class="form-check-label" for="brankas_landbank">Brankas Landbank</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="paymaya" value="paymaya">
+                    <label class="form-check-label" for="paymaya">PayMaya</label>
+                </div>
             </div>
-            <div class="invalid-feedback">Please select a payment method.</div>
         </div>
 
         <!-- Special Request -->

@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
     'rest_framework',
     'api',
 ]
@@ -42,12 +41,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8004",
-    'http://192.168.100.7:8004',  # Reservation system's URL
-]
-
 
 
 ROOT_URLCONF = 'backend.urls'

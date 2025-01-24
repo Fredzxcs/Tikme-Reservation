@@ -42,4 +42,6 @@ urlpatterns = [
 
     # Emails
     path('send-contact-email/', views_emails.ContactView.as_view(), name='send-contact-email'),
+
+    
 ]

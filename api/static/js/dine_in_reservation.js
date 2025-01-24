@@ -135,8 +135,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // Function to toggle visibility of the payment method section
     const togglePaymentMethodVisibility = () => {
         const hasSelectedMenuItem = document.querySelectorAll(".menu-checkbox:checked").length > 0;
+        const paymentMethodSection = document.querySelector(".form-group");
+
+        // Show the payment method section only if at least one menu item is selected
         paymentMethodSection.style.display = hasSelectedMenuItem ? "block" : "none";
+
+        // Reset the payment method if no items are selected
+        if (!hasSelectedMenuItem) {
+            const paymentMethodInput = document.getElementById("paymentMethod");
+            if (paymentMethodInput) {
+                paymentMethodInput.value = ""; // Reset selection
+            }
+        }
     };
+
 
     // Update total price based on selected items and quantities
     const updateTotalPrice = () => {
@@ -152,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("totalPrice").textContent = `${total.toFixed(2)} PHP`;
     };
 
+    
     // Apply filters based on search and selected categories
     const applyFilters = () => {
         const searchQuery = searchBar.value.toLowerCase();
@@ -216,6 +229,9 @@ document.addEventListener("DOMContentLoaded", () => {
     
         const formData = new FormData(event.target);
     
+        // Check if any menu items are selected
+        const hasSelectedMenuItem = document.querySelectorAll(".menu-checkbox:checked").length > 0;
+    
         // Format the date to YYYY-MM-DD
         const selectedDateInput = document.getElementById("selectedDateInput").value;
         const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0]; // Extract YYYY-MM-DD
@@ -233,16 +249,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const formattedTime = `${hours}:${minutes}`;
         formData.set("reservation_time", formattedTime); // Ensure the correct format is sent
-    
-        // Ensure payment method is selected
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
-        if (!paymentMethod) {
-            Swal.fire("Error", "Please select a payment method.", "error");
-            return;
-        }
-        formData.set("payment_method", paymentMethod.value); // Add the selected payment method to FormData
-    
-        // Proceed with the rest of the form submission logic
+
+        // Handle advance order and payment method
         const advanceOrder = [];
         document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
             const productId = checkbox.id.split("-")[1];
@@ -258,31 +266,64 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
         });
-    
+
+        try {
+            // Send reservation details to the microservice for PayMongo integration
+            const response = await fetch("http://192.168.137.25:8006/api/dine-in/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(reservationDetails),
+            });
+            
+        // Append advance orders to the form data
         formData.append("advance_order", JSON.stringify(advanceOrder));
-    
+
+        // Total bill calculation
+        const totalBill = advanceOrder.reduce((total, item) => total + item.price * item.quantity, 0);
+        formData.append("total_bill", totalBill);
+
+        // Handle payment method
+        if (totalBill > 0) {
+            // Ensure payment method is selected
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+            if (!paymentMethod) {
+                Swal.fire("Error", "Please select a payment method.", "error");
+                return;
+            }
+            formData.set("payment_method", paymentMethod.value); // Add the selected payment method to FormData
+        } else {
+            // If no advance order, set payment method to "None"
+            formData.set("payment_method", "None");
+        }
+
+        // Proceed with the rest of the form submission logic
         fetch("/api/dine-in/", {
             method: "POST",
             body: formData,
         })
-            .then((response) => {
-                if (!response.ok) {
-                    return response.json().then((data) => {
-                        throw new Error(data.detail || "Failed to submit reservation.");
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.checkout_url) {
+                    // Redirect to the PayMongo checkout page
+                    window.location.href = data.checkout_url;
+                } else {
+                    Swal.fire("Success", "Reservation created successfully!", "success").then(() => {
+                        window.location.href = "/dine-in-calendar/";
                     });
                 }
-                return response.json();
-            })
-            .then(() => {
-                Swal.fire("Success", "Reservation submitted successfully!", "success").then(() => {
-                    window.location.href = "/dine-in-calendar/";
-                });
             })
             .catch((error) => {
-                Swal.fire("Error", error.message, "error");
+                console.error("Error:", error);
+                Swal.fire("Error", "An error occurred while processing the reservation.", "error");
             });
+
     });
+    
     
     // Fetch menu items on page load
     fetchMenuItems();
 });
+
+  
