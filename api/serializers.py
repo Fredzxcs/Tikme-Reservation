@@ -64,8 +64,8 @@ class DineInReservationSerializer(serializers.ModelSerializer):
         model = DineInReservation
         fields = [
             'id', 'customer', 'customer_id', 'number_of_guests', 'reservation_date',
-            'reservation_time', 'preferred_area', 'preferred_area_id',  # Include both preferred_area and preferred_area_id
-            'special_request', 'advance_order', 'payment_method', 'status', 'total_bill', 'created_at'
+            'reservation_time', 'preferred_area', 'preferred_area_id',  
+            'special_request', 'advance_order', 'reference_number','payment_method', 'status', 'total_bill', 'created_at'
         ]
 
 
@@ -104,5 +104,5 @@ class EventReservationSerializer(serializers.ModelSerializer):
             'id', 'customer', 'customer_id', 'venue', 'venue_id', 'package',
             'package_id', 'number_of_guests', 'reservation_date', 'reservation_time',
             'event_date_time', 'parking_slots_needed', 'special_request',
-            'payment_method', 'status', 'created_at', 'total_cost'
+            'payment_method', 'reference_number', 'status', 'created_at', 'total_cost'
         ]

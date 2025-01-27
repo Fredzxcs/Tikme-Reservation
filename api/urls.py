@@ -4,6 +4,7 @@ from .views import *
 urlpatterns = [
     # Customer URLs
     path('', views_.customer_website_view, name='customer-website'),
+    path('home/', views_.customer_website_view, name='customer-website'),
     path('survey/', views_.survey_view, name='survey'),
 
     path('event-calendar/', views_.event_calendar_view, name='event-calendar'),
@@ -12,6 +13,7 @@ urlpatterns = [
     path('dine-in-calendar/', views_.dine_in_calendar_view, name='dine-in-calendar'),
     path('dine-in-reservation/', views_.dine_in_reservation_view, name='dine-in-reservation'),
 
+    path('dine-in-summary/', views_dine_in_reservation.DineInReservationSummary.as_view(), name='reservationsummary'),
     # Customers
     path('api/customers/', views_customers.CustomerListCreateView.as_view(), name='api-customer-list-create'),
     path('api/customers/<int:pk>/', views_customers.CustomerDetailView.as_view(), name='api-customer-detail'),
@@ -43,5 +45,5 @@ urlpatterns = [
     # Emails
     path('send-contact-email/', views_emails.ContactView.as_view(), name='send-contact-email'),
 
-    
+
 ]

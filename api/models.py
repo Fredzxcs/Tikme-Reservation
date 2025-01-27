@@ -76,6 +76,7 @@ class DineInReservation(models.Model):
     preferred_area = models.ForeignKey(DiningArea, on_delete=models.SET_NULL, null=True)
     special_request = models.TextField(null=True, blank=True)
     advance_order = models.JSONField(null=True, blank=True)
+    reference_number = models.CharField(max_length=50, unique=True, null=False, blank=False)
     payment_method = models.CharField(
         max_length=50,
         choices=[('MAYA', 'MAYA'), ('Card', 'Card'), ('Gcash', 'Gcash')],
@@ -115,6 +116,7 @@ class EventReservation(models.Model):
     event_date_time = models.DateTimeField()  # Make sure this exists
     parking_slots_needed = models.PositiveIntegerField(default=0)
     special_request = models.TextField(null=True, blank=True)
+    reference_number = models.CharField(max_length=50, unique=True, null=False, blank=False,)
     payment_method = models.CharField(
         max_length=50,
         choices=[('MAYA', 'MAYA'), ('Card', 'Card'), ('Gcash', 'Gcash')],
@@ -129,3 +131,4 @@ class EventReservation(models.Model):
 
     def __str__(self):
         return f"Event Reservation for {self.customer} at {self.venue}"
+

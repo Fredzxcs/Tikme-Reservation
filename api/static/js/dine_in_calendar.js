@@ -145,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         generateCalendar(currentDate);
     });
 
+  
     document.getElementById('continueBtn').addEventListener('click', () => {
         if (selectedDate && selectedPlace && selectedTimeSlot) {
             Swal.fire({

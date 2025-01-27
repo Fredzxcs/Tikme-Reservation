@@ -5,8 +5,9 @@ from decimal import Decimal
 from ..emails import send_dine_in_confirmation_email
 from ..models import *
 from ..serializers import *
-import json
+import json, uuid
 from datetime import datetime
+from django.http import JsonResponse
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -142,8 +143,18 @@ class DineInReservationListCreateView(views.APIView):
                         {"detail": "Invalid advance order item. Ensure price and quantity are numeric."},
                         status=status.HTTP_400_BAD_REQUEST
                     )
+
             logger.info(f"Total bill calculated: {total_bill}")
 
+
+            def generate_reference_number():
+                while True:
+                    ref_number = f"RES-{uuid.uuid4().hex[:8].upper()}"
+                    if not DineInReservation.objects.filter(reference_number=ref_number).exists():
+                        return ref_number
+
+            reference_number = generate_reference_number()
+            logger.debug(f"Generated reference number: {reference_number}")
             # Create the reservation
             logger.info("Creating reservation.")
             reservation = DineInReservation.objects.create(
@@ -159,6 +170,9 @@ class DineInReservationListCreateView(views.APIView):
                 status='Confirmed',
                 total_bill=total_bill  # Explicitly set the total_bill here
             )
+
+            reservation.reference_number = generate_reference_number()
+            reservation.save()
 
             # Prepare email context
             logger.debug("Preparing email context for reservation confirmation.")
@@ -233,3 +247,12 @@ class DineInReservationDetailView(views.APIView):
 
         reservation.delete()
         return Response({"detail": "Deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class DineInReservationSummary(views.APIView):
+    def get(self, request):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            reservation = DineInReservation.objects.all()
+            serializer = DineInReservationSerializer(reservation, many=True)
+            return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        

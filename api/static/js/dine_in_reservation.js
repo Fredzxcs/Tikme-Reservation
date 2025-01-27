@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => { 
     // Example mapping of dining area names to IDs
     const diningAreas = {
         "Air Conditioning": 1,
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedTimeSlot) {
         document.getElementById("selectedTimeSlot").textContent = selectedTimeSlot;
         document.getElementById("selectedTimeSlotInput").value = selectedTimeSlot; // Hidden input for form submission
-    }
+    }   
 
     // Hide payment method initially
     const paymentMethodSection = document.querySelector(".form-group");
@@ -37,17 +37,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryCheckboxes = document.querySelectorAll(".category-checkbox");
     const accordionItems = document.querySelectorAll(".accordion-item");
     const menuContainers = {
-        "Breakfast & Meals": document.getElementById("breakfastMenuContainer"),
-        "Snacks & Appetizers": document.getElementById("snacksMenuContainer"),
-        "Desserts & Beverages": document.getElementById("dessertsMenuContainer"),
+        "1": document.getElementById("breakfastMenuContainer"),
+        "2": document.getElementById("snacksMenuContainer"),
+        "3": document.getElementById("dessertsMenuContainer"),
     };
 
     let menuItems = []; // Store fetched menu items
 
     // Fetch menu items from the server
     const fetchMenuItems = async () => {
-        try {
-            const response = await fetch("http://192.168.100.7:8004/products/");
+        try {   
+            const response = await fetch("http://192.168.1.82:8004/products/");
             if (!response.ok) throw new Error("Failed to fetch menu items.");
             menuItems = await response.json();
             applyFilters(); // Apply initial filters after fetching data
@@ -135,36 +135,31 @@ document.addEventListener("DOMContentLoaded", () => {
     // Function to toggle visibility of the payment method section
     const togglePaymentMethodVisibility = () => {
         const hasSelectedMenuItem = document.querySelectorAll(".menu-checkbox:checked").length > 0;
-        const paymentMethodSection = document.querySelector(".form-group");
-
-        // Show the payment method section only if at least one menu item is selected
         paymentMethodSection.style.display = hasSelectedMenuItem ? "block" : "none";
-
-        // Reset the payment method if no items are selected
-        if (!hasSelectedMenuItem) {
-            const paymentMethodInput = document.getElementById("paymentMethod");
-            if (paymentMethodInput) {
-                paymentMethodInput.value = ""; // Reset selection
-            }
-        }
     };
 
 
-    // Update total price based on selected items and quantities
-    const updateTotalPrice = () => {
+    // Function to calculate the total price
+    const calculateTotalPrice = () => {
         let total = 0;
         document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
             const productId = checkbox.id.split("-")[1];
             const menuItem = menuItems.find((item) => item.Product_ID.toString() === productId);
             if (menuItem) {
-                const quantity = document.getElementById(`quantity-${menuItem.Product_ID}`).value;
-                total += parseFloat(menuItem.PurchasePrice) * parseInt(quantity, 10);
+                const quantity = parseInt(document.getElementById(`quantity-${menuItem.Product_ID}`).value, 10);
+                const price = parseFloat(menuItem.PurchasePrice);
+                total += price * (isNaN(quantity) ? 0 : quantity); // Avoid NaN issues
             }
         });
+        return total;
+    };
+
+    // Updated function to display the total price on the UI
+    const updateTotalPrice = () => {
+        const total = calculateTotalPrice();
         document.getElementById("totalPrice").textContent = `${total.toFixed(2)} PHP`;
     };
 
-    
     // Apply filters based on search and selected categories
     const applyFilters = () => {
         const searchQuery = searchBar.value.toLowerCase();
@@ -223,22 +218,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Event listener for search bar input
     searchBar.addEventListener("input", applyFilters);
 
-   
-    document.getElementById("bookingForm").addEventListener("submit", (event) => {
+ 
+    document.getElementById("bookingForm").addEventListener("submit", async (event) => {
         event.preventDefault();
-    
+
         const formData = new FormData(event.target);
-    
-        // Check if any menu items are selected
-        const hasSelectedMenuItem = document.querySelectorAll(".menu-checkbox:checked").length > 0;
-    
-        // Format the date to YYYY-MM-DD
+
+        // Format date to YYYY-MM-DD
         const selectedDateInput = document.getElementById("selectedDateInput").value;
-        const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0]; // Extract YYYY-MM-DD
-        formData.set("reservation_date", formattedDate); // Ensure the correct format is sent
-    
-        // Format the time to HH:MM format
-        const rawTime = document.getElementById("selectedTimeSlotInput").value; // Assuming this is "11:30am"
+        const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0];
+        formData.set("reservation_date", formattedDate);
+
+        // Format time to HH:MM
+        const rawTime = document.getElementById("selectedTimeSlotInput").value;
         const [time, modifier] = rawTime.split(/(am|pm)/i);
         let [hours, minutes] = time.split(":");
         if (modifier.toLowerCase() === "pm" && hours !== "12") {
@@ -248,9 +240,17 @@ document.addEventListener("DOMContentLoaded", () => {
             hours = "00";
         }
         const formattedTime = `${hours}:${minutes}`;
-        formData.set("reservation_time", formattedTime); // Ensure the correct format is sent
+        formData.set("reservation_time", formattedTime);
 
-        // Handle advance order and payment method
+        // Validate payment method
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (!paymentMethod) {
+            Swal.fire("Error", "Please select a payment method.", "error");
+            return;
+        }
+        formData.set("payment_method", paymentMethod.value);
+
+        // Prepare advance orders
         const advanceOrder = [];
         document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
             const productId = checkbox.id.split("-")[1];
@@ -267,63 +267,119 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        try {
-            // Send reservation details to the microservice for PayMongo integration
-            const response = await fetch("http://192.168.137.25:8006/api/dine-in/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(reservationDetails),
-            });
-            
-        // Append advance orders to the form data
         formData.append("advance_order", JSON.stringify(advanceOrder));
 
-        // Total bill calculation
-        const totalBill = advanceOrder.reduce((total, item) => total + item.price * item.quantity, 0);
-        formData.append("total_bill", totalBill);
+        try {
+            const reservationResponse = await fetch("/api/dine-in/", {
+                method: "POST",
+                body: formData,
+            });
+        
+            if (!reservationResponse.ok) {
+                const errorData = await reservationResponse.json();
+                console.error("Backend error response:", errorData);
+                throw new Error(errorData.detail || "Failed to submit reservation.");
+            }
+        
+            const reservationData = await reservationResponse.json();
+            console.log("Reservation Data from Backend:", reservationData);
+            const totalPrice = calculateTotalPrice() * 100; // Convert to cents
+            
+           // Define available payment methods
+            const paymentMethods = [
+                "gcash",
+                "grab_pay",
+                "card",
+                "qrph",
+                "brankas_bdo",
+                "brankas_landbank",
+                "paymaya"
+            ];
 
-        // Handle payment method
-        if (totalBill > 0) {
-            // Ensure payment method is selected
-            const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
-            if (!paymentMethod) {
-                Swal.fire("Error", "Please select a payment method.", "error");
+            // Get the user-selected payment method
+            const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked'); // Ensure this is the correct selector
+
+            if (!selectedPaymentMethod || !paymentMethods.includes(selectedPaymentMethod.value)) {
+                Swal.fire("Error", "Please select a valid payment method.", "error");
                 return;
             }
-            formData.set("payment_method", paymentMethod.value); // Add the selected payment method to FormData
-        } else {
-            // If no advance order, set payment method to "None"
-            formData.set("payment_method", "None");
-        }
 
-        // Proceed with the rest of the form submission logic
-        fetch("/api/dine-in/", {
-            method: "POST",
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.checkout_url) {
-                    // Redirect to the PayMongo checkout page
-                    window.location.href = data.checkout_url;
-                } else {
-                    Swal.fire("Success", "Reservation created successfully!", "success").then(() => {
-                        window.location.href = "/dine-in-calendar/";
+            // Construct validPaymentMethods with the user-selected payment method
+            const validPaymentMethods = [selectedPaymentMethod.value];
+
+            const total_amount_text = document.getElementById("totalPrice").textContent;
+            const total_amount = parseInt(total_amount_text.replace(/[^\d]/g, ""), 10);
+            // Access reservation ID and reference number from the backend response
+            const reservationId = reservationData.reservation?.id; // Access reservation ID
+            const referenceNumber = reservationData.reservation?.reference_number; // Access reference number
+            const success_url = "127:0.0.1:8002/home";
+
+            if (!reservationId || !referenceNumber) {
+                console.error("Missing reservation ID or reference number:", {
+                    reservationId,
+                    referenceNumber,
+                    fullResponse: reservationData,
+                });
+                throw new Error("Invalid reservation ID or reference number received from the backend.");
+            }
+
+            // Construct the payload for PayMongo
+            const payload = {
+                data: {
+                    attributes: {
+                        description: "Dine-in reservation payment",
+                        success_url: success_url,
+                        line_items: [
+                            {
+                            name: "Dine-in-Purchases",
+                            amount: total_amount, // Convert to cents
+                            currency: "PHP",
+                            quantity: 1,
+                            description: "Customer Purchase"
+                            }
+                        ],
+                        payment_method_types: validPaymentMethods, // Use the selected payment method
+                        reference_number: referenceNumber, // Construct a valid reference number
+                        send_email_receipt: true,
+                    },
+                },
+            };
+
+            console.log("Payload to PayMongo:", payload);
+      
+            // Step 2: Send the payload to PayMongo
+            const paymongoResponse = await fetch("http://192.168.1.25:8006/create-checkout-session/", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify(payload),
+            }).then((response) => {
+                if (!response.ok) {
+                    return response.json().then((error) => {
+                        console.error("Error details:", error);
+                        throw new Error(`HTTP error! Status: ${response.status}`);
                     });
                 }
+                return response.json();
             })
-            .catch((error) => {
-                console.error("Error:", error);
-                Swal.fire("Error", "An error occurred while processing the reservation.", "error");
-            });
-
+            .then((data) => {
+                console.log("Response:", data); // Log the response for debugging
+                const checkout_url = data.details?.data?.attributes?.checkout_url;
+                if (checkout_url) {
+                    // Redirect to the PayMongo checkout page
+                    window.location.href = checkout_url;
+                } else {
+                    console.error("Checkout URL not found in response.");
+                }
+            })
+        } catch (error) {
+            Swal.fire("Error", error.message, "error");
+        }
     });
-    
-    
+
     // Fetch menu items on page load
     fetchMenuItems();
 });
 
-  
+    
