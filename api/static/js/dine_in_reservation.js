@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch menu items from the server
     const fetchMenuItems = async () => {
         try {   
-            const response = await fetch("http://192.168.1.82:8004/products/");
+            const response = await fetch("http://192.168.100.101:8004/products/");
             if (!response.ok) throw new Error("Failed to fetch menu items.");
             menuItems = await response.json();
             applyFilters(); // Apply initial filters after fetching data
@@ -329,15 +329,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     attributes: {
                         description: "Dine-in reservation payment",
                         success_url: success_url,
-                        line_items: [
-                            {
-                            name: "Dine-in-Purchases",
-                            amount: total_amount, // Convert to cents
+                        line_items: advanceOrder.map((item) => ({
+                            name: item.product_name,
+                            amount: Math.round(item.price * 100), // Convert item prices to cents
                             currency: "PHP",
-                            quantity: 1,
-                            description: "Customer Purchase"
-                            }
-                        ],
+                            quantity: item.quantity,
+                            description: "Customer Purchase",
+                        })),
                         payment_method_types: validPaymentMethods, // Use the selected payment method
                         reference_number: referenceNumber, // Construct a valid reference number
                         send_email_receipt: true,
@@ -348,7 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Payload to PayMongo:", payload);
       
             // Step 2: Send the payload to PayMongo
-            const paymongoResponse = await fetch("http://192.168.1.25:8006/create-checkout-session/", {
+            const paymongoResponse = await fetch("http://192.168.100.101:8006/create-checkout-session/", {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json" 
