@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedPlace = null;
     let selectedTimeSlot = null;
 
+    const maxReservations = 5; // Maximum allowed reservations per slot
+
     // Operating hours based on the day
     const timeSlots = {
         weekday: [
@@ -22,7 +24,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const eventPlaces = ['Air Conditioning', 'Alfresco'];
     let currentDate = new Date();
 
-    // Generate Calendar
+
+    function convertTo24Hour(time) {
+        let [hour, minute] = time.replace(/(am|pm)/i, "").split(":").map(Number);
+        let isPM = time.toLowerCase().includes("pm");
+    
+        if (isPM && hour !== 12) hour += 12;
+        if (!isPM && hour === 12) hour = 0;
+    
+        return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`; 
+    }
+    
+    // ✅ Generate Calendar
     function generateCalendar(date) {
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
@@ -95,46 +108,82 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function selectPlace(place) {
+    async function selectPlace(place) {
         selectedPlace = place;
         document.querySelectorAll('.place-item').forEach(item => {
             item.classList.toggle('selected', item.textContent === place);
         });
-        updateTimeSlots();
+        await updateTimeSlots();
         document.getElementById('timeSlots').classList.add('visible');
     }
 
-    function updateTimeSlots() {
+    async function updateTimeSlots() {
         const container = document.getElementById('timeSlotContainer');
         container.innerHTML = '';
-
+    
         if (!selectedDate || !selectedPlace) return;
-
+    
         const dayOfWeek = selectedDate.getDay();
         const slots = dayOfWeek === 0 ? timeSlots.sunday : timeSlots.weekday;
-
-        slots.forEach(time => {
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+    
+        for (const time of slots) {
             const slot = document.createElement('button');
             slot.className = 'time-slot';
-            if (time === selectedTimeSlot) {
-                slot.classList.add('selected');
-            }
             slot.textContent = time;
-            slot.addEventListener('click', () => {
-                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                slot.classList.add('selected');
-                selectedTimeSlot = time;
-            });
+    
+            const timeFormatted = convertTo24Hour(time);
+    
+            // ✅ Fetch the reservation count for this slot
+            const reservationCount = await fetchReservationCount(formattedDate, selectedPlace, timeFormatted);
+    
+            if (reservationCount >= maxReservations) {
+                console.log(`❌ Disabling slot: ${timeFormatted} - Fully Booked (${reservationCount})`);
+                slot.classList.add('disabled');  // ✅ Add CSS class to gray out the button
+                slot.disabled = true;            // ✅ Prevent clicking
+            } else {
+                console.log(`🟢 Slot Available: ${timeFormatted} - ${reservationCount} reservations`);
+                slot.addEventListener('click', () => {
+                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    slot.classList.add('selected');
+                    selectedTimeSlot = timeFormatted;
+                });
+            }
+    
             container.appendChild(slot);
-        });
+        }
     }
+    
+    
 
+    async function fetchReservationCount(date, place, time) {
+        try {
+            const response = await fetch(`/api/dine-in-calendar/?date=${encodeURIComponent(date)}&place=${encodeURIComponent(place)}&time=${encodeURIComponent(time)}`);
+    
+            if (!response.ok) {
+                const errorText = await response.text();  // 🔥 Log the response body for debugging
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+    
+            const data = await response.json();
+            
+            // 🔍 Debug log for checking fetched reservation count
+            console.log(`🟢 Slot Check: ${time} - Reservations: ${data.reservation_count}`);
+    
+            return data.reservation_count || 0; // ✅ Ensure it always returns a number
+        } catch (error) {
+            console.error("❌ Error fetching reservation count:", error);
+            return 0;
+        }
+    }
+    
+      
     function clearTimeSlots() {
         const container = document.getElementById('timeSlotContainer');
         container.innerHTML = '';
     }
 
-    // Navigation and Continue Button
+    // ✅ Navigation and Continue Button
     document.getElementById('prevMonth').addEventListener('click', () => {
         currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1);
         generateCalendar(currentDate);
@@ -145,7 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
         generateCalendar(currentDate);
     });
 
-  
     document.getElementById('continueBtn').addEventListener('click', () => {
         if (selectedDate && selectedPlace && selectedTimeSlot) {
             Swal.fire({

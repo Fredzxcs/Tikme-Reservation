@@ -1,12 +1,14 @@
 from django.db import models
-
+from django.core.exceptions import ValidationError
+import uuid
+from decimal import Decimal
 
 # Customer Information
 class Customer(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=15)
-    email_address = models.EmailField(max_length=255)
+    email_address = models.EmailField(max_length=255, unique=True)  # Ensuring unique email
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -14,22 +16,20 @@ class Customer(models.Model):
 
 # Dining Area for Dine-In Reservations
 class DiningArea(models.Model):
-    area_name = models.CharField(max_length=255, unique=True)  # Name of the area (e.g., Alfresco, Air Conditioning)
-    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp for when the area was added
+    area_name = models.CharField(max_length=255, unique=True)  # Ensuring uniqueness
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.area_name
 
-
 # Venue for Event Reservations
 class Venue(models.Model):
     venue_name = models.CharField(max_length=255)
-    capacity = models.PositiveIntegerField(default=0) 
+    capacity = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.venue_name
-
 
 # Package for Event Reservations
 class Package(models.Model):
@@ -40,6 +40,7 @@ class Package(models.Model):
     def __str__(self):
         return self.package_name
 
+# Survey Model
 class Survey(models.Model):
     name = models.CharField(max_length=255)
     date = models.DateField(default="2025-01-01")
@@ -66,7 +67,11 @@ class Survey(models.Model):
     def __str__(self):
         return f"Survey by {self.name} on {self.date}"
 
-# Dine-In Reservation Model
+# ✅ Function for generating unique reference number
+def generate_reference_number():
+    return f"RES-{uuid.uuid4().hex[:8].upper()}"
+
+# ✅ Dine-In Reservation Model
 class DineInReservation(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     number_of_guests = models.PositiveIntegerField()
@@ -74,33 +79,68 @@ class DineInReservation(models.Model):
     reservation_time = models.TimeField()
     parking_slots_needed = models.PositiveIntegerField(default=0)
     preferred_area = models.ForeignKey(DiningArea, on_delete=models.SET_NULL, null=True)
-    special_request = models.TextField(null=True, blank=True)
-    advance_order = models.JSONField(null=True, blank=True)
-    reference_number = models.CharField(max_length=50, unique=True, null=False, blank=False)
+    special_request = models.TextField(blank=True, null=True)
+
+    # ✅ Use `default=list` instead of `null=True`
+    advance_order = models.JSONField(default=list, blank=True) 
+
+    # ✅ Reference number now correctly uses the function
+    reference_number = models.CharField(max_length=50, unique=True, default=generate_reference_number)
+
+    # ✅ Payment Method Choices
+    PAYMENT_METHOD_CHOICES = [
+        ('gcash', 'GCash'),
+        ('grab_pay', 'GrabPay'),
+        ('card', 'Card'),
+        ('qrph', 'QRPH'),
+        ('brankas_bdo', 'Brankas BDO'),
+        ('brankas_landbank', 'Brankas Landbank'),
+        ('paymaya', 'PayMaya'),
+    ]
+
     payment_method = models.CharField(
-        max_length=50,
-        choices=[('MAYA', 'MAYA'), ('Card', 'Card'), ('Gcash', 'Gcash')],
-        default='Card'
+        max_length=50, choices=PAYMENT_METHOD_CHOICES, default='card'
     )
+
     total_bill = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Confirmed', 'Confirmed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+
     status = models.CharField(
-        max_length=50,
-        choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed'), ('Cancelled', 'Cancelled')],
-        default='Pending'
+        max_length=50, choices=STATUS_CHOICES, default='Pending'
     )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # ✅ Calculate total bill from advance orders
     def calculate_total_bill(self):
         if self.advance_order:
-            return sum(item['quantity'] * item['price'] for item in self.advance_order)
-        return 0
+            return sum(
+                Decimal(str(item.get('quantity', 0))) * Decimal(str(item.get('price', 0)))
+                for item in self.advance_order
+            )
+        return Decimal(0)
 
+    # ✅ Custom save method with max reservations per slot
     def save(self, *args, **kwargs):
-        self.total_bill = self.calculate_total_bill()
-        super().save(*args, **kwargs)
+        # Check if max 5 reservations are reached per slot
+        existing_reservations = DineInReservation.objects.filter(
+            reservation_date=self.reservation_date,
+            reservation_time=self.reservation_time,
+            preferred_area=self.preferred_area
+        ).count()
 
-    class Meta:
-        unique_together = ('customer', 'reservation_date', 'reservation_time')
+        if existing_reservations >= 5:
+            raise ValidationError("This time slot is fully booked. Please select a different time.")
+
+        # Ensure the total bill is calculated before saving
+        self.total_bill = self.calculate_total_bill()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Dine-In Reservation for {self.customer} on {self.reservation_date} at {self.reservation_time}"
@@ -111,24 +151,37 @@ class EventReservation(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     package = models.ForeignKey(Package, on_delete=models.SET_NULL, null=True)
     number_of_guests = models.PositiveIntegerField()
-    reservation_date = models.DateField()
+    reservation_date = models.DateField(unique=True) 
     reservation_time = models.TimeField()
-    event_date_time = models.DateTimeField()  # Make sure this exists
+    event_date_time = models.DateTimeField()
     parking_slots_needed = models.PositiveIntegerField(default=0)
     special_request = models.TextField(null=True, blank=True)
-    reference_number = models.CharField(max_length=50, unique=True, null=False, blank=False,)
-    payment_method = models.CharField(
-        max_length=50,
-        choices=[('MAYA', 'MAYA'), ('Card', 'Card'), ('Gcash', 'Gcash')],
-        default='Card'
+    reference_number = models.CharField(
+        max_length=50, unique=True, default=generate_reference_number  # ✅ Updated from lambda to function
     )
+
+    PAYMENT_METHOD_CHOICES = [
+        ('gcash', 'GCash'),
+        ('grab_pay', 'GrabPay'),
+        ('card', 'Card'),
+        ('qrph', 'QRPH'),
+        ('brankas_bdo', 'Brankas BDO'),
+        ('brankas_landbank', 'Brankas Landbank'),
+        ('paymaya', 'PayMaya'),
+    ]
+
+    payment_method = models.CharField(
+        max_length=50, choices=PAYMENT_METHOD_CHOICES, default='card'
+    )
+
+    
     status = models.CharField(
         max_length=50,
         choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed'), ('Cancelled', 'Cancelled')],
         default='Pending'
     )
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Event Reservation for {self.customer} at {self.venue}"
-
+        return f"Event Reservation for {self.customer} at {self.venue} on {self.reservation_date}"

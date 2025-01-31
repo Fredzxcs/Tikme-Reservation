@@ -45,7 +45,7 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="phone" class="form-label">Phone Number *</label>
-                <input type="tel" id="phone" name="phone_number" class="form-control" placeholder="(000) 000-0000" required>
+                <input type="tel" id="phone" name="phone_number" class="form-control" placeholder="+63" required>
                 <div class="invalid-feedback">Phone Number is required.</div>
             </div>
             <div class="col-md-6">
@@ -69,6 +69,15 @@
             </div>
         </div>
 
+        <div class="validation-container">
+            <div class="error-message" id="firstNameError"></div>
+            <div class="error-message" id="lastNameError"></div>
+            <div class="error-message" id="phoneError"></div>
+            <div class="error-message" id="emailError"></div>
+            <div class="error-message" id="guestsError"></div>
+            <div class="error-message" id="parkingError"></div>
+        </div>
+        
         <!-- Advance Order Section -->
         <div class="row mb-4">
             <div class="col-md-8">

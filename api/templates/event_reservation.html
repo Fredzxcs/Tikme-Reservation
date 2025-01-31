@@ -48,58 +48,55 @@
                 <input type="number" id="parking" name="parking_slots_needed" placeholder="e.g., 5" min="0">
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-package">
             <label>Packages <span class="required">*</span></label>
             <div class="package-selection">
                 <label class="package-option">
-                    <input type="radio" name="package" value="Silver" required> Silver
+                    <input type="radio" name="package" value="Silver" required>
+                    <div class="package-content">
+                        <span class="package-name">Silver</span>
+                        <span class="package-description">
+                            Silver package includes a delightful selection of soup, pasta or vegetables, fish, chicken, steamed rice, dessert, and a refreshing drink.</span>
+                    </div>
                 </label>
                 <label class="package-option">
-                    <input type="radio" name="package" value="Gold"> Gold
+                    <input type="radio" name="package" value="Diamond">
+                    <div class="package-content">
+                        <span class="package-name">Diamond</span>
+                        <span class="package-description">
+                            Gold package includes a delightful variety of soup, salad, pasta or vegetables, pork, chicken, steamed rice, dessert, and a refreshing drink.</span>
+                    </div>
                 </label>
                 <label class="package-option">
-                    <input type="radio" name="package" value="Diamond"> Diamond
+                    <input type="radio" name="package" value="Platinum">
+                    <div class="package-content">
+                        <span class="package-name">Platinum</span>
+                        <span class="package-description">
+                            Diamond package offers a sumptuous selection of soup, salad, vegetables, pasta, fish, pork, chicken, beef, steamed rice, dessert, and a refreshing drink.</span>
+                    </div>
                 </label>
             </div>
         </div>
-        <div class="form-group">
-            <p id="totalCost" style="font-weight: bold; font-size: 18px;">Total Cost: PHP 0</p>
+        
+        <!-- Total Cost Display -->
+        <div class="form-total">
+            <p class="total-cost"><strong>Total: <span id="totalAmount">0.00</span> PHP</strong></p>
         </div>
 
         <!-- Payment Method -->
         <div class="form-group">
             <label>Payment Method</label>
             <div class="payment-methods">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="gcash" value="gcash" required>
-                    <label class="form-check-label" for="gcash">GCash</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="grab_pay" value="grab_pay">
-                    <label class="form-check-label" for="grab_pay">GrabPay</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
-                    <label class="form-check-label" for="card">Card</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="qrph" value="qrph">
-                    <label class="form-check-label" for="qrph">QRPH</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="brankas_bdo" value="brankas_bdo">
-                    <label class="form-check-label" for="brankas_bdo">Brankas BDO</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="brankas_landbank" value="brankas_landbank">
-                    <label class="form-check-label" for="brankas_landbank">Brankas Landbank</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="paymaya" value="paymaya">
-                    <label class="form-check-label" for="paymaya">PayMaya</label>
-                </div>
+                <label><input type="radio" name="payment_method" value="gcash" required> GCash</label>
+                <label><input type="radio" name="payment_method" value="grab_pay"> GrabPay</label>
+                <label><input type="radio" name="payment_method" value="card"> Card</label>
+                <label><input type="radio" name="payment_method" value="qrph"> QRPH</label>
+                <label><input type="radio" name="payment_method" value="brankas_bdo"> Brankas BDO</label>
+                <label><input type="radio" name="payment_method" value="brankas_landbank"> Brankas Landbank</label>
+                <label><input type="radio" name="payment_method" value="paymaya"> PayMaya</label>
             </div>
         </div>
+
         
         <div class="form-group">
             <label for="specialRequest">Do you have any special requests?</label>

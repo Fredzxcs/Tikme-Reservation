@@ -218,6 +218,13 @@
     display: block;
 }
 
+.time-slot.disabled {
+    background-color: #ccc !important;
+    color: #666 !important;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
 .time-slots h3 {
     margin-bottom: 16px;
     color: #333;
