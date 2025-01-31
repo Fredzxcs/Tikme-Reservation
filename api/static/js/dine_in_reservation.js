@@ -351,253 +351,215 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-
-    // Event listener for search bar input
-    searchBar.addEventListener("input", applyFilters);
-
- 
-    document.getElementById("bookingForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
+    document.addEventListener("DOMContentLoaded", () => { 
+        document.getElementById("bookingForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
     
-        const formData = new FormData(event.target);
+            const formData = new FormData(event.target);
     
-        // Format date to YYYY-MM-DD
-        const selectedDateInput = document.getElementById("selectedDateInput").value;
-        const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0];
-        formData.set("reservation_date", formattedDate);
+            // Format date to YYYY-MM-DD
+            const selectedDateInput = document.getElementById("selectedDateInput").value;
+            const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0];
+            formData.set("reservation_date", formattedDate);
     
-        const timeInput = document.getElementById("selectedTimeSlotInput");
+            const timeInput = document.getElementById("selectedTimeSlotInput");
     
-        // Ensure timeInput exists and has a value
-        if (!timeInput || !timeInput.value) {
-            console.error("Error: No time slot selected.");
-            return;
-        }
-    
-        const rawTime = timeInput.value;
-        console.log(`Raw Time: ${rawTime}`); // 🔥 Debugging log
-    
-        // Extract time and modifier (am/pm)
-        const match = rawTime.match(/(\d{1,2}):(\d{2})(\s?(am|pm))?/i);
-        if (!match) {
-            console.error("Error: Invalid time format.", { rawTime });
-            return;
-        }
-    
-        let hours = parseInt(match[1], 10);
-        const minutes = match[2];
-        const modifier = match[4] ? match[4].toLowerCase() : "";
-    
-        // Convert to 24-hour format if necessary
-        if (modifier === "pm" && hours !== 12) {
-            hours += 12;
-        }
-        if (modifier === "am" && hours === 12) {
-            hours = 0;
-        }
-    
-        // Ensure it's properly formatted as HH:MM:SS
-        const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
-        console.log(`Formatted Time (24H): ${formattedTime}`);
-    
-        formData.set("reservation_time", formattedTime);
- 
-        // Validate payment method
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
-        if (!paymentMethod) {
-            Swal.fire("Error", "Please select a payment method.", "error");
-            return;
-        }
-        formData.set("payment_method", paymentMethod.value);
-
-        // Prepare advance orders
-        const advanceOrder = [];
-        document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
-            const productId = checkbox.id.split("-")[1];
-            const menuItem = menuItems.find((item) => item.Product_ID.toString() === productId);
-            if (menuItem) {
-                const quantity = parseInt(document.getElementById(`quantity-${menuItem.Product_ID}`).value, 10);
-                const price = parseFloat(menuItem.PurchasePrice);
-                advanceOrder.push({
-                    product_id: menuItem.Product_ID,
-                    product_name: menuItem.ProductName,
-                    quantity: isNaN(quantity) ? 0 : quantity,
-                    price: isNaN(price) ? 0 : price,
-                });
+            // Ensure timeInput exists and has a value
+            if (!timeInput || !timeInput.value) {
+                console.error("Error: No time slot selected.");
+                return;
             }
-        });
-
-        formData.append("advance_order", JSON.stringify(advanceOrder));
-
-        try {
-            const reservationResponse = await fetch("/api/dine-in/", {
-                method: "POST",
-                body: formData,
+    
+            const rawTime = timeInput.value;
+            console.log(`Raw Time: ${rawTime}`); // 🔥 Debugging log
+    
+            // Extract time and modifier (am/pm)
+            const match = rawTime.match(/(\d{1,2}):(\d{2})(\s?(am|pm))?/i);
+            if (!match) {
+                console.error("Error: Invalid time format.", { rawTime });
+                return;
+            }
+    
+            let hours = parseInt(match[1], 10);
+            const minutes = match[2];
+            const modifier = match[4] ? match[4].toLowerCase() : "";
+    
+            // Convert to 24-hour format if necessary
+            if (modifier === "pm" && hours !== 12) hours += 12;
+            if (modifier === "am" && hours === 12) hours = 0;
+    
+            // Ensure it's properly formatted as HH:MM:SS
+            const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+            console.log(`Formatted Time (24H): ${formattedTime}`);
+    
+            formData.set("reservation_time", formattedTime);
+    
+            // Validate payment method
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+            if (!paymentMethod) {
+                Swal.fire("Error", "Please select a payment method.", "error");
+                return;
+            }
+            formData.set("payment_method", paymentMethod.value);
+    
+            // Prepare advance orders
+            const advanceOrder = [];
+            document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
+                const productId = checkbox.id.split("-")[1];
+                const menuItem = menuItems.find((item) => item.Product_ID.toString() === productId);
+                if (menuItem) {
+                    const quantity = parseInt(document.getElementById(`quantity-${menuItem.Product_ID}`).value, 10);
+                    const price = parseFloat(menuItem.PurchasePrice);
+                    advanceOrder.push({
+                        product_id: menuItem.Product_ID,
+                        product_name: menuItem.ProductName,
+                        quantity: isNaN(quantity) ? 0 : quantity,
+                        price: isNaN(price) ? 0 : price,
+                    });
+                }
             });
-        
-            if (!reservationResponse.ok) {
-                const errorData = await reservationResponse.json();
-                console.error("Backend error response:", errorData);
-                throw new Error(errorData.detail || "Failed to submit reservation.");
-            }
-        
-            const reservationData = await reservationResponse.json();
-            console.log("Reservation Data from Backend:", reservationData);
-            const totalPrice = calculateTotalPrice() * 100; // Convert to cents
-            
-            // Step 2: If advance orders exist, send them to logistics
-            if (advanceOrder.length > 0) {
-                await sendOrdersToLogistics(advanceOrder);
-            }
-            
+    
+            formData.append("advance_order", JSON.stringify(advanceOrder));
+    
+            try {
+                // Step 1: Submit reservation
+                const reservationResponse = await fetch("/api/dine-in/", {
+                    method: "POST",
+                    body: formData,
+                });
+    
+                if (!reservationResponse.ok) {
+                    const errorData = await reservationResponse.json();
+                    console.error("Backend error response:", errorData);
+                    throw new Error(errorData.detail || "Failed to submit reservation.");
+                }
+    
+                const reservationData = await reservationResponse.json();
+                console.log("Reservation Data from Backend:", reservationData);
+    
+                // Step 2: If advance orders exist, send them to logistics
+                if (advanceOrder.length > 0) {
+                    await sendOrdersToLogistics(advanceOrder);
+                }
+    
+                // Step 3: Continue with PayMongo integration
+                await processPayment(reservationData, advanceOrder);
+    
             } catch (error) {
                 console.error("❌ Error:", error);
                 Swal.fire("Error", error.message, "error");
             }
-
-            /**
-             * Function to send multiple orders to the logistics API
-             * @param {Array} orders - The list of advance orders
-             */
-            async function sendOrdersToLogistics(orders) {
-                for (const order of orders) {
-                    try {
-                        const response = await fetch("http://127.0.0.1:8004/api/receive-order/", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                product_id: order.product_id,
-                                quantity: order.quantity,
-                            }),
-                        });
-
-                        const responseData = await response.json();
-
-                        if (!response.ok) {
-                            console.error("❌ Logistics Order Error:", responseData.error);
-                            Swal.fire("Order Error", `Issue sending order for Product ID ${order.product_id}.`, "warning");
-                        } else {
-                            console.log(`✅ Order sent successfully for Product ID ${order.product_id}:`, responseData);
-                        }
-                    } catch (error) {
-                        console.error("❌ Logistics Order Network Error:", error);
-                        Swal.fire("Order Error", "There was an issue sending your order. Please check later.", "warning");
+        });
+    
+        /**
+         * Function to send multiple orders to the logistics API
+         * @param {Array} orders - The list of advance orders
+         */
+        async function sendOrdersToLogistics(orders) {
+            for (const order of orders) {
+                try {
+                    const response = await fetch("http://127.0.0.1:8000/api/receive-order/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            product_id: order.product_id,
+                            quantity: order.quantity,
+                        }),
+                    });
+    
+                    const responseData = await response.json();
+    
+                    if (!response.ok) {
+                        console.error("❌ Logistics Order Error:", responseData.error);
+                        Swal.fire("Order Error", `Issue sending order for Product ID ${order.product_id}.`, "warning");
+                    } else {
+                        console.log(`✅ Order sent successfully for Product ID ${order.product_id}:`, responseData);
                     }
+                } catch (error) {
+                    console.error("❌ Logistics Order Network Error:", error);
+                    Swal.fire("Order Error", "There was an issue sending your order. Please check later.", "warning");
                 }
             }
-        
-           // Define available payment methods
-            const paymentMethods = [
-                "gcash",
-                "grab_pay",
-                "card",
-                "qrph",
-                "brankas_bdo",
-                "brankas_landbank",
-                "paymaya"
-            ];
-
+        }
+    
+        /**
+         * Function to process payment via PayMongo
+         * @param {Object} reservationData - Data from the reservation API response
+         * @param {Array} advanceOrder - List of items for payment
+         */
+        async function processPayment(reservationData, advanceOrder) {
+            // Define available payment methods
+            const paymentMethods = ["gcash", "grab_pay", "card", "qrph", "brankas_bdo", "brankas_landbank", "paymaya"];
+    
             // Get the user-selected payment method
-            const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked'); // Ensure this is the correct selector
-
+            const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
             if (!selectedPaymentMethod || !paymentMethods.includes(selectedPaymentMethod.value)) {
                 Swal.fire("Error", "Please select a valid payment method.", "error");
                 return;
             }
-
-            // Construct validPaymentMethods with the user-selected payment method
+    
             const validPaymentMethods = [selectedPaymentMethod.value];
-
-            
-            const calculateTotalAmount = () => {
-                let total = 0;
-                document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
-                    const productId = checkbox.id.split("-")[1];
-                    const menuItem = menuItems.find((item) => item.Product_ID.toString() === productId);
-                    if (menuItem) {
-                        const quantity = parseInt(document.getElementById(`quantity-${menuItem.Product_ID}`).value, 10);
-                        const price = parseFloat(menuItem.PurchasePrice);
-                        total += (price * quantity); // Ensure proper calculation
-                    }
-                });
-                console.log("✅ Final Total Amount:", total); // Debugging
-                return total;
-            };
-            
-
-            // Access reservation ID and reference number from the backend response
-            const reservationId = reservationData.reservation?.id; // Access reservation ID
-            const referenceNumber = reservationData.reservation?.reference_number; // Access reference number
+    
+            // Access reservation ID and reference number from backend response
+            const reservationId = reservationData.reservation?.id;
+            const referenceNumber = reservationData.reservation?.reference_number;
             const success_url = "http://127.0.0.1:8002/home"; // ✅ Correct format
-
-
+    
             if (!reservationId || !referenceNumber) {
-                console.error("Missing reservation ID or reference number:", {
-                    reservationId,
-                    referenceNumber,
-                    fullResponse: reservationData,
-                });
+                console.error("Missing reservation ID or reference number:", { reservationId, referenceNumber, fullResponse: reservationData });
                 throw new Error("Invalid reservation ID or reference number received from the backend.");
             }
-
-            const total_amount = calculateTotalAmount();
-        const payload = {
-            data: {
-                attributes: {
-                    description: "Dine-in reservation payment",
-                    success_url: success_url,
-                    amount: Math.round(total_amount * 100), // Convert PHP to cents
-                    line_items: advanceOrder.map((item) => ({
-                        name: item.product_name,
-                        amount: Math.round(item.price * 100), // Convert unit price to cents
-                        currency: "PHP",
-                        quantity: item.quantity,
-                        description: "Customer Purchase",
-                    })),
-                    payment_method_types: validPaymentMethods,
-                    reference_number: referenceNumber,
-                    send_email_receipt: true,
+    
+            const total_amount = advanceOrder.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const payload = {
+                data: {
+                    attributes: {
+                        description: "Dine-in reservation payment",
+                        success_url: success_url,
+                        amount: Math.round(total_amount * 100), // Convert PHP to cents
+                        line_items: advanceOrder.map((item) => ({
+                            name: item.product_name,
+                            amount: Math.round(item.price * 100), // Convert unit price to cents
+                            currency: "PHP",
+                            quantity: item.quantity,
+                            description: "Customer Purchase",
+                        })),
+                        payment_method_types: validPaymentMethods,
+                        reference_number: referenceNumber,
+                        send_email_receipt: true,
+                    },
                 },
-            },
-        };
-        console.log("✅ Payload to PayMongo:", payload); // Debugging
-
-
-            console.log("Payload to PayMongo:", payload);
-      
-            // Step 2: Send the payload to PayMongo
-            const paymongoResponse = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json" 
-                },
-                body: JSON.stringify(payload),
-            }).then((response) => {
+            };
+    
+            try {
+                const response = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+    
                 if (!response.ok) {
-                    return response.json().then((error) => {
-                        console.error("Error details:", error);
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    });
+                    const error = await response.json();
+                    console.error("Error details:", error);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                return response.json();
-            })
-            .then((data) => {
-                console.log("Response:", data); // Log the response for debugging
+    
+                const data = await response.json();
                 const checkout_url = data.details?.data?.attributes?.checkout_url;
+    
                 if (checkout_url) {
-                    // Redirect to the PayMongo checkout page
                     window.location.href = checkout_url;
                 } else {
                     console.error("Checkout URL not found in response.");
                 }
-            })
-        } catch (error) {
-            Swal.fire("Error", error.message, "error");
+            } catch (error) {
+                Swal.fire("Payment Error", error.message, "error");
+            }
         }
+    
+        // Fetch menu items on page load
+        fetchMenuItems();
     });
-
-    // Fetch menu items on page load
-    fetchMenuItems();
 });
-
+    
     
