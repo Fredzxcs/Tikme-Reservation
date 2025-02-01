@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 VALID_PAYMENT_METHODS = [
-    'gcash', 'grab_pay', 'card', 'qrph', 'brankas_bdo', 'brankas_landbank', 'paymaya'
+   'none', 'gcash', 'grab_pay', 'card', 'qrph', 'brankas_bdo', 'brankas_landbank', 'paymaya'
 ]
 
 class DineInReservationListCreateView(views.APIView):
@@ -76,13 +76,14 @@ class DineInReservationListCreateView(views.APIView):
                 )
 
             # Validate payment method
-            payment_method = request.data.get('payment_method', 'card').lower()
+            payment_method = request.data.get('payment_method', 'none').lower()
             if payment_method not in VALID_PAYMENT_METHODS:
                 logger.warning(f"Invalid payment method received: {payment_method}")
                 return Response(
                     {"detail": f"Invalid payment method: {payment_method}. Choose from {', '.join(VALID_PAYMENT_METHODS)}"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            
 
             # Create or get the customer
             customer_data = {
@@ -101,8 +102,11 @@ class DineInReservationListCreateView(views.APIView):
             else:
                 logger.info(f"Customer already exists: {customer_data['email_address']}")
 
-            # Parse advance order details
+            # Validate payment method ONLY if an order exists
+            payment_method = request.data.get('payment_method', '').lower()
             advance_order_raw = request.data.get('advance_order', '[]')
+
+            # Parse advance order
             try:
                 advance_order = json.loads(advance_order_raw) if isinstance(advance_order_raw, str) else advance_order_raw
             except json.JSONDecodeError:
@@ -111,6 +115,18 @@ class DineInReservationListCreateView(views.APIView):
                     {"detail": "Invalid format for advance_order. It must be a JSON array."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+            # If there's an order, payment method is required
+            if advance_order:
+                if payment_method not in VALID_PAYMENT_METHODS:
+                    logger.warning(f"Invalid or missing payment method: {payment_method}")
+                    return Response(
+                        {"detail": f"Invalid payment method: {payment_method}. Choose from {', '.join(VALID_PAYMENT_METHODS)}"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            else:
+                # If no advance order, set payment_method to None (don't require it)
+                payment_method = None
 
             # Validate advance order items
             total_bill = Decimal(0)

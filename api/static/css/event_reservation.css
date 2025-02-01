@@ -27,6 +27,25 @@ h2 {
     font-size: 2rem;
 }
 
+/* Validation Error Messages */
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+/* Input Field Validation - Highlights Invalid Inputs */
+.is-invalid {
+    border-color: red !important;
+    background-color: #ffe6e6;
+}
+
+.is-invalid:focus {
+    border-color: red !important;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+
 /* Form Elements */
 .form-row {
     display: flex;

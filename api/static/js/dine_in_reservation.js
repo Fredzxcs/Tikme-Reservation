@@ -55,20 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // Function to show an error message
     const showError = (input, message, errorElement) => {
         errorElement.textContent = message;
-        errorElement.style.display = "block";
-        errorElement.style.position = "absolute";
-        errorElement.style.left = input.offsetLeft + "px";
-        errorElement.style.top = input.offsetTop + input.offsetHeight + "px";
+        errorElement.style.display = "block"; // Make sure it appears normally
         input.classList.add("is-invalid");
     };
-
+    
     // Function to remove error message
     const clearError = (input, errorElement) => {
         errorElement.textContent = "";
         errorElement.style.display = "none";
         input.classList.remove("is-invalid");
     };
-
+    
     // Real-time Validation Functions
     firstName.addEventListener("input", () => {
         if (!nameRegex.test(firstName.value) || firstName.value.length < 2) {
@@ -210,67 +207,70 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 
-          // Function to render menu items per category
-    const renderMenuItems = () => {
+    // Function to render menu items per category
+    const renderFilteredMenuItems = (filteredItems) => {
         Object.keys(menuContainers).forEach(category => {
             const container = menuContainers[category];
             container.innerHTML = ""; // Clear container before adding new items
-
-            const filteredItems = menuItems.filter(item => {
-                const mappedCategory = categoryMapping[item.ProductCategory];
-                return mappedCategory === category;
-            });
-
-            if (filteredItems.length === 0) {
-                container.innerHTML = "<p class='text-muted'>No items available.</p>";
-                return;
-            }
-
-            filteredItems.forEach(item => {
-                const menuItem = document.createElement("div");
-                menuItem.classList.add("col-md-4", "mb-3");
-                menuItem.innerHTML = `
-                    <div class="menu-item p-3 border rounded shadow-sm">
-                        <div class="menu-item-header d-flex align-items-center">
-                            <input type="checkbox" class="menu-checkbox" id="product-${item.Product_ID}" />
-                            <h6 class="mb-0 ms-2">${item.ProductName}</h6>
-                        </div>
-                        <p class="mt-2 small text-muted">${item.ProductDescription || "No description available"}</p>
-                        <p class="text-primary fw-bold">${parseFloat(item.PurchasePrice).toFixed(2)} PHP</p>
-                        <div class="quantity-selector mt-2">
-                            <label for="quantity-${item.Product_ID}" class="me-2">Quantity:</label>
-                            <select id="quantity-${item.Product_ID}" class="form-select">
-                                ${Array.from({ length: 15 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
-                            </select>
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(menuItem);
-            });
         });
-
-        // Attach event listeners to new items
-        attachEventListeners();
+    
+        if (filteredItems.length === 0) {
+            Object.keys(menuContainers).forEach(category => {
+                menuContainers[category].innerHTML = "<p class='text-muted'>No items found.</p>";
+            });
+            return;
+        }
+    
+        filteredItems.forEach(item => {
+            const mappedCategory = categoryMapping[item.ProductCategory];
+            if (!menuContainers[mappedCategory]) return; // Ensure category container exists
+    
+            const menuItem = document.createElement("div");
+            menuItem.classList.add("col-md-4", "mb-3");
+            menuItem.innerHTML = `
+                <div class="menu-item p-3 border rounded shadow-sm">
+                    <div class="menu-item-header d-flex align-items-center">
+                        <input type="checkbox" class="menu-checkbox" id="product-${item.Product_ID}" />
+                        <h6 class="mb-0 ms-2">${item.ProductName}</h6>
+                    </div>
+                    <p class="mt-2 small text-muted">${item.ProductDescription || "No description available"}</p>
+                    <p class="text-primary fw-bold">${parseFloat(item.PurchasePrice).toFixed(2)} PHP</p>
+                    <div class="quantity-selector mt-2">
+                        <label for="quantity-${item.Product_ID}" class="me-2">Quantity:</label>
+                        <select id="quantity-${item.Product_ID}" class="form-select">
+                            ${Array.from({ length: 15 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+            `;
+    
+            menuContainers[mappedCategory].appendChild(menuItem);
+        });
+    
+        attachEventListeners(); // Ensure new items have event listeners
     };
+    
 
-     // Function to apply filters based on search and selected categories
-     const applyFilters = () => {
+    const applyFilters = () => {
         const searchQuery = searchBar.value.toLowerCase();
         const selectedCategories = Array.from(categoryCheckboxes)
             .filter((checkbox) => checkbox.checked)
             .map((checkbox) => checkbox.value);
-
+    
+        // Filter menu items based on search term
         const filteredItems = menuItems.filter((item) => {
             const matchesSearch = item.ProductName.toLowerCase().includes(searchQuery);
-            const matchesCategory =
-                selectedCategories.includes("All") ||
-                selectedCategories.includes(item.ProductCategory);
+            const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes("All") || selectedCategories.includes(categoryMapping[item.ProductCategory]);
             return matchesSearch && matchesCategory;
         });
-
-        renderMenuItems(filteredItems);
+    
+        // Render filtered menu items
+        renderFilteredMenuItems(filteredItems);
+    
+        // Automatically expand categories that contain matching items
+        toggleAccordionItems(filteredItems);
     };
+    
 
     // Event listener for category checkbox changes
     categoryCheckboxes.forEach((checkbox) => {
@@ -307,24 +307,25 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-    // Function to toggle accordion dropdowns based on selected categories
-    const toggleAccordionItems = (selectedCategories) => {
+    const toggleAccordionItems = (filteredItems) => {
         accordionItems.forEach((item) => {
             const category = item.getAttribute("data-category");
             const button = item.querySelector(".accordion-button");
             const collapse = item.querySelector(".accordion-collapse");
-
-            if (selectedCategories.includes(category)) {
-                // Expand if selected
+    
+            // Check if the filtered items contain this category
+            const categoryHasItems = filteredItems.some(item => categoryMapping[item.ProductCategory] === category);
+    
+            if (categoryHasItems) {
                 new bootstrap.Collapse(collapse, { toggle: false }).show();
                 button.classList.remove("collapsed");
             } else {
-                // Collapse if not selected
                 new bootstrap.Collapse(collapse, { toggle: false }).hide();
                 button.classList.add("collapsed");
             }
         });
     };
+        
 
     // Event listener for category checkbox changes
     categoryCheckboxes.forEach((checkbox) => {
@@ -351,215 +352,213 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    document.addEventListener("DOMContentLoaded", () => { 
-        document.getElementById("bookingForm").addEventListener("submit", async (event) => {
-            event.preventDefault();
+    document.getElementById("bookingForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
     
-            const formData = new FormData(event.target);
+        const formData = new FormData(event.target);
     
-            // Format date to YYYY-MM-DD
-            const selectedDateInput = document.getElementById("selectedDateInput").value;
-            const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0];
-            formData.set("reservation_date", formattedDate);
+        // Format date to YYYY-MM-DD
+        const selectedDateInput = document.getElementById("selectedDateInput").value;
+        const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0];
+        formData.set("reservation_date", formattedDate);
     
-            const timeInput = document.getElementById("selectedTimeSlotInput");
+        const timeInput = document.getElementById("selectedTimeSlotInput");
     
-            // Ensure timeInput exists and has a value
-            if (!timeInput || !timeInput.value) {
-                console.error("Error: No time slot selected.");
-                return;
+        // Ensure timeInput exists and has a value
+        if (!timeInput || !timeInput.value) {
+            console.error("Error: No time slot selected.");
+            return;
+        }
+    
+        const rawTime = timeInput.value;
+        console.log(`Raw Time: ${rawTime}`); // 🔥 Debugging log
+    
+        // Extract time and modifier (am/pm)
+        const match = rawTime.match(/(\d{1,2}):(\d{2})(\s?(am|pm))?/i);
+        if (!match) {
+            console.error("Error: Invalid time format.", { rawTime });
+            return;
+        }
+    
+        let hours = parseInt(match[1], 10);
+        const minutes = match[2];
+        const modifier = match[4] ? match[4].toLowerCase() : "";
+    
+        // Convert to 24-hour format if necessary
+        if (modifier === "pm" && hours !== 12) {
+            hours += 12;
+        }
+        if (modifier === "am" && hours === 12) {
+            hours = 0;
+        }
+    
+        // Ensure it's properly formatted as HH:MM:SS
+        const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+        console.log(`Formatted Time (24H): ${formattedTime}`);
+    
+        formData.set("reservation_time", formattedTime);
+        
+        // Prepare advance orders
+        const advanceOrder = [];
+        document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
+            const productId = checkbox.id.split("-")[1];
+            const menuItem = menuItems.find((item) => item.Product_ID.toString() === productId);
+            if (menuItem) {
+                const quantity = parseInt(document.getElementById(`quantity-${menuItem.Product_ID}`).value, 10);
+                const price = parseFloat(menuItem.PurchasePrice);
+                advanceOrder.push({
+                    product_id: menuItem.Product_ID,
+                    product_name: menuItem.ProductName,
+                    quantity: isNaN(quantity) ? 0 : quantity,
+                    price: isNaN(price) ? 0 : price,
+                });
             }
-    
-            const rawTime = timeInput.value;
-            console.log(`Raw Time: ${rawTime}`); // 🔥 Debugging log
-    
-            // Extract time and modifier (am/pm)
-            const match = rawTime.match(/(\d{1,2}):(\d{2})(\s?(am|pm))?/i);
-            if (!match) {
-                console.error("Error: Invalid time format.", { rawTime });
-                return;
-            }
-    
-            let hours = parseInt(match[1], 10);
-            const minutes = match[2];
-            const modifier = match[4] ? match[4].toLowerCase() : "";
-    
-            // Convert to 24-hour format if necessary
-            if (modifier === "pm" && hours !== 12) hours += 12;
-            if (modifier === "am" && hours === 12) hours = 0;
-    
-            // Ensure it's properly formatted as HH:MM:SS
-            const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
-            console.log(`Formatted Time (24H): ${formattedTime}`);
-    
-            formData.set("reservation_time", formattedTime);
-    
-            // Validate payment method
-            const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        });
+
+        formData.append("advance_order", JSON.stringify(advanceOrder));
+
+
+        // ✅ FIX: If no menu items are selected, do NOT require a payment method
+        const hasSelectedMenuItem = advanceOrder.length > 0;
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        
+        if (hasSelectedMenuItem) {
             if (!paymentMethod) {
                 Swal.fire("Error", "Please select a payment method.", "error");
                 return;
             }
             formData.set("payment_method", paymentMethod.value);
-    
-            // Prepare advance orders
-            const advanceOrder = [];
-            document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
-                const productId = checkbox.id.split("-")[1];
-                const menuItem = menuItems.find((item) => item.Product_ID.toString() === productId);
-                if (menuItem) {
-                    const quantity = parseInt(document.getElementById(`quantity-${menuItem.Product_ID}`).value, 10);
-                    const price = parseFloat(menuItem.PurchasePrice);
-                    advanceOrder.push({
-                        product_id: menuItem.Product_ID,
-                        product_name: menuItem.ProductName,
-                        quantity: isNaN(quantity) ? 0 : quantity,
-                        price: isNaN(price) ? 0 : price,
-                    });
-                }
-            });
-    
-            formData.append("advance_order", JSON.stringify(advanceOrder));
-    
-            try {
-                // Step 1: Submit reservation
-                const reservationResponse = await fetch("/api/dine-in/", {
-                    method: "POST",
-                    body: formData,
-                });
-    
-                if (!reservationResponse.ok) {
-                    const errorData = await reservationResponse.json();
-                    console.error("Backend error response:", errorData);
-                    throw new Error(errorData.detail || "Failed to submit reservation.");
-                }
-    
-                const reservationData = await reservationResponse.json();
-                console.log("Reservation Data from Backend:", reservationData);
-    
-                // Step 2: If advance orders exist, send them to logistics
-                if (advanceOrder.length > 0) {
-                    await sendOrdersToLogistics(advanceOrder);
-                }
-    
-                // Step 3: Continue with PayMongo integration
-                await processPayment(reservationData, advanceOrder);
-    
-            } catch (error) {
-                console.error("❌ Error:", error);
-                Swal.fire("Error", error.message, "error");
-            }
-        });
-    
-        /**
-         * Function to send multiple orders to the logistics API
-         * @param {Array} orders - The list of advance orders
-         */
-        async function sendOrdersToLogistics(orders) {
-            for (const order of orders) {
-                try {
-                    const response = await fetch("http://127.0.0.1:8000/api/receive-order/", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            product_id: order.product_id,
-                            quantity: order.quantity,
-                        }),
-                    });
-    
-                    const responseData = await response.json();
-    
-                    if (!response.ok) {
-                        console.error("❌ Logistics Order Error:", responseData.error);
-                        Swal.fire("Order Error", `Issue sending order for Product ID ${order.product_id}.`, "warning");
-                    } else {
-                        console.log(`✅ Order sent successfully for Product ID ${order.product_id}:`, responseData);
-                    }
-                } catch (error) {
-                    console.error("❌ Logistics Order Network Error:", error);
-                    Swal.fire("Order Error", "There was an issue sending your order. Please check later.", "warning");
-                }
-            }
+        } else {
+            formData.set("payment_method", "none"); // ✅ Ensure "none" is sent if no menu selected
         }
-    
-        /**
-         * Function to process payment via PayMongo
-         * @param {Object} reservationData - Data from the reservation API response
-         * @param {Array} advanceOrder - List of items for payment
-         */
-        async function processPayment(reservationData, advanceOrder) {
-            // Define available payment methods
-            const paymentMethods = ["gcash", "grab_pay", "card", "qrph", "brankas_bdo", "brankas_landbank", "paymaya"];
-    
+        
+        
+        try {
+            const reservationResponse = await fetch("/api/dine-in/", {
+                method: "POST",
+                body: formData,
+            });
+        
+            if (!reservationResponse.ok) {
+                const errorData = await reservationResponse.json();
+                console.error("Backend error response:", errorData);
+                throw new Error(errorData.detail || "Failed to submit reservation.");
+            }
+        
+            const reservationData = await reservationResponse.json();
+            console.log("Reservation Data from Backend:", reservationData);
+            const totalPrice = calculateTotalPrice() * 100; // Convert to cents
+            
+           // Define available payment methods
+            const paymentMethods = [
+                "gcash",
+                "grab_pay",
+                "card",
+                "qrph",
+                "brankas_bdo",
+                "brankas_landbank",
+                "paymaya"
+            ];
+
             // Get the user-selected payment method
-            const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+            const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked'); // Ensure this is the correct selector
+
             if (!selectedPaymentMethod || !paymentMethods.includes(selectedPaymentMethod.value)) {
                 Swal.fire("Error", "Please select a valid payment method.", "error");
                 return;
             }
-    
+
+            // Construct validPaymentMethods with the user-selected payment method
             const validPaymentMethods = [selectedPaymentMethod.value];
-    
-            // Access reservation ID and reference number from backend response
-            const reservationId = reservationData.reservation?.id;
-            const referenceNumber = reservationData.reservation?.reference_number;
+
+            
+            const calculateTotalAmount = () => {
+                let total = 0;
+                document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {
+                    const productId = checkbox.id.split("-")[1];
+                    const menuItem = menuItems.find((item) => item.Product_ID.toString() === productId);
+                    if (menuItem) {
+                        const quantity = parseInt(document.getElementById(`quantity-${menuItem.Product_ID}`).value, 10);
+                        const price = parseFloat(menuItem.PurchasePrice);
+                        total += (price * quantity); // Ensure proper calculation
+                    }
+                });
+                console.log("✅ Final Total Amount:", total); // Debugging
+                return total;
+            };
+            
+
+            // Access reservation ID and reference number from the backend response
+            const reservationId = reservationData.reservation?.id; // Access reservation ID
+            const referenceNumber = reservationData.reservation?.reference_number; // Access reference number
             const success_url = "http://127.0.0.1:8002/home"; // ✅ Correct format
-    
+
+
             if (!reservationId || !referenceNumber) {
-                console.error("Missing reservation ID or reference number:", { reservationId, referenceNumber, fullResponse: reservationData });
+                console.error("Missing reservation ID or reference number:", {
+                    reservationId,
+                    referenceNumber,
+                    fullResponse: reservationData,
+                });
                 throw new Error("Invalid reservation ID or reference number received from the backend.");
             }
-    
-            const total_amount = advanceOrder.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const payload = {
-                data: {
-                    attributes: {
-                        description: "Dine-in reservation payment",
-                        success_url: success_url,
-                        amount: Math.round(total_amount * 100), // Convert PHP to cents
-                        line_items: advanceOrder.map((item) => ({
-                            name: item.product_name,
-                            amount: Math.round(item.price * 100), // Convert unit price to cents
-                            currency: "PHP",
-                            quantity: item.quantity,
-                            description: "Customer Purchase",
-                        })),
-                        payment_method_types: validPaymentMethods,
-                        reference_number: referenceNumber,
-                        send_email_receipt: true,
-                    },
+
+        const total_amount = calculateTotalAmount();
+        const payload = {
+            data: {
+                attributes: {
+                    description: "Dine-in reservation payment",
+                    success_url: success_url,
+                    amount: Math.round(total_amount * 100), // Convert PHP to cents
+                    line_items: advanceOrder.map((item) => ({
+                        name: item.product_name,
+                        amount: Math.round(item.price * 100), // Convert unit price to cents
+                        currency: "PHP",
+                        quantity: item.quantity,
+                        description: "Customer Purchase",
+                    })),
+                    payment_method_types: validPaymentMethods,
+                    reference_number: referenceNumber,
+                    send_email_receipt: true,
                 },
-            };
-    
-            try {
-                const response = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                });
-    
+            },
+        };
+        console.log("✅ Payload to PayMongo:", payload); // Debugging
+
+
+            console.log("Payload to PayMongo:", payload);
+      
+            // Step 2: Send the payload to PayMongo
+            const paymongoResponse = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify(payload),
+            }).then((response) => {
                 if (!response.ok) {
-                    const error = await response.json();
-                    console.error("Error details:", error);
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json().then((error) => {
+                        console.error("Error details:", error);
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+
+                    });
                 }
-    
-                const data = await response.json();
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Response:", data); // Log the response for debugging
                 const checkout_url = data.details?.data?.attributes?.checkout_url;
-    
                 if (checkout_url) {
+                    // Redirect to the PayMongo checkout page
                     window.location.href = checkout_url;
                 } else {
                     console.error("Checkout URL not found in response.");
                 }
-            } catch (error) {
-                Swal.fire("Payment Error", error.message, "error");
-            }
+            })
+        } catch (error) {
+            Swal.fire("Error", error.message, "error");
         }
-    
-        // Fetch menu items on page load
-        fetchMenuItems();
+
     });
+    fetchMenuItems();
 });
-    
-    

@@ -87,8 +87,8 @@ class DineInReservation(models.Model):
     # ✅ Reference number now correctly uses the function
     reference_number = models.CharField(max_length=50, unique=True, default=generate_reference_number)
 
-    # ✅ Payment Method Choices
     PAYMENT_METHOD_CHOICES = [
+        ('none', 'None'),  # 🔥 Add this line
         ('gcash', 'GCash'),
         ('grab_pay', 'GrabPay'),
         ('card', 'Card'),
@@ -99,8 +99,9 @@ class DineInReservation(models.Model):
     ]
 
     payment_method = models.CharField(
-        max_length=50, choices=PAYMENT_METHOD_CHOICES, default='card'
+        max_length=50, choices=PAYMENT_METHOD_CHOICES, default='none'  # 🔥 Set default to "none"
     )
+
 
     total_bill = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
@@ -157,31 +158,41 @@ class EventReservation(models.Model):
     parking_slots_needed = models.PositiveIntegerField(default=0)
     special_request = models.TextField(null=True, blank=True)
     reference_number = models.CharField(
-        max_length=50, unique=True, default=generate_reference_number  # ✅ Updated from lambda to function
+        max_length=50, unique=True, default=generate_reference_number
     )
 
     PAYMENT_METHOD_CHOICES = [
-        ('gcash', 'GCash'),
-        ('grab_pay', 'GrabPay'),
+        ('none', 'None'),
+        ('gcash', 'Gcash'),
+        ('grab_pay', 'Grab Pay'),
         ('card', 'Card'),
         ('qrph', 'QRPH'),
         ('brankas_bdo', 'Brankas BDO'),
         ('brankas_landbank', 'Brankas Landbank'),
-        ('paymaya', 'PayMaya'),
+        ('paymaya', 'Paymaya'),
     ]
 
     payment_method = models.CharField(
-        max_length=50, choices=PAYMENT_METHOD_CHOICES, default='card'
+        max_length=50,
+        choices=PAYMENT_METHOD_CHOICES,
+        default='none'
     )
 
-    
     status = models.CharField(
         max_length=50,
         choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed'), ('Cancelled', 'Cancelled')],
         default='Pending'
     )
-    
+
+    total_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # ✅ New field added
+
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        """Automatically calculate total cost before saving."""
+        if self.package:
+            self.total_cost = Decimal(self.number_of_guests) * Decimal(self.package.price)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Event Reservation for {self.customer} at {self.venue} on {self.reservation_date}"

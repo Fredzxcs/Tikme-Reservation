@@ -32,12 +32,12 @@
             <div class="col-md-6">
                 <label for="firstName" class="form-label">First Name *</label>
                 <input type="text" id="firstName" name="first_name" class="form-control" placeholder="First Name" required>
-                <div class="invalid-feedback">First Name is required.</div>
+                 <div id="firstNameError" class="error-message"></div>
             </div>
             <div class="col-md-6">
                 <label for="lastName" class="form-label">Last Name *</label>
                 <input type="text" id="lastName" name="last_name" class="form-control" placeholder="Last Name" required>
-                <div class="invalid-feedback">Last Name is required.</div>
+                <div id="lastNameError" class="error-message"></div>
             </div>
         </div>
 
@@ -46,12 +46,12 @@
             <div class="col-md-6">
                 <label for="phone" class="form-label">Phone Number *</label>
                 <input type="tel" id="phone" name="phone_number" class="form-control" placeholder="+63" required>
-                <div class="invalid-feedback">Phone Number is required.</div>
+                <div id="phoneError" class="error-message"></div>
             </div>
             <div class="col-md-6">
                 <label for="email" class="form-label">Email *</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="example@example.com" required>
-                <div class="invalid-feedback">Valid Email is required.</div>
+                <div id="emailError" class="error-message"></div>
             </div>
         </div>
 
@@ -60,12 +60,12 @@
             <div class="col-md-6">
                 <label for="guests" class="form-label">Number of Guests *</label>
                 <input type="number" id="guests" name="number_of_guests" class="form-control" placeholder="e.g., 4" min="1" required>
-                <div class="invalid-feedback">Number of Guests is required.</div>
+                <div id="guestsError" class="error-message"></div>
             </div>
             <div class="col-md-6">
                 <label for="parking" class="form-label">Number of Parking Slots *</label>
                 <input type="number" id="parking" name="parking_slots_needed" class="form-control" placeholder="e.g., 2" min="0" max="15" required>
-                <div class="invalid-feedback">Maximum of 15 parking slots allowed.</div>
+                <div id="parkingError" class="error-message"></div>
             </div>
         </div>
 

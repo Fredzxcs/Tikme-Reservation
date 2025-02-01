@@ -255,28 +255,24 @@ button.btn-secondary:hover {
   transform: translateY(-2px);
 }
 
-/* Error message styles */
+/* Error messages positioned directly under the input */
 .error-message {
   display: none;
-  color: white;
-  background-color: red;
-  padding: 5px 10px;
-  border-radius: 5px;
+  color: red;
   font-size: 12px;
-  position: absolute;
-  z-index: 10;
   margin-top: 5px;
-  white-space: nowrap;
+  font-weight: bold;
 }
 
-/* Position error messages below input fields */
-.validation-container {
-  position: relative;
-}
-
-input.is-invalid, select.is-invalid {
-  border: 2px solid red;
+/* Input fields with error state */
+input.is-invalid, select.is-invalid, textarea.is-invalid {
+  border: 2px solid red !important;
   background-color: #ffe6e6;
+}
+
+input.is-invalid:focus, select.is-invalid:focus, textarea.is-invalid:focus {
+  border-color: red !important;
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
 }
 
 
