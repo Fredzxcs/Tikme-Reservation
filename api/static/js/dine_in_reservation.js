@@ -52,21 +52,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const guestsError = document.getElementById("guestsError");
     const parkingError = document.getElementById("parkingError");
 
-    // Function to show an error message
+    // Function to show error message
     const showError = (input, message, errorElement) => {
         errorElement.textContent = message;
-        errorElement.style.display = "block"; // Make sure it appears normally
+        errorElement.style.display = "block";
         input.classList.add("is-invalid");
     };
-    
-    // Function to remove error message
+
+    // Function to clear error message
     const clearError = (input, errorElement) => {
         errorElement.textContent = "";
         errorElement.style.display = "none";
         input.classList.remove("is-invalid");
     };
-    
-    // Real-time Validation Functions
+
+    // **Real-time Validation (As Users Type)**
     firstName.addEventListener("input", () => {
         if (!nameRegex.test(firstName.value) || firstName.value.length < 2) {
             showError(firstName, "Only letters allowed (Min: 2 characters)", firstNameError);
@@ -114,13 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
             clearError(parking, parkingError);
         }
     });
-
-    // Prevent Form Submission if Invalid Fields Exist
-    document.getElementById("bookingForm").addEventListener("submit", (event) => {
-        if (document.querySelector(".is-invalid")) {
-            event.preventDefault();
-        }
-    });
+    
 
     // Menu filtering and rendering logic
     const searchBar = document.getElementById("searchBar");
@@ -418,21 +412,69 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("advance_order", JSON.stringify(advanceOrder));
 
 
-        // ✅ FIX: If no menu items are selected, do NOT require a payment method
-        const hasSelectedMenuItem = advanceOrder.length > 0;
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
-        
-        if (hasSelectedMenuItem) {
-            if (!paymentMethod) {
+        // ✅ FIX: If no menu items are selected, set payment method to "none"
+        let finalPaymentMethod = "none";
+        if (advanceOrder.length > 0) {
+            const paymentMethodInput = document.querySelector('input[name="payment_method"]:checked');
+            if (!paymentMethodInput) {
                 Swal.fire("Error", "Please select a payment method.", "error");
                 return;
             }
-            formData.set("payment_method", paymentMethod.value);
-        } else {
-            formData.set("payment_method", "none"); // ✅ Ensure "none" is sent if no menu selected
+            finalPaymentMethod = paymentMethodInput.value;
         }
+        formData.append("payment_method", finalPaymentMethod);
         
-        
+
+        let isValid = true; // Track form validity
+
+        // **Validation Checks (On Submit)**
+        if (firstName.value.trim() === "" || !nameRegex.test(firstName.value) || firstName.value.length < 2) {
+            showError(firstName, "Only letters allowed (Min: 2 characters)", firstNameError);
+            isValid = false;
+        } else {
+            clearError(firstName, firstNameError);
+        }
+
+        if (lastName.value.trim() === "" || !nameRegex.test(lastName.value) || lastName.value.length < 2) {
+            showError(lastName, "Only letters allowed (Min: 2 characters)", lastNameError);
+            isValid = false;
+        } else {
+            clearError(lastName, lastNameError);
+        }
+
+        if (phone.value.trim() === "" || !phoneRegex.test(phone.value)) {
+            showError(phone, "Enter valid PH number (09XXXXXXXXX)", phoneError);
+            isValid = false;
+        } else {
+            clearError(phone, phoneError);
+        }
+
+        if (email.value.trim() === "" || !emailRegex.test(email.value)) {
+            showError(email, "Enter a valid email (example@mail.com)", emailError);
+            isValid = false;
+        } else {
+            clearError(email, emailError);
+        }
+
+        if (guests.value.trim() === "" || parseInt(guests.value) < 1) {
+            showError(guests, "Minimum 1 guest required", guestsError);
+            isValid = false;
+        } else {
+            clearError(guests, guestsError);
+        }
+
+        if (parking.value.trim() === "" || isNaN(parking.value) || parking.value < 0 || parking.value > 15) {
+            showError(parking, "Enter a number (0-15)", parkingError);
+            isValid = false;
+        } else {
+            clearError(parking, parkingError);
+        }
+
+        // **Stop Submission if Validation Fails**
+        if (!isValid) {
+            return;
+        }
+
         try {
             const reservationResponse = await fetch("/api/dine-in/", {
                 method: "POST",
@@ -441,15 +483,14 @@ document.addEventListener("DOMContentLoaded", () => {
         
             if (!reservationResponse.ok) {
                 const errorData = await reservationResponse.json();
-                console.error("Backend error response:", errorData);
+                console.error("❌ Backend error response:", errorData);
                 throw new Error(errorData.detail || "Failed to submit reservation.");
             }
         
             const reservationData = await reservationResponse.json();
-            console.log("Reservation Data from Backend:", reservationData);
-            const totalPrice = calculateTotalPrice() * 100; // Convert to cents
-            
-           // Define available payment methods
+            console.log("✅ Reservation Data from Backend:", reservationData);
+        
+            // Define available payment methods
             const paymentMethods = [
                 "gcash",
                 "grab_pay",
@@ -459,19 +500,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 "brankas_landbank",
                 "paymaya"
             ];
-
-            // Get the user-selected payment method
-            const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked'); // Ensure this is the correct selector
-
-            if (!selectedPaymentMethod || !paymentMethods.includes(selectedPaymentMethod.value)) {
-                Swal.fire("Error", "Please select a valid payment method.", "error");
-                return;
+        
+            let validPaymentMethods = ["none"]; // Default to "none" if no items are selected
+            const hasSelectedMenuItem = advanceOrder.length > 0;
+        
+            if (hasSelectedMenuItem) {
+                // ✅ If a menu item is selected, require payment method
+                const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        
+                if (!selectedPaymentMethod || !paymentMethods.includes(selectedPaymentMethod.value)) {
+                    Swal.fire("Error", "Please select a valid payment method.", "error");
+                    return;
+                }
+        
+                validPaymentMethods = [selectedPaymentMethod.value]; // Set user-selected payment method
             }
-
-            // Construct validPaymentMethods with the user-selected payment method
-            const validPaymentMethods = [selectedPaymentMethod.value];
-
+        
+            console.log("✅ Final Payment Methods:", validPaymentMethods);
+        
+            if (!hasSelectedMenuItem) {
+                // ✅ No menu item selected -> Show success message, then redirect to home
+                Swal.fire({
+                    title: "Success!",
+                    text: "Your reservation has been successfully submitted.",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/home"; // ✅ Redirect to home after user clicks "OK"
+                    }
+                });
+                return; // ✅ Stop execution here if no menu items are selected
+            }
             
+                
             const calculateTotalAmount = () => {
                 let total = 0;
                 document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {

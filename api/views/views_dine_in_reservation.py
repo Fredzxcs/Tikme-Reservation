@@ -116,7 +116,6 @@ class DineInReservationListCreateView(views.APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # If there's an order, payment method is required
             if advance_order:
                 if payment_method not in VALID_PAYMENT_METHODS:
                     logger.warning(f"Invalid or missing payment method: {payment_method}")
@@ -125,8 +124,11 @@ class DineInReservationListCreateView(views.APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
             else:
-                # If no advance order, set payment_method to None (don't require it)
-                payment_method = None
+                # ❌ PROBLEM: This sets None, causing DB constraint errors
+                # payment_method = None 
+
+                # ✅ FIX: Set it to "none" explicitly
+                payment_method = "none"
 
             # Validate advance order items
             total_bill = Decimal(0)

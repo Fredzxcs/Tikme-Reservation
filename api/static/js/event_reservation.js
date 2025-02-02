@@ -146,23 +146,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // Prevent form submission if fields are invalid
     form.addEventListener("submit", (event) => {
         let isValid = true;
+        let firstInvalidField = null;
 
-        if (!phoneRegex.test(phone.value)) {
-            showError(phone, "Enter a valid PH number (09XXXXXXXXX)");
-            isValid = false;
-        }
-        if (!nameRegex.test(firstName.value) || firstName.value.length < 2) {
-            showError(firstName, "Only letters allowed (Min: 2 characters)");
-            isValid = false;
-        }
-        if (!nameRegex.test(lastName.value) || lastName.value.length < 2) {
-            showError(lastName, "Only letters allowed (Min: 2 characters)");
-            isValid = false;
-        }
-        if (!emailRegex.test(email.value)) {
-            showError(email, "Enter a valid email (example@mail.com)");
-            isValid = false;
-        }
+        const validateField = (input, regex, message) => {
+            if (!regex.test(input.value)) {
+                showError(input, message);
+                isValid = false;
+                if (!firstInvalidField) firstInvalidField = input;
+            }
+        };
+
+        validateField(firstName, nameRegex, "Only letters allowed (Min: 2 characters)");
+        validateField(lastName, nameRegex, "Only letters allowed (Min: 2 characters)");
+        validateField(phone, phoneRegex, "Enter a valid PH number (09XXXXXXXXX)");
+        validateField(email, emailRegex, "Enter a valid email (example@mail.com)");
 
         const guestCount = parseInt(guests.value, 10) || 0;
         if (guestCount < 1) {
@@ -173,14 +170,19 @@ document.addEventListener("DOMContentLoaded", () => {
             isValid = false;
         }
 
-        const parkingSlots = parseInt(parking.value, 10) || 0;
-        if (parkingSlots < 0 || parkingSlots > 15) {
-            showError(parking, "Parking slots must be between 0 and 15");
+        // Validate Parking Slots
+        const parkingSlots = parking.value.trim(); // Get input and trim spaces
+        if (!parkingSlots || isNaN(parkingSlots) || parseInt(parkingSlots) < 0) {
+            showError(parking, "Parking slots must be a number between 0 and 15");
             isValid = false;
+        } else {
+            clearError(parking);
         }
-
+        
         if (!isValid) {
-            event.preventDefault(); // Stop form submission if validation fails
+            event.preventDefault();
+            firstInvalidField.focus(); // Focus on the first invalid field
+            Swal.fire("Error", "Please fill in all required fields correctly.", "error");
         }
     });
 

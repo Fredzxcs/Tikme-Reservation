@@ -99,7 +99,7 @@ class DineInReservation(models.Model):
     ]
 
     payment_method = models.CharField(
-        max_length=50, choices=PAYMENT_METHOD_CHOICES, default='none'  # 🔥 Set default to "none"
+        max_length=50, choices=PAYMENT_METHOD_CHOICES, default='none', null=False, blank=False
     )
 
 

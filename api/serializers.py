@@ -77,12 +77,20 @@ class DineInReservationSerializer(serializers.ModelSerializer):
     def validate_payment_method(self, value):
         """
         Ensure payment_method is one of the allowed values.
+        Default to 'none' if no value is provided.
         """
-        if value.lower() not in VALID_PAYMENT_METHODS:
+        if not value:  # ✅ If no value is provided, default to "none"
+            return "none"
+
+        value = value.lower()
+        
+        if value not in VALID_PAYMENT_METHODS:
             raise serializers.ValidationError(
                 f"Invalid payment method '{value}'. Choose from: {', '.join(VALID_PAYMENT_METHODS)}."
             )
-        return value.lower()
+        
+        return value  # ✅ Always return a valid value, never None
+
 
     def get_total_bill(self, obj):
         """
