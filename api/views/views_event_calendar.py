@@ -3,32 +3,40 @@ from rest_framework import status, views
 from ..models import *
 from ..serializers import *
 
-
 class EventCalendarListCreateView(views.APIView):
     """
-    Handles fetching all reservations and creating new reservations.
+    Handles fetching all event reservations and creating new reservations.
     """
 
     def get(self, request):
         """
-        Fetch all reservations.
+        Fetch all event reservations.
         """
         try:
             reservations = EventReservation.objects.all()
             serializer = EventReservationSerializer(reservations, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            reserved_dates = set(res.reservation_date for res in reservations)  # Extract dates
+            return Response(list(reserved_dates), status=status.HTTP_200_OK)  # Send as list
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
         """
-        Create a new reservation.
+        Create a new event reservation.
         """
         try:
             data = request.data
+            reservation_date = data.get("reservation_date")
+
+            # Check if the date is already fully booked
+            if EventReservation.objects.filter(reservation_date=reservation_date).exists():
+                return Response(
+                    {"error": "This date is already fully booked."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             serializer = EventReservationSerializer(data=data)
 
-            # Validate and save the reservation
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -39,13 +47,10 @@ class EventCalendarListCreateView(views.APIView):
 
 class EventCalendarDetailView(views.APIView):
     """
-    Handles retrieving, updating, and deleting a specific reservation.
+    Handles retrieving, updating, and deleting a specific event reservation.
     """
 
     def get(self, request, pk):
-        """
-        Fetch reservation by ID.
-        """
         try:
             reservation = EventReservation.objects.get(pk=pk)
             serializer = EventReservationSerializer(reservation)
@@ -56,9 +61,6 @@ class EventCalendarDetailView(views.APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request, pk):
-        """
-        Update reservation by ID.
-        """
         try:
             reservation = EventReservation.objects.get(pk=pk)
             serializer = EventReservationSerializer(reservation, data=request.data)
@@ -73,9 +75,6 @@ class EventCalendarDetailView(views.APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
-        """
-        Delete reservation by ID.
-        """
         try:
             reservation = EventReservation.objects.get(pk=pk)
             reservation.delete()

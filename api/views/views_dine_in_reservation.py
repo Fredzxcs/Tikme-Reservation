@@ -5,12 +5,17 @@ from decimal import Decimal
 from ..emails import send_dine_in_confirmation_email
 from ..models import *
 from ..serializers import *
-import json
+import json, uuid
 from datetime import datetime
+from django.http import JsonResponse
 
 # Configure logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+VALID_PAYMENT_METHODS = [
+   'none', 'gcash', 'grab_pay', 'card', 'qrph', 'brankas_bdo', 'brankas_landbank', 'paymaya'
+]
 
 class DineInReservationListCreateView(views.APIView):
     """
@@ -19,7 +24,6 @@ class DineInReservationListCreateView(views.APIView):
 
     def get(self, request):
         try:
-            # Fetch all dine-in reservations
             logger.info("Fetching all dine-in reservations.")
             reservations = DineInReservation.objects.all()
             serializer = DineInReservationSerializer(reservations, many=True)
@@ -33,6 +37,7 @@ class DineInReservationListCreateView(views.APIView):
 
     def post(self, request):
         logger.info("Received POST request for creating a dine-in reservation.")
+        
         required_fields = [
             'reservation_date', 'reservation_time', 'preferred_area_id',
             'first_name', 'last_name', 'phone_number', 'email', 'number_of_guests', 'payment_method'
@@ -47,23 +52,40 @@ class DineInReservationListCreateView(views.APIView):
             )
 
         try:
-            # Normalize and validate reservation_date
+            # Validate and parse reservation date & time
             try:
                 raw_date = request.data['reservation_date']
-                reservation_date = datetime.fromisoformat(raw_date.replace("Z", "")).strftime("%Y-%m-%d")
-            except ValueError as e:
-                logger.error(f"Invalid date format for reservation_date: {raw_date}")
+                reservation_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
+                raw_time = request.data['reservation_time']
+                reservation_time = datetime.strptime(raw_time, "%H:%M:%S").time()
+            except ValueError:
+                logger.error(f"Invalid date/time format: {raw_date} {raw_time}")
                 return Response(
-                    {"detail": "Invalid date format. Ensure it is in YYYY-MM-DD format."},
+                    {"detail": "Invalid date/time format. Use YYYY-MM-DD and HH:MM:SS."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             # Fetch preferred dining area
-            logger.debug(f"Fetching preferred dining area with ID: {request.data['preferred_area_id']}")
-            preferred_area = DiningArea.objects.get(pk=request.data['preferred_area_id'])
+            try:
+                preferred_area = DiningArea.objects.get(pk=request.data['preferred_area_id'])
+            except DiningArea.DoesNotExist:
+                logger.error(f"Dining area not found with ID: {request.data['preferred_area_id']}")
+                return Response(
+                    {"detail": "Invalid dining area ID."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate payment method
+            payment_method = request.data.get('payment_method', 'none').lower()
+            if payment_method not in VALID_PAYMENT_METHODS:
+                logger.warning(f"Invalid payment method received: {payment_method}")
+                return Response(
+                    {"detail": f"Invalid payment method: {payment_method}. Choose from {', '.join(VALID_PAYMENT_METHODS)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
 
             # Create or get the customer
-            logger.debug("Checking if customer exists or needs to be created.")
             customer_data = {
                 "first_name": request.data['first_name'],
                 "last_name": request.data['last_name'],
@@ -74,94 +96,83 @@ class DineInReservationListCreateView(views.APIView):
                 email_address=customer_data['email_address'],
                 defaults=customer_data
             )
+
             if created:
                 logger.info(f"New customer created: {customer_data['email_address']}")
             else:
                 logger.info(f"Customer already exists: {customer_data['email_address']}")
 
-            # Parse advance order details
+            # Validate payment method ONLY if an order exists
+            payment_method = request.data.get('payment_method', '').lower()
             advance_order_raw = request.data.get('advance_order', '[]')
-            logger.debug(f"Raw advance_order data: {advance_order_raw}")
+
+            # Parse advance order
             try:
                 advance_order = json.loads(advance_order_raw) if isinstance(advance_order_raw, str) else advance_order_raw
-            except json.JSONDecodeError as json_error:
+            except json.JSONDecodeError:
                 logger.error(f"Invalid JSON format for advance_order: {advance_order_raw}")
                 return Response(
                     {"detail": "Invalid format for advance_order. It must be a JSON array."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Validate advance order items
-            logger.debug(f"Validating advance order items: {advance_order}")
-            for item in advance_order:
-                logger.debug(f"Processing item: {item}")
-                try:
-                    price = Decimal(str(item.get('price', '0')))  # Ensure price is a Decimal
-                    quantity = int(item.get('quantity', '0'))  # Ensure quantity is an integer
-                    logger.debug(f"Item price: {price}, quantity: {quantity}, type(price): {type(price)}, type(quantity): {type(quantity)}")
-                except (ValueError, TypeError, Decimal.InvalidOperation) as e:
-                    logger.error(f"Invalid price or quantity in item: {item} - Error: {e}")
+            if advance_order:
+                if payment_method not in VALID_PAYMENT_METHODS:
+                    logger.warning(f"Invalid or missing payment method: {payment_method}")
                     return Response(
-                        {"detail": "Invalid advance order item. Ensure price and quantity are numeric."},
+                        {"detail": f"Invalid payment method: {payment_method}. Choose from {', '.join(VALID_PAYMENT_METHODS)}"},
                         status=status.HTTP_400_BAD_REQUEST
                     )
+            else:
+                # ❌ PROBLEM: This sets None, causing DB constraint errors
+                # payment_method = None 
 
-            # Convert parking_slots_needed to an integer
-            parking_slots = int(request.data.get('parking_slots_needed', 0))
-            logger.debug(f"Parsed parking slots: {parking_slots}")
-            if parking_slots > 5:
-                logger.warning("Parking slots exceed the maximum allowed.")
-                return Response(
-                    {"detail": "A maximum of 5 parking slots can be reserved."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Parse advance order details
-            advance_order_raw = request.data.get('advance_order', '[]')
-            logger.debug(f"Raw advance_order data: {advance_order_raw}")
-            try:
-                advance_order = json.loads(advance_order_raw) if isinstance(advance_order_raw, str) else advance_order_raw
-            except json.JSONDecodeError as e:
-                logger.error(f"Invalid JSON format for advance_order: {advance_order_raw}")
-                return Response(
-                    {"detail": "Invalid format for advance_order. It must be a JSON array."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                # ✅ FIX: Set it to "none" explicitly
+                payment_method = "none"
 
             # Validate advance order items
             total_bill = Decimal(0)
             for item in advance_order:
                 try:
-                    price = Decimal(str(item.get('price', 0)))  # Default to '0' if missing
-                    quantity = int(item.get('quantity', 0))    # Default to '0' if missing
-                    logger.debug(f"Processing item: price={price}, quantity={quantity}")
+                    price = Decimal(str(item.get('price', 0)))
+                    quantity = int(item.get('quantity', 0))
                     total_bill += price * quantity
-                except (ValueError, TypeError, Decimal.InvalidOperation) as e:
-                    logger.error(f"Invalid item in advance_order: {item}, Error: {e}")
+                except (ValueError, TypeError, Decimal.InvalidOperation):
+                    logger.error(f"Invalid item in advance_order: {item}")
                     return Response(
                         {"detail": "Invalid advance order item. Ensure price and quantity are numeric."},
                         status=status.HTTP_400_BAD_REQUEST
                     )
+
             logger.info(f"Total bill calculated: {total_bill}")
 
+            # Generate a unique reference number
+            def generate_reference_number():
+                while True:
+                    ref_number = f"RES-{uuid.uuid4().hex[:8].upper()}"
+                    if not DineInReservation.objects.filter(reference_number=ref_number).exists():
+                        return ref_number
+
+            reference_number = generate_reference_number()
+            logger.debug(f"Generated reference number: {reference_number}")
+
             # Create the reservation
-            logger.info("Creating reservation.")
             reservation = DineInReservation.objects.create(
                 customer=customer,
                 number_of_guests=int(request.data['number_of_guests']),
-                reservation_date=request.data['reservation_date'],
-                reservation_time=request.data['reservation_time'],
-                parking_slots_needed=parking_slots,
+                reservation_date=reservation_date,
+                reservation_time=reservation_time,
+                parking_slots_needed=int(request.data.get('parking_slots_needed', 0)),
                 preferred_area=preferred_area,
                 special_request=request.data.get('special_request', None),
                 advance_order=advance_order,
-                payment_method=request.data.get('payment_method', 'Card'),
+                payment_method=payment_method,
                 status='Confirmed',
-                total_bill=total_bill  # Explicitly set the total_bill here
+                total_bill=total_bill,
+                reference_number=reference_number
             )
 
             # Prepare email context
-            logger.debug("Preparing email context for reservation confirmation.")
             email_context = {
                 "customer_name": f"{customer.first_name} {customer.last_name}",
                 "reservation_date": reservation.reservation_date,
@@ -175,7 +186,6 @@ class DineInReservationListCreateView(views.APIView):
             }
 
             # Send confirmation email
-            logger.info(f"Sending confirmation email to {customer.email_address}")
             send_dine_in_confirmation_email(customer.email_address, email_context)
 
             # Serialize the reservation
@@ -189,12 +199,10 @@ class DineInReservationListCreateView(views.APIView):
                 },
                 status=status.HTTP_201_CREATED
             )
-        except DiningArea.DoesNotExist:
-            logger.error(f"Dining area not found with ID: {request.data['preferred_area_id']}")
-            return Response({"detail": "Invalid dining area ID."}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"An error occurred during reservation creation: {str(e)}")
             return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class DineInReservationDetailView(views.APIView):
     """
@@ -233,3 +241,12 @@ class DineInReservationDetailView(views.APIView):
 
         reservation.delete()
         return Response({"detail": "Deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class DineInReservationSummary(views.APIView):
+    def get(self, request):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            reservation = DineInReservation.objects.all()
+            serializer = DineInReservationSerializer(reservation, many=True)
+            return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        

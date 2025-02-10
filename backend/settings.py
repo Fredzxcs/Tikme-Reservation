@@ -16,7 +16,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
-LOGISTICS_API_URL = 'http://192.168.100.7:8004/api/manage-product/'
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -26,8 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
     'rest_framework',
+    'corsheaders',
     'api',
 ]
 
@@ -43,11 +43,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8004",
-    'http://192.168.100.7:8004',  # Reservation system's URL
+    "http://127.0.0.1:8006",  # Frontend URL
+    "http://localhost:8006",
 ]
-
-
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -83,6 +81,9 @@ DATABASES = {
         'PORT': config('DB_PORT', default=5432),
     }
 }
+
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

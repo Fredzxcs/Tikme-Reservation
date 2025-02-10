@@ -1,11 +1,20 @@
+import logging
 from rest_framework.response import Response
 from rest_framework import status, views
 from decimal import Decimal
 from datetime import datetime
 from django.utils.timezone import make_aware
-from ..emails import send_event_confirmation_email
 from ..models import *
 from ..serializers import *
+import uuid
+
+# Configure logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+VALID_PAYMENT_METHODS = [
+    'gcash', 'grab_pay', 'card', 'qrph', 'brankas_bdo', 'brankas_landbank', 'paymaya'
+]
 
 class EventReservationListCreateView(views.APIView):
     """
@@ -13,33 +22,30 @@ class EventReservationListCreateView(views.APIView):
     """
 
     def get(self, request):
-        # Fetch all reservations
         reservations = EventReservation.objects.all()
         serializer = EventReservationSerializer(reservations, many=True)
         return Response(serializer.data)
 
     def post(self, request):
+        logger.info("Received event reservation request.")
+
         required_fields = [
             'reservation_date', 'reservation_time', 'venue_id',
-            'first_name', 'last_name', 'phone_number', 'email', 'package_id'
+            'first_name', 'last_name', 'phone_number', 'email', 'package_id', 'payment_method'
         ]
-        missing_fields = [
-            field for field in required_fields
-            if not request.data.get(field)
-        ]
+        missing_fields = [field for field in required_fields if field not in request.data]
 
         if missing_fields:
+            logger.warning(f"Missing fields: {missing_fields}")
             return Response(
                 {"detail": f"Missing required fields: {', '.join(missing_fields)}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            # Fetch venue and package
             venue = Venue.objects.get(pk=request.data['venue_id'])
             package = Package.objects.get(pk=request.data['package_id'])
 
-            # Create or get the customer
             customer_data = {
                 "first_name": request.data['first_name'],
                 "last_name": request.data['last_name'],
@@ -51,28 +57,23 @@ class EventReservationListCreateView(views.APIView):
                 defaults=customer_data
             )
 
-            # Parse and validate fields
-            try:
-                number_of_guests = int(request.data.get('number_of_guests', 0))
-            except ValueError:
-                return Response({"detail": "Invalid number of guests."}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                event_date_time = make_aware(
-                    datetime.strptime(
-                        f"{request.data['reservation_date']} {request.data['reservation_time']}",
-                        "%Y-%m-%d %H:%M:%S"
-                    )
+            number_of_guests = int(request.data.get('number_of_guests', 0))
+            event_date_time = make_aware(
+                datetime.strptime(
+                    f"{request.data['reservation_date']} {request.data['reservation_time']}",
+                    "%Y-%m-%d %H:%M:%S"
                 )
-            except ValueError:
-                return Response({"detail": "Invalid date or time format."}, status=status.HTTP_400_BAD_REQUEST)
+            )
+            parking_slots_needed = int(request.data.get('parking_slots_needed', 0))
+            payment_method = request.data.get('payment_method', 'card').lower()
 
-            try:
-                parking_slots_needed = int(request.data.get('parking_slots_needed', 0))
-            except ValueError:
-                return Response({"detail": "Invalid parking slots value."}, status=status.HTTP_400_BAD_REQUEST)
+            # Validate payment method
+            if payment_method not in VALID_PAYMENT_METHODS:
+                return Response(
+                    {"detail": f"Invalid payment method: {payment_method}. Choose from {', '.join(VALID_PAYMENT_METHODS)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            # Create the reservation
             reservation = EventReservation.objects.create(
                 customer=customer,
                 venue=venue,
@@ -83,44 +84,23 @@ class EventReservationListCreateView(views.APIView):
                 event_date_time=event_date_time,
                 parking_slots_needed=parking_slots_needed,
                 special_request=request.data.get('special_request', None),
-                payment_method=request.data.get('payment_method', 'Card'),
+                payment_method=payment_method,
                 status='Confirmed'
             )
 
-            # Calculate total cost
             package_price = Decimal(package.price)
             total_cost = Decimal(number_of_guests) * package_price
             reservation.total_cost = total_cost
             reservation.save()
 
-            # Prepare email context
-            email_context = {
-                "customer_name": f"{customer.first_name} {customer.last_name}",
-                "event_date": reservation.reservation_date,
-                "event_time": reservation.reservation_time,
-                "venue": venue.venue_name,
-                "guests": reservation.number_of_guests,
-                "package": package.package_name,
-                "special_request": reservation.special_request or "None",
-                "parking_slots": reservation.parking_slots_needed or "N/A",
-                "total_cost": total_cost,
-            }
+            reference_number = f"EVT-{uuid.uuid4().hex[:8].upper()}"
+            reservation.reference_number = reference_number
+            reservation.save()
 
-            # Send confirmation email
-            try:
-                send_event_confirmation_email(customer.email_address, email_context)
-            except Exception as e:
-                return Response(
-                    {"detail": f"Failed to send confirmation email: {str(e)}"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-            # Serialize the reservation
-            serializer = EventReservationSerializer(reservation)
             return Response(
                 {
                     "detail": "Reservation created successfully.",
-                    "reservation": serializer.data,
+                    "reservation": EventReservationSerializer(reservation).data,
                 },
                 status=status.HTTP_201_CREATED
             )
@@ -130,6 +110,7 @@ class EventReservationListCreateView(views.APIView):
         except Package.DoesNotExist:
             return Response({"detail": "Invalid package ID."}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            logger.error(f"Unexpected error: {e}")
             return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

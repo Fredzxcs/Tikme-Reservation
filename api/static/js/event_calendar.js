@@ -1,7 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     let selectedDate = null;
     let selectedPlace = null;
     let selectedTimeSlot = null;
+    let reservedDates = new Set(); // Stores fully booked dates
 
     const timeSlots = [
         '9:00am', '9:30am', '10:00am', '10:30am', '11:00am', '11:30am',
@@ -10,18 +11,27 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     const eventPlaces = [
-        'Violeta',
-        'Sampaguita',
-        'Rosas',
-        'Rosas Extension',
-        'Bougainvillea Lounge',
-        'Bougainvillea Balcony',
-        'African Talisay Trellis',
-        'Private Room',
-        'Royal Cafe'
+        'Violeta', 'Sampaguita', 'Rosas', 'Rosas Extension',
+        'Bougainvillea Lounge', 'Bougainvillea Balcony',
+        'African Talisay Trellis', 'Private Room', 'Royal Cafe'
     ];
 
     let currentDate = new Date();
+
+    // ✅ Fetch reserved dates from the backend
+    async function fetchReservedDates() {
+        try {
+            const response = await fetch('/api/event-reservation/');
+            if (!response.ok) throw new Error("Failed to fetch reservations.");
+            const reservations = await response.json();
+
+            // ✅ Store fully booked dates
+            reservedDates = new Set(reservations.map(res => res.reservation_date));
+            generateCalendar(currentDate); // Refresh calendar
+        } catch (error) {
+            console.error("Error fetching reserved dates:", error);
+        }
+    }
 
     function generateCalendar(date) {
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -32,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const calendarGrid = document.getElementById('calendarGrid');
         calendarGrid.innerHTML = '';
 
-        document.getElementById('currentMonth').textContent = 
+        document.getElementById('currentMonth').textContent =
             date.toLocaleString('default', { month: 'long', year: 'numeric' });
 
         for (let i = 0; i < startingDay; i++) {
@@ -48,8 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const currentDateObj = new Date(date.getFullYear(), date.getMonth(), day);
             const today = new Date();
+            const formattedDate = currentDateObj.toISOString().split('T')[0];
 
-            if (currentDateObj < today || isWithinRestrictedDays(currentDateObj)) {
+            if (currentDateObj < today || reservedDates.has(formattedDate) || isWithinRestrictedDays(currentDateObj)) {
                 dayElement.classList.add('disabled');
             } else {
                 dayElement.addEventListener('click', () => selectDate(currentDateObj));
@@ -84,7 +95,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updatePlaces() {
         const placesList = document.getElementById('placesList');
-        placesList.innerHTML = '';
+
+        if (!placesList) {
+            console.error("❌ Error: Element with ID 'placesList' not found.");
+            return;
+        }
+
+        placesList.innerHTML = ''; // ✅ Clear previous list
 
         eventPlaces.forEach(place => {
             const placeElement = document.createElement('div');
@@ -93,6 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
             placeElement.addEventListener('click', () => selectPlace(place));
             placesList.appendChild(placeElement);
         });
+
+        console.log("✅ Places updated:", eventPlaces);
     }
 
     function selectPlace(place) {
@@ -162,6 +181,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    generateCalendar(currentDate);
-    updatePlaces();
+    await fetchReservedDates(); // ✅ Load reserved dates before generating calendar
 });

@@ -32,12 +32,12 @@
             <div class="col-md-6">
                 <label for="firstName" class="form-label">First Name *</label>
                 <input type="text" id="firstName" name="first_name" class="form-control" placeholder="First Name" required>
-                <div class="invalid-feedback">First Name is required.</div>
+                 <div id="firstNameError" class="error-message"></div>
             </div>
             <div class="col-md-6">
                 <label for="lastName" class="form-label">Last Name *</label>
                 <input type="text" id="lastName" name="last_name" class="form-control" placeholder="Last Name" required>
-                <div class="invalid-feedback">Last Name is required.</div>
+                <div id="lastNameError" class="error-message"></div>
             </div>
         </div>
 
@@ -45,13 +45,13 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="phone" class="form-label">Phone Number *</label>
-                <input type="tel" id="phone" name="phone_number" class="form-control" placeholder="(000) 000-0000" required>
-                <div class="invalid-feedback">Phone Number is required.</div>
+                <input type="tel" id="phone" name="phone_number" class="form-control" placeholder="+63" required>
+                <div id="phoneError" class="error-message"></div>
             </div>
             <div class="col-md-6">
                 <label for="email" class="form-label">Email *</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="example@example.com" required>
-                <div class="invalid-feedback">Valid Email is required.</div>
+                <div id="emailError" class="error-message"></div>
             </div>
         </div>
 
@@ -60,15 +60,24 @@
             <div class="col-md-6">
                 <label for="guests" class="form-label">Number of Guests *</label>
                 <input type="number" id="guests" name="number_of_guests" class="form-control" placeholder="e.g., 4" min="1" required>
-                <div class="invalid-feedback">Number of Guests is required.</div>
+                <div id="guestsError" class="error-message"></div>
             </div>
             <div class="col-md-6">
                 <label for="parking" class="form-label">Number of Parking Slots *</label>
                 <input type="number" id="parking" name="parking_slots_needed" class="form-control" placeholder="e.g., 2" min="0" max="15" required>
-                <div class="invalid-feedback">Maximum of 15 parking slots allowed.</div>
+                <div id="parkingError" class="error-message"></div>
             </div>
         </div>
 
+        <div class="validation-container">
+            <div class="error-message" id="firstNameError"></div>
+            <div class="error-message" id="lastNameError"></div>
+            <div class="error-message" id="phoneError"></div>
+            <div class="error-message" id="emailError"></div>
+            <div class="error-message" id="guestsError"></div>
+            <div class="error-message" id="parkingError"></div>
+        </div>
+        
         <!-- Advance Order Section -->
         <div class="row mb-4">
             <div class="col-md-8">
@@ -137,22 +146,39 @@
         <div class="my-4 text-end">
             <h4>Total: <span id="totalPrice">0.00 PHP</span></h4>
         </div>
-
         <!-- Payment Method -->
         <div class="form-group">
-            <label class="form-label">Payment Method *</label>
-            <div class="radio-group">
-                <label>
-                    <input type="radio" name="payment_method" value="MAYA" required> Maya
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Card"> Card
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Gcash"> Gcash
-                </label>
+            <label>Payment Method</label>
+            <div class="payment-methods">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="gcash" value="gcash" required>
+                    <label class="form-check-label" for="gcash">GCash</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="grab_pay" value="grab_pay">
+                    <label class="form-check-label" for="grab_pay">GrabPay</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
+                    <label class="form-check-label" for="card">Card</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="qrph" value="qrph">
+                    <label class="form-check-label" for="qrph">QRPH</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="brankas_bdo" value="brankas_bdo">
+                    <label class="form-check-label" for="brankas_bdo">Brankas BDO</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="brankas_landbank" value="brankas_landbank">
+                    <label class="form-check-label" for="brankas_landbank">Brankas Landbank</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="paymaya" value="paymaya">
+                    <label class="form-check-label" for="paymaya">PayMaya</label>
+                </div>
             </div>
-            <div class="invalid-feedback">Please select a payment method.</div>
         </div>
 
         <!-- Special Request -->

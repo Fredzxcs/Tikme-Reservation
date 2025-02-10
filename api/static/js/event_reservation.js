@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("bookingForm");
     const cancelButton = document.getElementById("cancelButton");
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const totalCostElement = document.getElementById("totalAmount");
 
     // Venue capacities and corresponding IDs
     const venueCapacities = {
@@ -15,6 +16,19 @@ document.addEventListener("DOMContentLoaded", () => {
         "Private Room": { id: 8, capacity: 30 },
         "Royal Cafe": { id: 9, capacity: 15 },
     };
+
+    // Validation Regex
+    const nameRegex = /^[A-Za-z\s]+$/;
+    const phoneRegex = /^09\d{9}$/; // Only accepts PH mobile numbers (09XXXXXXXXX)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Input Elements
+    const firstName = document.getElementById("firstName");
+    const lastName = document.getElementById("lastName");
+    const phone = document.getElementById("phoneNumber");
+    const email = document.getElementById("email");
+    const guests = document.getElementById("guests");
+    const parking = document.getElementById("parking");
 
     // Package prices and corresponding IDs
     const packageDetails = {
@@ -67,158 +81,262 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // Calculate total cost
-    const calculateTotalCost = () => {
-        const guests = parseInt(document.getElementById("guests").value) || 0;
-        const packageSelected = document.querySelector('input[name="package"]:checked');
-        if (!packageSelected) {
-            return 0;
+    const showError = (input, message) => {
+        let error = input.parentNode.querySelector(".error-message");
+    
+        if (!error) {
+            error = document.createElement("div");
+            error.classList.add("error-message");
+            input.parentNode.appendChild(error);
         }
-
-        const packageName = packageSelected.value;
-        const packagePrice = packageDetails[packageName]?.price || 0;
-        return guests * packagePrice;
+    
+        error.textContent = message;
+        error.style.display = "block";  // ✅ Ensure the message is visible
+        input.classList.add("is-invalid");
     };
+    
 
-    // Update total cost in the UI
-    const updateTotalCost = () => {
-        const totalCost = calculateTotalCost();
-        document.getElementById("totalCost").textContent = `Total Cost: PHP ${totalCost.toLocaleString()}`;
-    };
-
-    // Add event listeners to calculate total dynamically
-    document.getElementById("guests").addEventListener("input", updateTotalCost);
-    document.querySelectorAll('input[name="package"]').forEach(radio => {
-        radio.addEventListener("change", updateTotalCost);
-    });
-
-    // Form submission
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        // Validate form
-        if (!validateForm()) {
-            return;
+    const clearError = (input) => {
+        let error = input.parentNode.querySelector(".error-message");
+        if (error) {
+            error.style.display = "none"; // ✅ Instead of removing, just hide it
         }
+        input.classList.remove("is-invalid");
+    };
+    
 
-        Swal.fire({
-            title: "Confirm Booking",
-            html: `
-                <p><strong>Date:</strong> ${formattedDate}</p>
-                <p><strong>Place:</strong> ${selectedPlace}</p>
-                <p><strong>Time:</strong> ${formattedTimeSlot}</p>
-                <p><strong>Total Cost:</strong> PHP ${calculateTotalCost().toLocaleString()}</p>
-            `,
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonText: "Submit",
-            cancelButtonText: "Cancel",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const formData = new FormData(form);
-                formData.append("reservation_date", formattedDate);
-                formData.append("reservation_time", formattedTimeSlot);
-                formData.append("venue_id", selectedVenueDetails.id);
-
-                // Add package ID
-                const selectedPackage = document.querySelector('input[name="package"]:checked');
-                if (selectedPackage) {
-                    formData.append("package_id", packageDetails[selectedPackage.value].id);
-                }
-
-                fetch("/api/event-reservation/", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRFToken": csrfToken,
-                    },
-                    body: formData,
-                })
-                    .then((response) => {
-                        if (!response.ok) {
-                            return response.json().then((data) => {
-                                throw new Error(data.detail || "Failed to submit reservation.");
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        Swal.fire("Success", "Your reservation has been confirmed. A confirmation email has been sent.", "success").then(() => {
-                            window.location.href = "/event-calendar/";
-                        });
-                    })
-                    .catch((error) => {
-                        Swal.fire("Error", error.message, "error");
-                    });
+    // Apply validation when the user **leaves** the field (on blur) OR **corrects while typing** (on input)
+    const applyValidation = (input, regex, message) => {
+        input.addEventListener("blur", () => {
+            regex.test(input.value) ? clearError(input) : showError(input, message);
+        });
+        input.addEventListener("input", () => {
+            if (regex.test(input.value)) {
+                clearError(input);
             }
         });
+    };
+
+    applyValidation(firstName, nameRegex, "Only letters allowed (Min: 2 characters)");
+    applyValidation(lastName, nameRegex, "Only letters allowed (Min: 2 characters)");
+    applyValidation(phone, phoneRegex, "Enter a valid PH number (09XXXXXXXXX)");
+    applyValidation(email, emailRegex, "Enter a valid email (example@mail.com)");
+
+    // Guests and Parking Validation
+    guests.addEventListener("blur", () => {
+        const guestCount = parseInt(guests.value, 10) || 0;
+        if (guestCount < 1) {
+            showError(guests, "Minimum 1 guest required");
+        } else if (guestCount > selectedVenueDetails.capacity) {
+            showError(guests, `Max capacity for this venue is ${selectedVenueDetails.capacity}`);
+        } else {
+            clearError(guests);
+        }
     });
 
-    // Cancel button functionality
+    parking.addEventListener("blur", () => {
+        const parkingSlots = parseInt(parking.value, 10) || 0;
+        if (parkingSlots < 0 || parkingSlots > 15) {
+            showError(parking, "Parking slots must be between 0 and 15");
+        } else {
+            clearError(parking);
+        }
+    });
+
+    // Prevent form submission if fields are invalid
+    form.addEventListener("submit", (event) => {
+        let isValid = true;
+        let firstInvalidField = null;
+
+        const validateField = (input, regex, message) => {
+            if (!regex.test(input.value)) {
+                showError(input, message);
+                isValid = false;
+                if (!firstInvalidField) firstInvalidField = input;
+            }
+        };
+
+        validateField(firstName, nameRegex, "Only letters allowed (Min: 2 characters)");
+        validateField(lastName, nameRegex, "Only letters allowed (Min: 2 characters)");
+        validateField(phone, phoneRegex, "Enter a valid PH number (09XXXXXXXXX)");
+        validateField(email, emailRegex, "Enter a valid email (example@mail.com)");
+
+        const guestCount = parseInt(guests.value, 10) || 0;
+        if (guestCount < 1) {
+            showError(guests, "Minimum 1 guest required");
+            isValid = false;
+        } else if (guestCount > selectedVenueDetails.capacity) {
+            showError(guests, `Max capacity for this venue is ${selectedVenueDetails.capacity}`);
+            isValid = false;
+        }
+
+        // Validate Parking Slots
+        const parkingSlots = parking.value.trim(); // Get input and trim spaces
+        if (!parkingSlots || isNaN(parkingSlots) || parseInt(parkingSlots) < 0) {
+            showError(parking, "Parking slots must be a number between 0 and 15");
+            isValid = false;
+        } else {
+            clearError(parking);
+        }
+        
+        if (!isValid) {
+            event.preventDefault();
+            firstInvalidField.focus(); // Focus on the first invalid field
+            Swal.fire("Error", "Please fill in all required fields correctly.", "error");
+        }
+    });
+
+    const calculateTotalCost = () => {
+        const guestCount = parseInt(guests.value) || 0;
+        const selectedPackage = document.querySelector('input[name="package"]:checked');
+    
+        if (!selectedPackage) {
+            console.log("❌ No package selected. Total cost remains 0.");
+            return 0;
+        }
+    
+        const packageName = selectedPackage.value;
+        const packagePrice = packageDetails[packageName]?.price || 0;
+    
+        console.log(`✅ Selected Package: ${packageName}, Price per Guest: ${packagePrice}, Guests: ${guestCount}`);
+        
+        return guestCount * packagePrice;
+    };
+    
+    const updateTotalCost = () => {
+        const totalCost = calculateTotalCost();
+        console.log(`🔄 Updating total cost: ${totalCost} PHP`);
+        totalCostElement.textContent = `${totalCost.toLocaleString()} PHP`;
+    };
+    
+    // Attach event listeners
+    document.querySelectorAll('input[name="package"]').forEach(radio => {
+        radio.addEventListener("change", () => {
+            console.log(`📦 Package Selected: ${radio.value}`);
+            updateTotalCost();
+        });
+    });
+    
+    guests.addEventListener("input", () => {
+        console.log(`👥 Guests Updated: ${guests.value}`);
+        updateTotalCost();
+    });
+    
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+    
+        if (document.querySelector(".is-invalid")) {
+            Swal.fire("Error", "Please correct the errors before submitting.", "error");
+            return;
+        }
+    
+        const selectedPackage = document.querySelector('input[name="package"]:checked');
+        if (!selectedPackage) {
+            Swal.fire("Error", "Please select a package before proceeding.", "error");
+            return;
+        }
+    
+        const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (!selectedPaymentMethod) {
+            Swal.fire("Error", "Please select a payment method.", "error");
+            return;
+        }
+    
+        const totalAmount = calculateTotalCost();
+        const referenceNumber = `EVT${Date.now()}`;
+    
+        // First, Submit the Reservation Data to Django
+        const reservationPayload = {
+            reservation_date: formattedDate,
+            reservation_time: formattedTimeSlot,
+            venue_id: venueCapacities[selectedPlace].id,
+            first_name: firstName.value,
+            last_name: lastName.value,
+            phone_number: phone.value,
+            email: email.value,
+            package_id: packageDetails[selectedPackage.value].id,
+            number_of_guests: parseInt(guests.value),
+            parking_slots_needed: parseInt(parking.value),
+            payment_method: selectedPaymentMethod.value,
+        };
+    
+        try {
+            const reservationResponse = await fetch("/api/event-reservation/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+                body: JSON.stringify(reservationPayload),
+            });
+    
+            const reservationData = await reservationResponse.json();
+            
+            if (!reservationResponse.ok) {
+                console.error("❌ Reservation Error:", reservationData);
+                Swal.fire("Reservation Error", reservationData.detail || "Failed to create reservation.", "error");
+                return;
+            }
+    
+            console.log("✅ Reservation Created:", reservationData);
+    
+            // Now Send Payment Data to PayMongo
+            const paymentPayload = {
+                data: {
+                    attributes: {
+                        description: "Event reservation payment",
+                        amount: totalAmount * 100, // Convert to cents
+                        currency: "PHP",
+                        reference_number: referenceNumber,
+                        payment_method_types: [selectedPaymentMethod.value],
+                        line_items: [{
+                            name: selectedPackage.value,
+                            amount: packageDetails[selectedPackage.value].price * 100,
+                            currency: "PHP",
+                            quantity: parseInt(guests.value),
+                            description: "Event Booking Package"
+                        }],
+                        success_url: "http://127.0.0.1:8002/home",
+                    }
+                }
+            };
+    
+            const paymongoResponse = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(paymentPayload),
+            });
+    
+            const paymongoData = await paymongoResponse.json();
+    
+            if (!paymongoResponse.ok) {
+                console.error("❌ PayMongo Error:", paymongoData);
+                Swal.fire("Payment Error", "Failed to process payment.", "error");
+                return;
+            }
+    
+            const checkoutUrl = paymongoData.details?.data?.attributes?.checkout_url;
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            } else {
+                throw new Error("Payment failed.");
+            }
+    
+        } catch (error) {
+            console.error("❌ Error:", error);
+            Swal.fire("Error", "Something went wrong. Please try again.", "error");
+        }
+    });
+    
+
     cancelButton.addEventListener("click", () => {
         Swal.fire({
             title: "Cancel Booking",
-            text: "Are you sure you want to cancel? All entered data will be lost.",
+            text: "Are you sure you want to cancel?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Yes, Cancel",
-            cancelButtonText: "No",
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = "/event-calendar/";
             }
         });
     });
-
-    // Form validation
-    const validateForm = () => {
-        let isValid = true;
-
-        // Clear error messages
-        document.querySelectorAll(".error-message").forEach((el) => el.remove());
-
-        // Validate required fields
-        ["firstName", "lastName", "phoneNumber", "email", "guests", "parking"].forEach((field) => {
-            const input = document.getElementById(field);
-            if (!input.value.trim()) {
-                showError(input, "This field is required");
-                isValid = false;
-            }
-        });
-
-        // Validate guest count
-        const guests = parseInt(document.getElementById("guests").value);
-        if (guests > selectedVenueDetails.capacity) {
-            Swal.fire("Error", `The selected venue can only cater to a maximum of ${selectedVenueDetails.capacity} guests.`, "error");
-            isValid = false;
-        }
-
-        // Validate parking slots count
-        const parkingSlots = parseInt(document.getElementById("parking").value);
-        if (parkingSlots > 15) {
-            Swal.fire("Error", "The maximum number of parking slots allowed is 15.", "error");
-            isValid = false;
-        }
-
-        // Validate email format
-        const emailInput = document.getElementById("email");
-        if (!isValidEmail(emailInput.value)) {
-            showError(emailInput, "Please enter a valid email address");
-            isValid = false;
-        }
-
-        return isValid;
-    };
-
-    // Show error messages
-    const showError = (input, message) => {
-        const errorDiv = document.createElement("div");
-        errorDiv.className = "error-message";
-        errorDiv.style.color = "red";
-        errorDiv.style.fontSize = "12px";
-        errorDiv.textContent = message;
-        input.parentNode.insertBefore(errorDiv, input.nextSibling);
-    };
-
-    // Validate email
-    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 });

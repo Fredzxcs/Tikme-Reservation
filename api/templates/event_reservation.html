@@ -21,64 +21,91 @@
             <div class="form-group">
                 <label for="firstName">First Name <span class="required">*</span></label>
                 <input type="text" id="firstName" name="first_name" required>
+                <div class="error-message"></div>
             </div>
             <div class="form-group">
                 <label for="lastName">Last Name <span class="required">*</span></label>
                 <input type="text" id="lastName" name="last_name" required>
+                <div class="error-message"></div>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="phoneNumber">Phone Number <span class="required">*</span></label>
                 <input type="tel" id="phoneNumber" name="phone_number" placeholder="(000) 000-0000" required>
+                <div class="error-message"></div>
             </div>
             <div class="form-group">
                 <label for="email">Email <span class="required">*</span></label>
                 <input type="email" id="email" name="email" placeholder="example@example.com" required>
-            </div>
+                <div class="error-message"></div>
+            </div>          
         </div>
         <!-- Updated Row for Guests and Parking -->
         <div class="form-row">
             <div class="form-group" style="flex: 1; margin-right: 15px;">
                 <label for="guests">Number of Guests</label>
                 <input type="number" id="guests" name="number_of_guests" placeholder="e.g., 23" min="1">
+                <div class="error-message"></div>
             </div>
             <div class="form-group" style="flex: 1;">
                 <label for="parking">Number of Parking Slots</label>
                 <input type="number" id="parking" name="parking_slots_needed" placeholder="e.g., 5" min="0">
+                <div class="error-message"></div>
             </div>
         </div>
+
+       <div class="package-selection">
+            <label class="package-option">
+                <input type="radio" name="package" value="Silver" required>
+                <div class="package-content">
+                    <span class="package-name">Silver</span>
+                    <span class="package-description">
+                        The Silver package includes soup, pasta, vegetables, fish, chicken, steamed rice, dessert, and a refreshing drink.
+                    </span>
+                </div>
+            </label>
+            <label class="package-option">
+                <input type="radio" name="package" value="Gold">
+                <div class="package-content">
+                    <span class="package-name">Gold</span>
+                    <span class="package-description">
+                        The Gold package includes soup, salad, pasta, pork, chicken, steamed rice, dessert, and a refreshing drink.
+                    </span>
+                </div>
+            </label>
+            <label class="package-option">
+                <input type="radio" name="package" value="Diamond">
+                <div class="package-content">
+                    <span class="package-name">Diamond</span>
+                    <span class="package-description">
+                        The Diamond package includes soup, salad, vegetables, pasta, fish, pork, chicken, beef, steamed rice, dessert, and a refreshing drink.
+                    </span>
+                </div>
+            </label>
+        </div>
+
+        
+        <!-- Total Cost Display -->
+        <div class="form-total">
+            <p class="total-cost"><strong>Total: <span id="totalAmount">0.00</span></strong></p>
+        </div>
+
+        <!-- Payment Method -->
         <div class="form-group">
-            <label>Packages <span class="required">*</span></label>
-            <div class="package-selection">
-                <label class="package-option">
-                    <input type="radio" name="package" value="Silver" required> Silver
-                </label>
-                <label class="package-option">
-                    <input type="radio" name="package" value="Gold"> Gold
-                </label>
-                <label class="package-option">
-                    <input type="radio" name="package" value="Diamond"> Diamond
-                </label>
+            <label>Payment Method</label>
+            <div class="payment-methods">
+                <label><input type="radio" name="payment_method" value="gcash" required> GCash</label>
+                <label><input type="radio" name="payment_method" value="grab_pay"> GrabPay</label>
+                <label><input type="radio" name="payment_method" value="card"> Card</label>
+                <label><input type="radio" name="payment_method" value="qrph"> QRPH</label>
+                <label><input type="radio" name="payment_method" value="brankas_bdo"> Brankas BDO</label>
+                <label><input type="radio" name="payment_method" value="brankas_landbank"> Brankas Landbank</label>
+                <label><input type="radio" name="payment_method" value="paymaya"> PayMaya</label>
             </div>
         </div>
-        <div class="form-group">
-            <p id="totalCost" style="font-weight: bold; font-size: 18px;">Total Cost: PHP 0</p>
-        </div>
-        <div class="form-group">
-            <label>Payment Method <span class="required">*</span></label>
-            <div class="radio-group">
-                <label>
-                    <input type="radio" name="payment_method" value="Maya" required> Maya
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Card"> Card
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="Gcash"> Gcash
-                </label>
-            </div>
-        </div>
+
+        
         <div class="form-group">
             <label for="specialRequest">Do you have any special requests?</label>
             <textarea id="specialRequest" name="special_request" rows="4" placeholder="Type here..."></textarea>

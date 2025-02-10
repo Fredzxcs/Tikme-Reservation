@@ -48,22 +48,4 @@ def send_dine_in_confirmation_email(customer_email, context):
         print(f"Error sending confirmation email: {e}")
         raise
 
-def send_event_confirmation_email(customer_email, context):
-    try:
-        # Render the email template with the context
-        html_content = render_to_string("email_templates/event_email.html", context)
 
-        # Create the email
-        email = EmailMessage(
-            subject="Event Reservation Confirmation",
-            body=html_content,
-            from_email=settings.EMAIL_HOST_USER,  # Replace with your system email
-            to=[customer_email],
-        )
-        email.content_subtype = "html"  # Set email format to HTML
-        email.send()
-
-        return {"success": True, "message": "Email sent successfully."}
-    except Exception as e:
-        print(f"Error sending confirmation email: {e}")
-        raise

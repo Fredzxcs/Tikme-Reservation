@@ -3,12 +3,12 @@ from django.db import migrations
 def populate_dining_areas(apps, schema_editor):
     DiningArea = apps.get_model('api', 'DiningArea')
     dining_areas = [
-        {"area_name": "Alfresco"},
-        {"area_name": "Air Conditioning"},
+        {"id": 1, "area_name": "Air Conditioning"},
+        {"id": 2, "area_name": "Alfresco"},
     ]
 
     for area in dining_areas:
-        DiningArea.objects.get_or_create(**area)
+        DiningArea.objects.update_or_create(id=area["id"], defaults={"area_name": area["area_name"]})
 
 class Migration(migrations.Migration):
     dependencies = [

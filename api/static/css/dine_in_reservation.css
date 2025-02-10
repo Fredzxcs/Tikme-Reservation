@@ -88,12 +88,28 @@ textarea {
   box-shadow: none;
 }
 
+/* Scrollable Menu Section */
 .accordion-body {
-  padding: 20px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  max-height: 300px; /* Set a max height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  padding-right: 10px; /* Add some padding for better visibility */
+}
+
+/* Custom Scrollbar */
+.accordion-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.accordion-body::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* Color of the scrollbar */
   border-radius: 4px;
 }
+
+.accordion-body::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background of the scrollbar */
+}
+
 
 /* Menu Item Container */
 .menu-item {
@@ -237,6 +253,26 @@ button.btn-secondary {
 button.btn-secondary:hover {
   background-color: #565e64;
   transform: translateY(-2px);
+}
+
+/* Error messages positioned directly under the input */
+.error-message {
+  display: none;
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+/* Input fields with error state */
+input.is-invalid, select.is-invalid, textarea.is-invalid {
+  border: 2px solid red !important;
+  background-color: #ffe6e6;
+}
+
+input.is-invalid:focus, select.is-invalid:focus, textarea.is-invalid:focus {
+  border-color: red !important;
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
 }
 
 
