@@ -40,6 +40,13 @@ class Package(models.Model):
     def __str__(self):
         return self.package_name
 
+class VisitorLog(models.Model):
+    ip_address = models.GenericIPAddressField()  # Store visitor IP
+    visit_time = models.DateTimeField(auto_now_add=True)  # Store timestamp
+
+    def __str__(self):
+        return f"Visit from {self.ip_address} at {self.visit_time}"
+    
 # Survey Model
 class Survey(models.Model):
     name = models.CharField(max_length=255)
@@ -105,14 +112,16 @@ class DineInReservation(models.Model):
 
     total_bill = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Confirmed', 'Confirmed'),
-        ('Cancelled', 'Cancelled'),
-    ]
-
     status = models.CharField(
-        max_length=50, choices=STATUS_CHOICES, default='Pending'
+        max_length=50,
+        choices=[
+            ('Confirmed', 'Confirmed'), 
+            ('Ongoing', 'Ongoing'), 
+            ('Completed', 'Completed'), 
+            ('Cancelled', 'Cancelled'), 
+            ('Overdue', 'Overdue')
+        ],
+        default='Confirmed'
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -135,7 +144,7 @@ class DineInReservation(models.Model):
             preferred_area=self.preferred_area
         ).count()
 
-        if existing_reservations >= 5:
+        if existing_reservations >= 10:
             raise ValidationError("This time slot is fully booked. Please select a different time.")
 
         # Ensure the total bill is calculated before saving
@@ -154,7 +163,6 @@ class EventReservation(models.Model):
     number_of_guests = models.PositiveIntegerField()
     reservation_date = models.DateField(unique=True) 
     reservation_time = models.TimeField()
-    event_date_time = models.DateTimeField()
     parking_slots_needed = models.PositiveIntegerField(default=0)
     special_request = models.TextField(null=True, blank=True)
     reference_number = models.CharField(
@@ -180,8 +188,14 @@ class EventReservation(models.Model):
 
     status = models.CharField(
         max_length=50,
-        choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed'), ('Cancelled', 'Cancelled')],
-        default='Pending'
+        choices=[
+            ('Confirmed', 'Confirmed'), 
+            ('Ongoing', 'Ongoing'), 
+            ('Completed', 'Completed'), 
+            ('Cancelled', 'Cancelled'), 
+            ('Overdue', 'Overdue')
+        ],
+        default='Confirmed'
     )
 
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # ✅ New field added

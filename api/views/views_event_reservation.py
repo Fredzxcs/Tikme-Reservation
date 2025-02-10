@@ -58,12 +58,6 @@ class EventReservationListCreateView(views.APIView):
             )
 
             number_of_guests = int(request.data.get('number_of_guests', 0))
-            event_date_time = make_aware(
-                datetime.strptime(
-                    f"{request.data['reservation_date']} {request.data['reservation_time']}",
-                    "%Y-%m-%d %H:%M:%S"
-                )
-            )
             parking_slots_needed = int(request.data.get('parking_slots_needed', 0))
             payment_method = request.data.get('payment_method', 'card').lower()
 
@@ -81,7 +75,6 @@ class EventReservationListCreateView(views.APIView):
                 number_of_guests=number_of_guests,
                 reservation_date=request.data['reservation_date'],
                 reservation_time=request.data['reservation_time'],
-                event_date_time=event_date_time,
                 parking_slots_needed=parking_slots_needed,
                 special_request=request.data.get('special_request', None),
                 payment_method=payment_method,
@@ -113,7 +106,6 @@ class EventReservationListCreateView(views.APIView):
             logger.error(f"Unexpected error: {e}")
             return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class EventReservationDetailView(views.APIView):
     """
     Handles retrieving, updating, and deleting individual event reservations.
@@ -127,13 +119,15 @@ class EventReservationDetailView(views.APIView):
         except EventReservation.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, pk):
+    def patch(self, request, pk):  # Changed from put to patch
         try:
             reservation = EventReservation.objects.get(pk=pk)
         except EventReservation.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = EventReservationSerializer(reservation, data=request.data)
+        # Allow partial updates by setting partial=True
+        serializer = EventReservationSerializer(reservation, data=request.data, partial=True)
+        
         if serializer.is_valid():
             serializer.save()
             return Response(

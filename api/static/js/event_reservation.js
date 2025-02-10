@@ -4,6 +4,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const totalCostElement = document.getElementById("totalAmount");
 
+
+    // Helper function to format only the date for Asia/Manila with the day name
+    const formatDateTime = (dateString) => {
+        try {
+            // Create a Date object with the specified timezone
+            const date = new Date(dateString);
+
+            // Check if the date is valid
+            if (isNaN(date.getTime())) {
+                throw new Error("Invalid date format provided.");
+            }
+
+            // Formatting options to display only the date
+            const options = {
+                timeZone: 'Asia/Manila',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            };
+
+            // Return formatted date string
+            return date.toLocaleString('en-US', options);
+        } catch (error) {
+            console.error("Error formatting date:", error);
+            return "Invalid Date";
+        }
+    };
+
+
+    
     // Venue capacities and corresponding IDs
     const venueCapacities = {
         "Violeta": { id: 1, capacity: 80 },
@@ -63,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Check if selected details exist
     if (formattedDate && selectedPlace && formattedTimeSlot) {
-        document.getElementById("selectedDate").textContent = new Date(selectedDate).toDateString();
+        document.getElementById("selectedDate").textContent = formatDateTime(selectedDate, formattedTimeSlot);
         document.getElementById("selectedPlace").textContent = selectedPlace;
         document.getElementById("selectedTimeSlot").textContent = selectedTimeSlot;
     } else {
@@ -281,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const paymentPayload = {
                 data: {
                     attributes: {
-                        description: "Event reservation payment",
+                        description: "Reservation Event",
                         amount: totalAmount * 100, // Convert to cents
                         currency: "PHP",
                         reference_number: referenceNumber,

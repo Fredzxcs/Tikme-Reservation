@@ -1,33 +1,91 @@
 document.addEventListener("DOMContentLoaded", () => { 
-    // Example mapping of dining area names to IDs
     const diningAreas = {
         "Air Conditioning": 1,
         "Alfresco": 2,
     };
 
-    // Fetch details from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const selectedDate = urlParams.get("date");
-    const selectedPlace = urlParams.get("place");
-    const selectedTimeSlot = urlParams.get("time");
-    const preferredAreaId = diningAreas[selectedPlace]; // Map name to numeric ID
+    let selectedDate = urlParams.get("date");  
+    let selectedPlace = urlParams.get("place");
+    let selectedTimeSlot = urlParams.get("time");
 
-    // Pre-fill selected details in the form
+    const preferredAreaId = diningAreas[selectedPlace]; 
+
+    console.log("📅 URL Selected Date:", selectedDate);  
+    console.log("🏠 Preferred Area ID:", preferredAreaId);  
+
+    // Validate and properly format `selectedDate`
     if (selectedDate) {
-        document.getElementById("selectedDate").textContent = new Date(selectedDate).toDateString();
-        document.getElementById("selectedDateInput").value = selectedDate; // Hidden input for form submission
-    }
-    if (selectedPlace && preferredAreaId) {
-        document.getElementById("selectedPlace").textContent = selectedPlace; // Display the name
-        document.getElementById("selectedPlaceInput").value = preferredAreaId; // Hidden input for numeric ID
-    } else if (selectedPlace) {
-        console.error(`Invalid dining area selected: ${selectedPlace}`);
-    }
-    if (selectedTimeSlot) {
-        document.getElementById("selectedTimeSlot").textContent = selectedTimeSlot;
-        document.getElementById("selectedTimeSlotInput").value = selectedTimeSlot; // Hidden input for form submission
-    }   
+        let formattedDate;
+        try {
+            const dateObj = new Date(selectedDate);
+            if (isNaN(dateObj)) throw new Error("Invalid date format");
 
+            formattedDate = dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',  
+                month: 'short',   
+                day: '2-digit',   
+                year: 'numeric',  
+                timeZone: 'Asia/Manila' 
+            });
+
+            document.getElementById("selectedDate").textContent = formattedDate;
+            document.getElementById("selectedDateInput").value = selectedDate;  
+        } catch (error) {
+            console.error("❌ Invalid date format:", selectedDate, error);
+            Swal.fire("Error", "Invalid date format. Please select a valid date.", "error");
+            return;
+        }
+    } else {
+        console.error("❌ No date found in URL!");
+        Swal.fire("Error", "No date found in the URL.", "error");
+        return;
+    }
+
+    // Set the place if available
+    if (selectedPlace) {
+        document.getElementById("selectedPlace").textContent = selectedPlace;
+        document.getElementById("preferredAreaIdInput").value = preferredAreaId; 
+    }
+
+    if (!preferredAreaId) {
+        console.error("❌ Invalid preferred area:", selectedPlace);
+    } else {
+        document.getElementById("preferredAreaIdInput").value = preferredAreaId;
+    }
+
+    // Validate and properly format `selectedTimeSlot`
+    if (selectedTimeSlot) {
+        const formattedTimeSlot = selectedTimeSlot.toUpperCase();
+        const match = formattedTimeSlot.match(/(\d{1,2}):(\d{2})(?:\s?(am|pm))?/i);
+        if (!match) {
+            console.error("❌ Invalid time format:", formattedTimeSlot);
+            Swal.fire("Error", "Invalid time format. Please select a valid time.", "error");
+            return;
+        }
+
+        let hours = parseInt(match[1], 10);
+        const minutes = match[2];
+        let modifier = match[3] ? match[3].toUpperCase() : "AM"; 
+
+        if (hours > 12) {
+            hours -= 12;
+            modifier = "PM"; 
+        } else if (hours === 12) {
+            modifier = "PM"; 
+        } else {
+            modifier = "AM"; 
+        }
+
+        const formattedTime = `${String(hours).padStart(2, "0")}:${minutes} ${modifier}`;
+        document.getElementById("selectedTimeSlot").textContent = formattedTime;
+        document.getElementById("selectedTimeSlotInput").value = formattedTime;
+    } else {
+        console.error("❌ No time slot found in URL!");
+        Swal.fire("Error", "No time slot found in the URL.", "error");
+        return;
+    }
+ 
     // Hide payment method initially
     const paymentMethodSection = document.querySelector(".form-group");
     paymentMethodSection.style.display = "none";
@@ -353,8 +411,9 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Format date to YYYY-MM-DD
         const selectedDateInput = document.getElementById("selectedDateInput").value;
-        const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0];
-        formData.set("reservation_date", formattedDate);
+        const formattedDate = new Date(selectedDateInput).toISOString().split('T')[0];
+        formData.set("reservation_date", formattedDate); 
+        
     
         const timeInput = document.getElementById("selectedTimeSlotInput");
     
@@ -489,7 +548,48 @@ document.addEventListener("DOMContentLoaded", () => {
         
             const reservationData = await reservationResponse.json();
             console.log("✅ Reservation Data from Backend:", reservationData);
-        
+            
+            // Check if advance orders exist
+            if (reservationData && advanceOrder.length > 0) {
+                const orderData = {
+                    reservation_id: reservationData.reservation?.id,  // Ensure reservation ID is present
+                    reference_number: reservationData.reservation?.reference_number,  // Ensure reference number
+                    items: advanceOrder.map(item => ({
+                        product_id: item.product_id,
+                        quantity: item.quantity,
+                        price: item.price
+                    }))
+                };
+
+                // Validation for missing fields
+                if (!orderData.reservation_id || !orderData.reference_number || orderData.items.length === 0) {
+                    console.error("Missing required fields in orderData:", orderData);
+                    Swal.fire("Error", "Invalid order data. Please try again.", "error");
+                    return;
+                }
+
+                console.log("📌 Prepared Order Data:", orderData);
+
+                // Submit the order data
+                const orderResponse = await fetch("http://192.168.100.31:8004/api/receive-order/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderData),
+                });
+
+                if (!orderResponse.ok) {
+                    const orderErrorData = await orderResponse.json();
+                    console.error("❌ Order submission error:", orderErrorData);
+                    Swal.fire("Error", "Failed to submit order.", "error");
+                } else {
+                    console.log("✅ Order submitted successfully!");
+                    Swal.fire("Success", "Your reservation and order have been submitted!", "success");
+                }
+            } else {
+                console.log("ℹ No advance order selected, skipping order submission.");
+                Swal.fire("Success", "Your reservation has been submitted!", "success");
+            }
+
             // Define available payment methods
             const paymentMethods = [
                 "gcash",
@@ -569,7 +669,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const payload = {
             data: {
                 attributes: {
-                    description: "Dine-in reservation payment",
+                    description: "Reservation Dine-in",
                     success_url: success_url,
                     amount: Math.round(total_amount * 100), // Convert PHP to cents
                     line_items: advanceOrder.map((item) => ({

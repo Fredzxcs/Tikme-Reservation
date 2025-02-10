@@ -15,7 +15,8 @@ SECRET_KEY = 'django-insecure-yda!aa3&5g&fi(7q9-n$@g=n^lu^@p-7j)9e1@=vy2a9xav9^+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = ['*']
+print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")  # Check this output in the terminal
 
 
 
@@ -43,9 +44,14 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8006",  # Frontend URL
-    "http://localhost:8006",
+    "http://localhost:8003",
+    "http://127.0.0.1:8003",
+    "http://192.168.100.31:8003",  # Admin System
 ]
 
 ROOT_URLCONF = 'backend.urls'
