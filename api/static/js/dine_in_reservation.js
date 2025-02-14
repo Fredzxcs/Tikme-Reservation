@@ -14,34 +14,59 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("📅 URL Selected Date:", selectedDate);  
     console.log("🏠 Preferred Area ID:", preferredAreaId);  
 
-    // Validate and properly format `selectedDate`
     if (selectedDate) {
-        let formattedDate;
         try {
-            const dateObj = new Date(selectedDate);
-            if (isNaN(dateObj)) throw new Error("Invalid date format");
-
-            formattedDate = dateObj.toLocaleDateString('en-US', {
-                weekday: 'long',  
-                month: 'short',   
-                day: '2-digit',   
-                year: 'numeric',  
-                timeZone: 'Asia/Manila' 
+            console.log("📅 URL Selected Date (Raw):", selectedDate);
+    
+            // Extract date components from format: "Saturday, Feb 15, 2025"
+            const dateRegex = /([A-Za-z]+),\s([A-Za-z]+)\s(\d{1,2}),\s(\d{4})/;
+            const match = selectedDate.match(dateRegex);
+    
+            if (!match) {
+                throw new Error("Invalid date format");
+            }
+    
+            const [_, dayOfWeek, monthStr, day, year] = match;
+    
+            // Convert month string (e.g., "Feb") to month index (0-11)
+            const monthNames = {
+                "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "May": 4, "Jun": 5,
+                "Jul": 6, "Aug": 7, "Sep": 8, "Oct": 9, "Nov": 10, "Dec": 11
+            };
+    
+            if (!(monthStr in monthNames)) {
+                throw new Error("Invalid month name");
+            }
+    
+            const month = monthNames[monthStr];
+    
+            // Create date object without timezone shift
+            const localDate = new Date(year, month, day);
+    
+            // Format into YYYY-MM-DD for backend
+            const formattedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    
+            console.log("📅 Final Date Sent to Backend:", formattedDate);
+    
+            // Display formatted date in human-readable format
+            document.getElementById("selectedDate").textContent = localDate.toLocaleDateString("en-GB", {
+                weekday: "long",
+                month: "short",
+                day: "2-digit",
+                year: "numeric"
             });
-
-            document.getElementById("selectedDate").textContent = formattedDate;
-            document.getElementById("selectedDateInput").value = selectedDate;  
+    
+            document.getElementById("selectedDateInput").value = formattedDate; // Send correct format to backend
+    
         } catch (error) {
             console.error("❌ Invalid date format:", selectedDate, error);
             Swal.fire("Error", "Invalid date format. Please select a valid date.", "error");
             return;
         }
-    } else {
-        console.error("❌ No date found in URL!");
-        Swal.fire("Error", "No date found in the URL.", "error");
-        return;
     }
-
+    
+    
+    
     // Set the place if available
     if (selectedPlace) {
         document.getElementById("selectedPlace").textContent = selectedPlace;
@@ -409,12 +434,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
         const formData = new FormData(event.target);
     
-        // Format date to YYYY-MM-DD
         const selectedDateInput = document.getElementById("selectedDateInput").value;
-        const formattedDate = new Date(selectedDateInput).toISOString().split('T')[0];
-        formData.set("reservation_date", formattedDate); 
+        const dateParts = selectedDateInput.split('-'); // Prevents UTC conversion
+        const formattedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`; // Keep YYYY-MM-DD
+        console.log("📅 Final Date Sent to Backend:", formattedDate); // Debugging
+        formData.set("reservation_date", formattedDate);
         
-    
         const timeInput = document.getElementById("selectedTimeSlotInput");
     
         // Ensure timeInput exists and has a value
@@ -548,45 +573,41 @@ document.addEventListener("DOMContentLoaded", () => {
         
             const reservationData = await reservationResponse.json();
             console.log("✅ Reservation Data from Backend:", reservationData);
-            
-            // Check if advance orders exist
-            if (reservationData && advanceOrder.length > 0) {
+        
+            // ✅ Check if an advance order exists before proceeding
+            if (advanceOrder.length > 0) {
                 const orderData = {
-                    reservation_id: reservationData.reservation?.id,  // Ensure reservation ID is present
-                    reference_number: reservationData.reservation?.reference_number,  // Ensure reference number
-                    items: advanceOrder.map(item => ({
-                        product_id: item.product_id,
-                        quantity: item.quantity,
-                        price: item.price
-                    }))
+                    product_id: reservationData?.product_id || null,  // ✅ Extract product_id from response
+                    quantity: advanceOrder.reduce((total, item) => total + item.quantity, 0)
                 };
-
-                // Validation for missing fields
-                if (!orderData.reservation_id || !orderData.reference_number || orderData.items.length === 0) {
-                    console.error("Missing required fields in orderData:", orderData);
-                    Swal.fire("Error", "Invalid order data. Please try again.", "error");
-                    return;
-                }
-
+        
                 console.log("📌 Prepared Order Data:", orderData);
-
-                // Submit the order data
-                const orderResponse = await fetch("http://192.168.100.31:8004/api/receive-order/", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(orderData),
-                });
-
-                if (!orderResponse.ok) {
-                    const orderErrorData = await orderResponse.json();
-                    console.error("❌ Order submission error:", orderErrorData);
-                    Swal.fire("Error", "Failed to submit order.", "error");
+        
+                // ✅ Ensure valid order data before sending
+                if (!orderData.product_id || !orderData.quantity) {
+                    console.error("🚨 Missing required fields in orderData:", orderData);
+                    Swal.fire("Error", "Invalid order data. Please try again.", "error");
                 } else {
-                    console.log("✅ Order submitted successfully!");
-                    Swal.fire("Success", "Your reservation and order have been submitted!", "success");
+                    // ✅ Send order data only if it's valid
+                    const orderResponse = await fetch("http://192.168.100.31:8004/api/receive-order/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(orderData),
+                    });
+        
+                    if (!orderResponse.ok) {
+                        const orderErrorData = await orderResponse.json();
+                        console.error("❌ Error sending order data:", orderErrorData);
+                        Swal.fire("Error", "Failed to submit order. Please try again.", "error");
+                    } else {
+                        console.log("✅ Order data sent successfully!");
+                        Swal.fire("Success", "Your reservation and order have been submitted!", "success");
+                    }
                 }
             } else {
-                console.log("ℹ No advance order selected, skipping order submission.");
+                console.log("ℹ No advance order selected. Skipping order submission.");
                 Swal.fire("Success", "Your reservation has been submitted!", "success");
             }
 
