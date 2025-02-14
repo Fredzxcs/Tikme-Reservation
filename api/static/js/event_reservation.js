@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             };
     
-            const paymongoResponse = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
+            const paymongoResponse = await fetch("https://capstone-paymentgateway.onrender.com/create-checkout-session/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(paymentPayload),

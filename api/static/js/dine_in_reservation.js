@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch menu items from the server
     const fetchMenuItems = async () => {
         try {   
-            const response = await fetch("http://192.168.100.31:8004/products/");
+            const response = await fetch("https://logistics-5mci.onrender.com/products/");
             if (!response.ok) throw new Error("Failed to fetch menu items.");
             menuItems = await response.json();
 
@@ -553,7 +553,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Access reservation ID and reference number from the backend response
             const reservationId = reservationData.reservation?.id; // Access reservation ID
             const referenceNumber = reservationData.reservation?.reference_number; // Access reference number
-            const success_url = "http://127.0.0.1:8002/home"; // ✅ Correct format
+            const success_url = "https://tikme-dine.onrender.com/home"; // ✅ Correct format
 
 
             if (!reservationId || !referenceNumber) {
@@ -591,7 +591,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Payload to PayMongo:", payload);
       
             // Step 2: Send the payload to PayMongo
-            const paymongoResponse = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
+            const paymongoResponse = await fetch("https://capstone-paymentgateway.onrender.com/create-checkout-session/", {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json" 
