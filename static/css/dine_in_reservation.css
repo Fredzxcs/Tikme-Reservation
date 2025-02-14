@@ -1,0 +1,305 @@
+/* Base Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h5 {
+  font-weight: 600;
+  color: #333;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Labels and Inputs */
+label {
+  font-weight: 500;
+  color: #333;
+}
+
+input, textarea, select {
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* Validation Feedback */
+.invalid-feedback {
+  font-size: 12px;
+  color: red;
+  margin-top: 5px;
+}
+
+.alert-info {
+  border-color: #fff;
+  background-color: #fff; /* Change the background color to white */
+  color: #333; /* Change the text color to a neutral black/gray */
+  padding: 15px;
+  border-radius: 4px;
+}
+
+/* Advance Order Section */
+.menu-filter {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.input-group .input-group-text {
+  background-color: #f8f9fa;
+  border: 1px solid #ccc;
+}
+
+#categoryFilter label {
+  margin-bottom: 10px;
+}
+
+/* Accordion Menu */
+.accordion-button {
+  background-color: #f8f9fa;
+  font-weight: 500;
+  color: #333;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #e9f5ff;
+  color: #007bff;
+  box-shadow: none;
+}
+
+/* Scrollable Menu Section */
+.accordion-body {
+  max-height: 300px; /* Set a max height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  padding-right: 10px; /* Add some padding for better visibility */
+}
+
+/* Custom Scrollbar */
+.accordion-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.accordion-body::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* Color of the scrollbar */
+  border-radius: 4px;
+}
+
+.accordion-body::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background of the scrollbar */
+}
+
+
+/* Menu Item Container */
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #f8faff;
+  border: 1px solid #e0e6ef;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  height: 100%;
+}
+
+/* Checkbox and Product Name Aligned */
+.menu-item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-checkbox {
+  transform: scale(1.2);
+  accent-color: #6c5ce7;
+}
+
+.menu-item h5 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3436;
+  margin: 0;
+}
+
+/* Description */
+.menu-item p {
+  font-size: 14px;
+  color: #636e72;
+  margin: 10px 0;
+  line-height: 1.4;
+}
+
+/* Price Section */
+.menu-item strong {
+  font-size: 16px;
+  color: #0984e3;
+  font-weight: bold;
+}
+
+/* Quantity Selector */
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.quantity-selector select {
+  border: 1px solid #dfe6e9;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 14px;
+  width: 100px;
+}
+
+/* Hover Effect */
+.menu-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  border-color: #6c5ce7;
+}
+
+.quantity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+/* Total Price */
+.total-price {
+  font-weight: 600;
+  font-size: 18px;
+  color: #333;
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+/* Payment Method */
+.form-check {
+  margin-bottom: 10px;
+}
+
+.form-check-input {
+  margin-right: 10px;
+}
+
+.invalid-feedback {
+  font-size: 12px;
+  margin-top: 5px;
+  color: #dc3545;
+}
+
+/* Special Request Section */
+textarea {
+  min-height: 80px;
+}
+
+/* Submit Button */
+
+/* Buttons */
+button {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+button.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+button.btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+button.btn-secondary:hover {
+  background-color: #565e64;
+  transform: translateY(-2px);
+}
+
+/* Error messages positioned directly under the input */
+.error-message {
+  display: none;
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+/* Input fields with error state */
+input.is-invalid, select.is-invalid, textarea.is-invalid {
+  border: 2px solid red !important;
+  background-color: #ffe6e6;
+}
+
+input.is-invalid:focus, select.is-invalid:focus, textarea.is-invalid:focus {
+  border-color: red !important;
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
+}
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .menu-filter {
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  .quantity {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+
+  .menu-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+  }
+
+  .quantity-selector {
+    justify-content: flex-start;
+    gap: 15px;
+  }
+
+  .total-price {
+      text-align: center;
+  }
+}
