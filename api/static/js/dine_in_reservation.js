@@ -589,7 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     Swal.fire("Error", "Invalid order data. Please try again.", "error");
                 } else {
                     // ✅ Send order data only if it's valid
-                    const orderResponse = await fetch("http://192.168.100.31:8004/api/receive-order/", {
+                    const orderResponse = await fetch("https://logistics-5mci.onrender.com/api/receive-order/", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

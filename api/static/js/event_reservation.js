@@ -336,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             quantity: parseInt(guests.value),
                             description: "Event Booking Package"
                         }],
-                        success_url: "http://127.0.0.1:8002/home",
+                        success_url: "https://tikme-dine.onrender.com/home",
                     }
                 }
             };
