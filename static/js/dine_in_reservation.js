@@ -1,33 +1,116 @@
 document.addEventListener("DOMContentLoaded", () => { 
-    // Example mapping of dining area names to IDs
     const diningAreas = {
         "Air Conditioning": 1,
         "Alfresco": 2,
     };
 
-    // Fetch details from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const selectedDate = urlParams.get("date");
-    const selectedPlace = urlParams.get("place");
-    const selectedTimeSlot = urlParams.get("time");
-    const preferredAreaId = diningAreas[selectedPlace]; // Map name to numeric ID
+    let selectedDate = urlParams.get("date");  
+    let selectedPlace = urlParams.get("place");
+    let selectedTimeSlot = urlParams.get("time");
 
-    // Pre-fill selected details in the form
+    const preferredAreaId = diningAreas[selectedPlace]; 
+
+    console.log("📅 URL Selected Date:", selectedDate);  
+    console.log("🏠 Preferred Area ID:", preferredAreaId);  
+
     if (selectedDate) {
-        document.getElementById("selectedDate").textContent = new Date(selectedDate).toDateString();
-        document.getElementById("selectedDateInput").value = selectedDate; // Hidden input for form submission
+        try {
+            console.log("📅 URL Selected Date (Raw):", selectedDate);
+    
+            // Extract date components from format: "Saturday, Feb 15, 2025"
+            const dateRegex = /([A-Za-z]+),\s([A-Za-z]+)\s(\d{1,2}),\s(\d{4})/;
+            const match = selectedDate.match(dateRegex);
+    
+            if (!match) {
+                throw new Error("Invalid date format");
+            }
+    
+            const [_, dayOfWeek, monthStr, day, year] = match;
+    
+            // Convert month string (e.g., "Feb") to month index (0-11)
+            const monthNames = {
+                "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "May": 4, "Jun": 5,
+                "Jul": 6, "Aug": 7, "Sep": 8, "Oct": 9, "Nov": 10, "Dec": 11
+            };
+    
+            if (!(monthStr in monthNames)) {
+                throw new Error("Invalid month name");
+            }
+    
+            const month = monthNames[monthStr];
+    
+            // Create date object without timezone shift
+            const localDate = new Date(year, month, day);
+    
+            // Format into YYYY-MM-DD for backend
+            const formattedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    
+            console.log("📅 Final Date Sent to Backend:", formattedDate);
+    
+            // Display formatted date in human-readable format
+            document.getElementById("selectedDate").textContent = localDate.toLocaleDateString("en-GB", {
+                weekday: "long",
+                month: "short",
+                day: "2-digit",
+                year: "numeric"
+            });
+    
+            document.getElementById("selectedDateInput").value = formattedDate; // Send correct format to backend
+    
+        } catch (error) {
+            console.error("❌ Invalid date format:", selectedDate, error);
+            Swal.fire("Error", "Invalid date format. Please select a valid date.", "error");
+            return;
+        }
     }
-    if (selectedPlace && preferredAreaId) {
-        document.getElementById("selectedPlace").textContent = selectedPlace; // Display the name
-        document.getElementById("selectedPlaceInput").value = preferredAreaId; // Hidden input for numeric ID
-    } else if (selectedPlace) {
-        console.error(`Invalid dining area selected: ${selectedPlace}`);
+    
+    
+    
+    // Set the place if available
+    if (selectedPlace) {
+        document.getElementById("selectedPlace").textContent = selectedPlace;
+        document.getElementById("preferredAreaIdInput").value = preferredAreaId; 
     }
-    if (selectedTimeSlot) {
-        document.getElementById("selectedTimeSlot").textContent = selectedTimeSlot;
-        document.getElementById("selectedTimeSlotInput").value = selectedTimeSlot; // Hidden input for form submission
-    }   
 
+    if (!preferredAreaId) {
+        console.error("❌ Invalid preferred area:", selectedPlace);
+    } else {
+        document.getElementById("preferredAreaIdInput").value = preferredAreaId;
+    }
+
+    // Validate and properly format `selectedTimeSlot`
+    if (selectedTimeSlot) {
+        const formattedTimeSlot = selectedTimeSlot.toUpperCase();
+        const match = formattedTimeSlot.match(/(\d{1,2}):(\d{2})(?:\s?(am|pm))?/i);
+        if (!match) {
+            console.error("❌ Invalid time format:", formattedTimeSlot);
+            Swal.fire("Error", "Invalid time format. Please select a valid time.", "error");
+            return;
+        }
+
+        let hours = parseInt(match[1], 10);
+        const minutes = match[2];
+        let modifier = match[3] ? match[3].toUpperCase() : "AM"; 
+
+        if (hours > 12) {
+            hours -= 12;
+            modifier = "PM"; 
+        } else if (hours === 12) {
+            modifier = "PM"; 
+        } else {
+            modifier = "AM"; 
+        }
+
+        const formattedTime = `${String(hours).padStart(2, "0")}:${minutes} ${modifier}`;
+        document.getElementById("selectedTimeSlot").textContent = formattedTime;
+        document.getElementById("selectedTimeSlotInput").value = formattedTime;
+    } else {
+        console.error("❌ No time slot found in URL!");
+        Swal.fire("Error", "No time slot found in the URL.", "error");
+        return;
+    }
+ 
     // Hide payment method initially
     const paymentMethodSection = document.querySelector(".form-group");
     paymentMethodSection.style.display = "none";
@@ -187,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch menu items from the server
     const fetchMenuItems = async () => {
         try {   
-            const response = await fetch("http://192.168.100.31:8004/products/");
+            const response = await fetch("https://logistics-5mci.onrender.com/products/");
             if (!response.ok) throw new Error("Failed to fetch menu items.");
             menuItems = await response.json();
 
@@ -351,11 +434,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
         const formData = new FormData(event.target);
     
-        // Format date to YYYY-MM-DD
         const selectedDateInput = document.getElementById("selectedDateInput").value;
-        const formattedDate = new Date(selectedDateInput).toISOString().split("T")[0];
+        const dateParts = selectedDateInput.split('-'); // Prevents UTC conversion
+        const formattedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`; // Keep YYYY-MM-DD
+        console.log("📅 Final Date Sent to Backend:", formattedDate); // Debugging
         formData.set("reservation_date", formattedDate);
-    
+        
         const timeInput = document.getElementById("selectedTimeSlotInput");
     
         // Ensure timeInput exists and has a value
@@ -490,6 +574,43 @@ document.addEventListener("DOMContentLoaded", () => {
             const reservationData = await reservationResponse.json();
             console.log("✅ Reservation Data from Backend:", reservationData);
         
+            // ✅ Check if an advance order exists before proceeding
+            if (advanceOrder.length > 0) {
+                const orderData = {
+                    product_id: reservationData?.product_id || null,  // ✅ Extract product_id from response
+                    quantity: advanceOrder.reduce((total, item) => total + item.quantity, 0)
+                };
+        
+                console.log("📌 Prepared Order Data:", orderData);
+        
+                // ✅ Ensure valid order data before sending
+                if (!orderData.product_id || !orderData.quantity) {
+                    console.error("🚨 Missing required fields in orderData:", orderData);
+                    Swal.fire("Error", "Invalid order data. Please try again.", "error");
+                } else {
+                    // ✅ Send order data only if it's valid
+                    const orderResponse = await fetch("https://logistics-5mci.onrender.com/api/receive-order/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(orderData),
+                    });
+        
+                    if (!orderResponse.ok) {
+                        const orderErrorData = await orderResponse.json();
+                        console.error("❌ Error sending order data:", orderErrorData);
+                        Swal.fire("Error", "Failed to submit order. Please try again.", "error");
+                    } else {
+                        console.log("✅ Order data sent successfully!");
+                        Swal.fire("Success", "Your reservation and order have been submitted!", "success");
+                    }
+                }
+            } else {
+                console.log("ℹ No advance order selected. Skipping order submission.");
+                Swal.fire("Success", "Your reservation has been submitted!", "success");
+            }
+
             // Define available payment methods
             const paymentMethods = [
                 "gcash",
@@ -553,7 +674,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Access reservation ID and reference number from the backend response
             const reservationId = reservationData.reservation?.id; // Access reservation ID
             const referenceNumber = reservationData.reservation?.reference_number; // Access reference number
-            const success_url = "http://127.0.0.1:8002/home"; // ✅ Correct format
+            const success_url = "https://tikme-dine.onrender.com/home"; // ✅ Correct format
 
 
             if (!reservationId || !referenceNumber) {
@@ -569,7 +690,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const payload = {
             data: {
                 attributes: {
-                    description: "Dine-in reservation payment",
+                    description: "Reservation Dine-in",
                     success_url: success_url,
                     amount: Math.round(total_amount * 100), // Convert PHP to cents
                     line_items: advanceOrder.map((item) => ({
@@ -591,7 +712,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Payload to PayMongo:", payload);
       
             // Step 2: Send the payload to PayMongo
-            const paymongoResponse = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
+            const paymongoResponse = await fetch("https://capstone-paymentgateway.onrender.com/create-checkout-session/", {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json" 

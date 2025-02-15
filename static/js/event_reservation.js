@@ -4,6 +4,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const totalCostElement = document.getElementById("totalAmount");
 
+    const formatDateForBackend = (dateString) => {
+        try {
+            if (!dateString) {
+                throw new Error("No date provided.");
+            }
+    
+            // Convert to Date object (ensures correct parsing)
+            const dateObj = new Date(dateString);
+    
+            if (isNaN(dateObj.getTime())) {
+                throw new Error("Invalid date format");
+            }
+    
+            // Extract year, month, and day manually (avoids UTC shift)
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // Ensure two digits
+            const day = String(dateObj.getDate()).padStart(2, "0"); // Ensure two digits
+    
+            return `${year}-${month}-${day}`; // Returns YYYY-MM-DD format
+    
+        } catch (error) {
+            console.error("❌ Error formatting date for backend:", error);
+            return null;
+        }
+    };
+    
+    
+
     // Venue capacities and corresponding IDs
     const venueCapacities = {
         "Violeta": { id: 1, capacity: 80 },
@@ -43,8 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedPlace = params.get("place");
     const selectedTimeSlot = params.get("time");
 
-    // Format the date to `YYYY-MM-DD`
-    const formattedDate = selectedDate ? new Date(selectedDate).toISOString().split("T")[0] : null;
+    // ✅ Use only the corrected date function
+    const formattedDate = formatDateForBackend(selectedDate);
+    console.log("📅 Final Date Sent to Backend:", formattedDate);
 
     // Convert 12-hour time format to 24-hour time format
     const convertTo24HourFormat = (time12h) => {
@@ -63,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Check if selected details exist
     if (formattedDate && selectedPlace && formattedTimeSlot) {
-        document.getElementById("selectedDate").textContent = new Date(selectedDate).toDateString();
+        document.getElementById("selectedDate").textContent = formattedDate; // ✅ FIXED: Now correctly displays YYYY-MM-DD
         document.getElementById("selectedPlace").textContent = selectedPlace;
         document.getElementById("selectedTimeSlot").textContent = selectedTimeSlot;
     } else {
@@ -72,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         return;
     }
-
+    
     const selectedVenueDetails = venueCapacities[selectedPlace];
     if (!selectedVenueDetails) {
         Swal.fire("Error", "Invalid venue selected. Please return to the calendar.", "error").then(() => {
@@ -181,9 +210,12 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (!isValid) {
             event.preventDefault();
-            firstInvalidField.focus(); // Focus on the first invalid field
+            if (firstInvalidField) {
+                firstInvalidField.focus();  // Only focus if there's an invalid field
+            }
             Swal.fire("Error", "Please fill in all required fields correctly.", "error");
         }
+        
     });
 
     const calculateTotalCost = () => {
@@ -277,11 +309,22 @@ document.addEventListener("DOMContentLoaded", () => {
     
             console.log("✅ Reservation Created:", reservationData);
     
+            // Show SweetAlert for successful reservation
+            Swal.fire({
+                title: "Reservation Successful",
+                text: "Your event reservation was successfully created.",
+                icon: "success",
+                confirmButtonText: "OK",
+            }).then(() => {
+                // Send confirmation email after reservation success
+                sendConfirmationEmail(reservationData.email, reservationData);
+            });
+
             // Now Send Payment Data to PayMongo
             const paymentPayload = {
                 data: {
                     attributes: {
-                        description: "Event reservation payment",
+                        description: "Reservation Event",
                         amount: totalAmount * 100, // Convert to cents
                         currency: "PHP",
                         reference_number: referenceNumber,
@@ -293,12 +336,12 @@ document.addEventListener("DOMContentLoaded", () => {
                             quantity: parseInt(guests.value),
                             description: "Event Booking Package"
                         }],
-                        success_url: "http://127.0.0.1:8002/home",
+                        success_url: "https://tikme-dine.onrender.com/home",
                     }
                 }
             };
     
-            const paymongoResponse = await fetch("http://192.168.100.31:8006/create-checkout-session/", {
+            const paymongoResponse = await fetch("https://capstone-paymentgateway.onrender.com/create-checkout-session/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(paymentPayload),
