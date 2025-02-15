@@ -43,6 +43,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8006",  # Frontend URL
     "http://localhost:8006",
     "https://capstone-paymentgateway.onrender.com",
+    "https://capstone-reservation.onrender.com",
 ]
 
 ROOT_URLCONF = 'backend.urls'
