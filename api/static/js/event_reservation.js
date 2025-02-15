@@ -309,6 +309,17 @@ document.addEventListener("DOMContentLoaded", () => {
     
             console.log("✅ Reservation Created:", reservationData);
     
+            // Show SweetAlert for successful reservation
+            Swal.fire({
+                title: "Reservation Successful",
+                text: "Your event reservation was successfully created.",
+                icon: "success",
+                confirmButtonText: "OK",
+            }).then(() => {
+                // Send confirmation email after reservation success
+                sendConfirmationEmail(reservationData.email, reservationData);
+            });
+
             // Now Send Payment Data to PayMongo
             const paymentPayload = {
                 data: {

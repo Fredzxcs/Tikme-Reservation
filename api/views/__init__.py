@@ -1,3 +1,4 @@
+from .views_cancel_reservation import *
 from .views_dine_in_calendar import *
 from .views_ import *
 from .views_customers import *
@@ -12,6 +13,7 @@ from .views_venue import *
 
 
 __all__ = [
+    "views_cancel_reservation",
     "views_dine_in_calendar",
     "views_",
     "views_customers",

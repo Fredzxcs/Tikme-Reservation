@@ -49,3 +49,4 @@ def cancel_reservation_view(request):
 
 def survey_view(request):
     return render(request, 'survey.html')
+

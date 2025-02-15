@@ -2,6 +2,7 @@ import logging
 from rest_framework.response import Response
 from rest_framework import status, views
 from decimal import Decimal
+from ..emails import send_event_confirmation_email
 from datetime import datetime
 from django.utils.timezone import make_aware
 from ..models import *
@@ -80,6 +81,22 @@ class EventReservationListCreateView(views.APIView):
                 payment_method=payment_method,
                 status='Confirmed'
             )
+
+            email_context = {
+                "customer_name": f"{customer.first_name} {customer.last_name}",
+                "reservation_date": reservation.reservation_date,
+                "reservation_time": reservation.reservation_time,
+                "venue_name": venue.venue_name,
+                "number_of_guests": reservation.number_of_guests,
+                "special_request": reservation.special_request or "None",
+                "payment_method": reservation.payment_method,
+                "total_cost": reservation.total_cost,
+                "reference_number": reservation.reference_number,
+                "parking_slots_needed": reservation.parking_slots_needed,
+            }
+
+            # Send confirmation email
+            send_event_confirmation_email(customer.email_address, email_context)
 
             package_price = Decimal(package.price)
             total_cost = Decimal(number_of_guests) * package_price

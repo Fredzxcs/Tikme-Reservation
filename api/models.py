@@ -8,7 +8,7 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=15)
-    email_address = models.EmailField(max_length=255, unique=True)  # Ensuring unique email
+    email_address = models.EmailField(max_length=255, unique=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
