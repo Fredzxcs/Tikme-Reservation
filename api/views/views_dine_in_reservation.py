@@ -25,8 +25,8 @@ class DineInReservationListCreateView(views.APIView):
     def get(self, request):
         try:
             logger.info("Fetching all dine-in reservations.")
-            reservations = DineInReservation.objects.all()
-            serializer = DineInReservationSerializer(reservations, many=True)
+            reservation = DineInReservation.objects.select_related('preferred_area').all()
+            serializer = DineInReservationSerializer(reservation, many=True)
             return Response(serializer.data)
         except Exception as e:
             logger.error(f"Error fetching dine-in reservations: {str(e)}")
@@ -188,6 +188,10 @@ class DineInReservationListCreateView(views.APIView):
             # Send confirmation email
             send_dine_in_confirmation_email(customer.email_address, email_context)
 
+            # Get the first product ID from the advance order
+            first_product_id = advance_order[0]["product_id"] if advance_order else None
+
+
             # Serialize the reservation
             serializer = DineInReservationSerializer(reservation)
             logger.info("Reservation successfully created and serialized.")
@@ -196,12 +200,14 @@ class DineInReservationListCreateView(views.APIView):
                 {
                     "detail": "Reservation created successfully.",
                     "reservation": serializer.data,
+                    "product_id": first_product_id,
                 },
                 status=status.HTTP_201_CREATED
             )
         except Exception as e:
             logger.error(f"An error occurred during reservation creation: {str(e)}")
             return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class DineInReservationDetailView(views.APIView):
@@ -216,19 +222,22 @@ class DineInReservationDetailView(views.APIView):
         except DineInReservation.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, pk):
+    def patch(self, request, pk):  # Changed from put to patch
         try:
             reservation = DineInReservation.objects.get(pk=pk)
         except DineInReservation.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = DineInReservationSerializer(reservation, data=request.data)
+        # Allow partial updates
+        serializer = DineInReservationSerializer(reservation, data=request.data, partial=True)
+        
         if serializer.is_valid():
             serializer.save()
             return Response(
                 {
                     "detail": "Reservation updated successfully.",
                     "reservation": serializer.data,
+                    
                 }
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -242,11 +251,3 @@ class DineInReservationDetailView(views.APIView):
         reservation.delete()
         return Response({"detail": "Deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
-
-class DineInReservationSummary(views.APIView):
-    def get(self, request):
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            reservation = DineInReservation.objects.all()
-            serializer = DineInReservationSerializer(reservation, many=True)
-            return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
-        

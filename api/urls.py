@@ -10,8 +10,11 @@ urlpatterns = [
     path('event-reservation/', views_.event_reservation_view, name='event-reservation'),
     path('dine-in-calendar/', views_.dine_in_calendar_view, name='dine-in-calendar'),
     path('dine-in-reservation/', views_.dine_in_reservation_view, name='dine-in-reservation'),
+    path('cancel-reservation/', views_.cancel_reservation_view, name='cancel-reservation'),
 
-    path('dine-in-summary/', views_dine_in_reservation.DineInReservationSummary.as_view(), name='reservationsummary'),
+    # Visitors
+    path('api/get-visitors/', views_.get_visitors_count_view, name='get-visitors'),
+
 
     # Customers
     path('api/customers/', views_customers.CustomerListCreateView.as_view(), name='api-customer-list-create'),
@@ -29,7 +32,7 @@ urlpatterns = [
     path('api/dine-in/<int:pk>/', views_dine_in_reservation.DineInReservationDetailView.as_view(), name='api-dine-in-detail'),
     # Event Reservations
     path('api/event-reservation/', views_event_reservation.EventReservationListCreateView.as_view(), name='api-event-reservation-list-create'),
-    path('api/event/<int:pk>/', views_event_reservation.EventReservationDetailView.as_view(), name='api-event-detail'),
+    path('api/event-reservation/<int:pk>/', views_event_reservation.EventReservationDetailView.as_view(), name='api-event-reservation-detail'),
     
     # Venues
     path('api/venues/', views_venue.VenueListCreateView.as_view(), name='api-venue-list-create'),
@@ -45,5 +48,11 @@ urlpatterns = [
     # Emails
     path('send-contact-email/', views_emails.ContactView.as_view(), name='send-contact-email'),
 
+    # OTP Route
+    path('send-otp/', views_cancel_reservation.SendOtpView.as_view(), name='send-otp'),  # Add the OTP URL here
+
+    # Cancel Reservation
+    path('cancel/dinein/<str:reference_number>/', views_cancel_reservation.DineInReservationCancelView.as_view(), name='cancel_dinein_reservation'),
+    path('cancel/event/<str:reference_number>/', views_cancel_reservation.EventReservationCancelView.as_view(), name='cancel_event_reservation'),
 
 ]

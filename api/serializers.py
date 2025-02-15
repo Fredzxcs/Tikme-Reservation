@@ -43,12 +43,13 @@ class DineInReservationSerializer(serializers.ModelSerializer):
         source='customer',
         write_only=True
     )
+    preferred_area = DiningAreaSerializer(read_only=True)  # ✅ Fetch full DiningArea object
     preferred_area_id = serializers.PrimaryKeyRelatedField(
         queryset=DiningArea.objects.all(),
         source='preferred_area',
         write_only=True
     )
-    preferred_area = serializers.StringRelatedField(read_only=True)  # Read-only representation
+
     advance_order = serializers.JSONField(required=False, default=[])
     total_bill = serializers.DecimalField(
         max_digits=10,
@@ -91,6 +92,11 @@ class DineInReservationSerializer(serializers.ModelSerializer):
         
         return value  # ✅ Always return a valid value, never None
 
+    def validate_status(self, value):
+        valid_statuses = ['Confirmed', 'Ongoing', 'Completed', 'Cancelled', 'Overdue']
+        if value not in valid_statuses:
+            raise serializers.ValidationError(f"{value} is not a valid choice.")
+        return value
 
     def get_total_bill(self, obj):
         """
@@ -157,12 +163,18 @@ class EventReservationSerializer(serializers.ModelSerializer):
                 f"Invalid payment method '{value}'. Choose from: {', '.join(VALID_PAYMENT_METHODS)}."
             )
         return value.lower()
+    
+    def validate_status(self, value):
+        valid_statuses = ['Confirmed', 'Ongoing', 'Completed', 'Cancelled', 'Overdue']
+        if value not in valid_statuses:
+            raise serializers.ValidationError(f"{value} is not a valid choice.")
+        return value
 
     class Meta:
         model = EventReservation
         fields = [
             'id', 'customer', 'customer_id', 'venue', 'venue_id', 'package', 'package_id',
-            'number_of_guests', 'reservation_date', 'reservation_time', 'event_date_time',
+            'number_of_guests', 'reservation_date', 'reservation_time', 
             'parking_slots_needed', 'special_request', 'payment_method', 'reference_number',
             'status', 'created_at', 'total_cost'
         ]

@@ -1,6 +1,7 @@
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.conf import settings
 
 def send_contact_email(name, customer_email, phone, message):
     try:
@@ -48,4 +49,38 @@ def send_dine_in_confirmation_email(customer_email, context):
         print(f"Error sending confirmation email: {e}")
         raise
 
+def send_event_confirmation_email(customer_email, context):
+    try:
+        # Render the email content
+        html_content = render_to_string("email_templates/event_email.html", context)
 
+        # Create the email
+        email = EmailMessage(
+            subject="Event Reservation Confirmation",
+            body=html_content,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[customer_email],
+        )
+        email.content_subtype = "html"  # Send email as HTML
+        email.send()
+
+        return {"success": True, "message": "Event reservation confirmation email sent successfully."}
+    except Exception as e:
+        print(f"Error sending confirmation email: {e}")
+        raise
+
+def send_otp_email(email, otp):
+    try:
+        # Generate OTP email content
+        subject = 'Your OTP Code'
+        context = {'otp': otp}
+        html_content = render_to_string("email_templates/otp_email.html", context)
+
+        # Send email
+        email_message = EmailMessage(subject, html_content, settings.EMAIL_HOST_USER, [email])
+        email_message.content_subtype = "html"  # Make sure it's HTML
+        email_message.send()
+
+    except Exception as e:
+        print(f"Error sending OTP email: {e}")
+        raise e
