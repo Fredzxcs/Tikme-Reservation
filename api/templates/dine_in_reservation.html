@@ -91,21 +91,35 @@
             </div>
             <div class="col-md-4">
                 <label>Categories</label>
-                <div id="categoryFilter" class="form-check">
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input category-checkbox" value="All"> All
-                    </label><br>
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input category-checkbox" value="Breakfast & Meals"> Breakfast & Meals
-                    </label><br>
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input category-checkbox" value="Snacks & Appetizers"> Snacks & Appetizers
-                    </label><br>
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input category-checkbox" value="Desserts & Beverages"> Desserts & Beverages
-                    </label>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Categories
+                    </button>
+                    <ul class="dropdown-menu p-3" aria-labelledby="categoryDropdown">
+                        <li>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input category-checkbox" value="All"> All
+                            </label>
+                        </li>
+                        <li>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input category-checkbox" value="Breakfast & Meals"> Breakfast & Meals
+                            </label>
+                        </li>
+                        <li>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input category-checkbox" value="Snacks & Appetizers"> Snacks & Appetizers
+                            </label>
+                        </li>
+                        <li>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input category-checkbox" value="Desserts & Beverages"> Desserts & Beverages
+                            </label>
+                        </li>
+                    </ul>
                 </div>
             </div>
+            
         </div>
 
         <!-- Accordion Menu -->

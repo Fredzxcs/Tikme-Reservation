@@ -6,6 +6,7 @@
 
 {% block content %}
 <div class="container">
+    <h2>Event Reservation</h2>
     <!-- Selected Details -->
     <div class="alert alert-info">
         <h5>Selected Event Details:</h5>
@@ -16,7 +17,7 @@
 
     <form id="bookingForm" method="POST" action="/api/event-reservation/">
         {% csrf_token %}
-        <h2>Booking Form</h2>
+
         <div class="form-row">
             <div class="form-group">
                 <label for="firstName">First Name <span class="required">*</span></label>
