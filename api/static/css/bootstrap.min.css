@@ -43,6 +43,7 @@
 
 body {
     margin: 0;
+    overflow-x: hidden;
     font-family: "Heebo",sans-serif;
     font-size: 1rem;
     font-weight: 400;
@@ -587,7 +588,6 @@ progress {
     padding-right: var(--bs-gutter-x, 6px);
     padding-left: var(--bs-gutter-x, 6px);
     margin-right: auto;
-    margin-left: auto
 }
 
 @media (min-width: 576px) {
@@ -829,11 +829,29 @@ progress {
 }
 
 .g-5,.gx-5 {
-    --bs-gutter-x: 3rem
+    --bs-gutter-x: 1.5rem
 }
 
-.g-5,.gy-5 {
-    --bs-gutter-y: 3rem
+.g-5, .gy-5 {
+    --bs-gutter-y: 3rem;
+}
+
+.g-5 {
+    --bs-gutter-y: 3rem;
+    justify-content: center; /* Center horizontally */
+    display: flex; /* Enable flexbox */
+    position: relative;
+    margin-left: 200px;
+
+}
+
+.z-5 {
+    --bs-gutter-y: 3rem;
+    justify-content: center; /* Center horizontally */
+    display: flex; /* Enable flexbox */
+    position: relative;
+    margin-bottom: 20px;
+
 }
 
 @media (min-width: 576px) {
@@ -3985,8 +4003,8 @@ textarea.form-control-lg {
 .navbar>.container,.navbar>.container-fluid,.navbar>.container-sm,.navbar>.container-md,.navbar>.container-lg,.navbar>.container-xl,.navbar>.container-xxl {
     display: flex;
     flex-wrap: inherit;
-    align-items: center;
-    justify-content: space-between
+    justify-content: space-between;
+    margin-left: auto;
 }
 
 .navbar-brand {
@@ -4002,7 +4020,8 @@ textarea.form-control-lg {
     flex-direction: column;
     padding-left: 0;
     margin-bottom: 0;
-    list-style: none
+    list-style: none;
+    margin-left: auto;
 }
 
 .navbar-nav .nav-link {
@@ -4132,6 +4151,7 @@ textarea.form-control-lg {
     }
 }
 
+
 @media (min-width: 992px) {
     .navbar-expand-lg {
         flex-wrap:nowrap;
@@ -4165,40 +4185,48 @@ textarea.form-control-lg {
     }
 }
 
-@media (min-width: 1200px) {
+
+@media (min-width: 1024px) {
     .navbar-expand-xl {
-        flex-wrap:nowrap;
-        justify-content: flex-start
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        margin: 0;
     }
 
     .navbar-expand-xl .navbar-nav {
-        flex-direction: row
+        flex-direction: row;
+        margin: 0;
     }
 
     .navbar-expand-xl .navbar-nav .dropdown-menu {
-        position: absolute
+        position: absolute;
+        margin: 0;
     }
 
     .navbar-expand-xl .navbar-nav .nav-link {
-        padding-right: .5rem;
-        padding-left: .5rem
+        padding-right: 0.3rem;
+        padding-left: 0.3rem;
+        margin: 0;
     }
 
     .navbar-expand-xl .navbar-nav-scroll {
-        overflow: visible
+        overflow: visible;
+        margin: 0;
     }
 
     .navbar-expand-xl .navbar-collapse {
         display: flex !important;
-        flex-basis: auto
+        flex-basis: auto;
+        margin: 0;
     }
 
     .navbar-expand-xl .navbar-toggler {
-        display: none
+        display: none;
+        margin: 0;
     }
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1440px) {
     .navbar-expand-xxl {
         flex-wrap:nowrap;
         justify-content: flex-start
@@ -4213,8 +4241,8 @@ textarea.form-control-lg {
     }
 
     .navbar-expand-xxl .navbar-nav .nav-link {
-        padding-right: .5rem;
-        padding-left: .5rem
+        padding-right: .2rem;
+        padding-left: .2rem
     }
 
     .navbar-expand-xxl .navbar-nav-scroll {
@@ -7137,11 +7165,6 @@ textarea.form-control-lg {
     margin-left: 3rem !important
 }
 
-.mx-auto {
-    margin-right: auto !important;
-    margin-left: auto !important
-}
-
 .my-0 {
     margin-top: 0 !important;
     margin-bottom: 0 !important
@@ -7283,10 +7306,6 @@ textarea.form-control-lg {
 
 .ms-5 {
     margin-left: 3rem !important
-}
-
-.ms-auto {
-    margin-left: auto !important;
 }
 
 .m-n1 {
@@ -7518,9 +7537,16 @@ textarea.form-control-lg {
     padding-bottom: 1.5rem !important
 }
 
-.py-5 {
+.footer {
     padding-top: 3rem !important;
-    padding-bottom: 3rem !important
+    padding-bottom: 3rem !important;
+}
+
+.py-5 {
+    padding-top: 1rem !important;
+    margin-left: auto !important; 
+    margin-right: auto !important; 
+    text-align: center; 
 }
 
 .pt-0 {

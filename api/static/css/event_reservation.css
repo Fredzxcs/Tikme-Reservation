@@ -23,8 +23,16 @@ body {
 h2 {
     text-align: center;
     color: #333;
-    margin-bottom: 30px;
     font-size: 2rem;
+
+}
+
+h5 {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.25rem;
+    margin-bottom: auto;
+    margin-top: auto;
 }
 
 /* Validation Error Messages */

@@ -36,6 +36,11 @@
     transition: opacity 5s ease-out; /* Fade out duration */
 }
 
+* {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 /* Keyframes for Spinning Animation */
 @keyframes spin {
     0% {
@@ -57,6 +62,68 @@
     position: relative; /* Allows positioning of individual letters */
     transition: color 0.4s; /* Smooth color transition on hover */
 }
+
+/* Base Styles */
+.main-text {
+    font-size: 5rem;
+    color: #FF69B4;
+    font-family: 'Cinzel Decorative', cursive;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+    display: inline-block;
+    opacity: 1;
+    position: relative;
+    transition: color 0.4s;
+}
+
+/* 320px and Up */
+@media (min-width: 320px) {
+    .main-text {
+        font-size: 2rem; /* Smaller size for very small screens */
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        
+    }
+}
+
+/* 375px and Up */
+@media (min-width: 375px) {
+    .main-text {
+        font-size: 2.8rem;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    }
+}
+
+/* 425px and Up */
+@media (min-width: 425px) {
+    .main-text {
+        font-size: 3rem;
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+    }
+}
+
+/* 768px and Up (Tablets) */
+@media (min-width: 768px) {
+    .main-text {
+        font-size: 4rem;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+}
+
+/* 1024px and Up (Laptops) */
+@media (min-width: 1024px) {
+    .main-text {
+        font-size: 5rem; /* Default size for desktops */
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+    }
+}
+
+/* 1440px and Up (Large Screens) */
+@media (min-width: 1440px) {
+    .main-text {
+        font-size: 6rem; /* Larger font for big screens */
+        text-shadow: 0 0 25px rgba(255, 255, 255, 1);
+    }
+}
+
 
 .main-text span {
     display: inline-block;
@@ -92,6 +159,54 @@
     color: #fff;
     opacity: 0;
     animation: fadeInGlow 3s ease forwards 1.5s;
+}
+
+/* 320px and Up */
+@media (min-width: 320px) {
+    .sub-text {
+        font-size: 0.9rem; /* Smaller size for very small screens */
+        margin-left: 160px;
+    }
+}
+
+/* 375px and Up */
+@media (min-width: 375px) {
+    .sub-text {
+        font-size: 1.1rem;
+        margin-left: 180px;
+    }
+}
+
+/* 425px and Up */
+@media (min-width: 425px) {
+    .sub-text {
+        font-size: 1.3rem;
+        margin-left: 200px;
+    }
+}
+
+/* 768px and Up (Tablets) */
+@media (min-width: 768px) {
+    .sub-text {
+        font-size: 1.2rem;
+        margin-left: 270px;
+    }
+}
+
+/* 1024px and Up (Laptops) */
+@media (min-width: 1024px) {
+    .sub-text {
+        font-size: 1.6rem;
+        margin-left: 280px;
+    }
+}
+
+/* 1440px and Up (Large Screens) */
+@media (min-width: 1440px) {
+    .sub-text {
+        font-size: 2rem;
+        margin-left: 400px;
+    }
 }
 
 @keyframes fadeInGlow {
@@ -235,8 +350,9 @@
 /* Menu Section */
 .menu-section {
     padding: 50px 0;
+    padding-top: 0%;
     position: relative;
-    background-image: url('your-background-image.jpg'); /* Add your background image URL */
+    background-image: url('your-background-image.jpg'); Add your background image URL
     background-size: cover; /* Ensure the image covers the entire section */
     background-position: center; /* Center the image */
     background-repeat: no-repeat; /* Prevent the image from repeating */
@@ -379,24 +495,52 @@
 }
 
 /* SERVICES */
-/* General Styles */
+#services {
+    padding-top: 50px; /* Space for navbar */
+    margin-top: -30px; /* Pull it back */
+}
+
+#faqs {
+    padding-top: 100px; /* Space for navbar */
+    margin-top: -80px; /* Pull it back */
+}
+
+#contact{
+    padding-top: 80px; /* Space for navbar */
+    margin-top: -50px;
+}
+
+#events{
+    padding-top: 80px; /* Space for navbar */
+    margin-top: -50px; /* Pull it back */
+}
+
+#menu{
+    padding-top: 80px; /* Space for navbar */
+    margin-top: -50px;
+}
+
+#about{
+    padding-top: 100px; /* Space for navbar */
+}
+
 /* General Styles */
 ::-webkit-scrollbar {
-    width: 1.3rem;
+    width: 0.5rem;
   }
   
   ::-webkit-scrollbar-thumb {
     border-radius: 1rem;
-    background: #797979;
+    background: #743c88;
     transition: all 0.5s ease-in-out;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: #222224;
+    background: #472553;
   }
   
   ::-webkit-scrollbar-track {
-    background: #f9f9f9;
+    background: transparent;
   }
   
   .container {
@@ -678,6 +822,7 @@ h2 {
 .btn-primary {
     background-color: #ff9800;
     border: none;
+    margin-right: auto;
 }
 
 .map-container {

@@ -272,14 +272,16 @@ document.addEventListener("DOMContentLoaded", () => {
         try {   
             const response = await fetch("https://logistics-5mci.onrender.com/products/");
             if (!response.ok) throw new Error("Failed to fetch menu items.");
-            menuItems = await response.json();
+            let menuItemsRaw = await response.json();
 
-            // Extract unique categories dynamically
-            console.log("Fetched Menu Items:", menuItems);
+            // 🔥 Manually filter out unavailable products (Extra safeguard)
+            menuItems = menuItemsRaw.filter(item => item.is_available); 
 
-            applyFilters();
+            console.log("📌 Filtered Available Menu Items:", menuItems);
+
+            applyFilters(); // Apply search and category filters
         } catch (error) {
-            console.error("Error fetching menu items:", error);
+            console.error("❌ Error fetching available menu items:", error);
         }
     };
 
@@ -573,8 +575,8 @@ document.addEventListener("DOMContentLoaded", () => {
         
             const reservationData = await reservationResponse.json();
             console.log("✅ Reservation Data from Backend:", reservationData);
-        
-            // ✅ Check if an advance order exists before proceeding
+
+            // ✅ Check if advance orders exist before proceeding
             if (advanceOrder.length > 0) {
                 const orderData = {
                     product_id: reservationData?.product_id || null,  // ✅ Extract product_id from response
@@ -596,20 +598,22 @@ document.addEventListener("DOMContentLoaded", () => {
                         },
                         body: JSON.stringify(orderData),
                     });
-        
+
                     if (!orderResponse.ok) {
                         const orderErrorData = await orderResponse.json();
                         console.error("❌ Error sending order data:", orderErrorData);
                         Swal.fire("Error", "Failed to submit order. Please try again.", "error");
                     } else {
-                        console.log("✅ Order data sent successfully!");
-                        Swal.fire("Success", "Your reservation and order have been submitted!", "success");
+                        console.log(`✅ Order for Product ID ${orderData.product_id} sent successfully!`);
                     }
                 }
+
+                Swal.fire("Success", "Your reservation and orders have been submitted!", "success");
             } else {
                 console.log("ℹ No advance order selected. Skipping order submission.");
                 Swal.fire("Success", "Your reservation has been submitted!", "success");
             }
+
 
             // Define available payment methods
             const paymentMethods = [
