@@ -188,9 +188,10 @@ class DineInReservationListCreateView(views.APIView):
             # Send confirmation email
             send_dine_in_confirmation_email(customer.email_address, email_context)
 
-            # Get the first product ID from the advance order
-            first_product_id = advance_order[0]["product_id"] if advance_order else None
-
+            product_orders = [
+                {"product_id": item["product_id"], "quantity": item["quantity"]}
+                for item in advance_order
+            ]
 
             # Serialize the reservation
             serializer = DineInReservationSerializer(reservation)
@@ -200,7 +201,7 @@ class DineInReservationListCreateView(views.APIView):
                 {
                     "detail": "Reservation created successfully.",
                     "reservation": serializer.data,
-                    "product_id": first_product_id,
+                    "orders": product_orders,
                 },
                 status=status.HTTP_201_CREATED
             )
