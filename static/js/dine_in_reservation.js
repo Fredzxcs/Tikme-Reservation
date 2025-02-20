@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch menu items from the server
     const fetchMenuItems = async () => {
         try {   
-            const response = await fetch("https://logistics-5mci.onrender.com/products/");
+            const response = await fetch("https://logistics-5mci.onrender.com/products/"); // Ensure this fetches only available products
             if (!response.ok) throw new Error("Failed to fetch menu items.");
             let menuItemsRaw = await response.json();
 
@@ -578,19 +578,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // ✅ Check if advance orders exist before proceeding
             if (advanceOrder.length > 0) {
-                const orderData = {
-                    product_id: reservationData?.product_id || null,  // ✅ Extract product_id from response
-                    quantity: advanceOrder.reduce((total, item) => total + item.quantity, 0)
-                };
-        
-                console.log("📌 Prepared Order Data:", orderData);
-        
-                // ✅ Ensure valid order data before sending
-                if (!orderData.product_id || !orderData.quantity) {
-                    console.error("🚨 Missing required fields in orderData:", orderData);
-                    Swal.fire("Error", "Invalid order data. Please try again.", "error");
-                } else {
-                    // ✅ Send order data only if it's valid
+                const orderDataArray = reservationData.orders.map(order => ({
+                    product_id: order.product_id,
+                    quantity: order.quantity
+                }));
+
+                console.log("📌 Prepared Order Data:", orderDataArray);
+
+                // ✅ Send each order separately
+                for (const orderData of orderDataArray) {
+                    if (!orderData.product_id || !orderData.quantity) {
+                        console.error("🚨 Missing required fields in orderData:", orderData);
+                        Swal.fire("Error", "Invalid order data. Please try again.", "error");
+                        continue; // Skip invalid orders
+                    }
+
                     const orderResponse = await fetch("https://logistics-5mci.onrender.com/api/receive-order/", {
                         method: "POST",
                         headers: {
@@ -613,6 +615,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("ℹ No advance order selected. Skipping order submission.");
                 Swal.fire("Success", "Your reservation has been submitted!", "success");
             }
+
 
 
             // Define available payment methods
