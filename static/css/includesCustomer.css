@@ -37,6 +37,11 @@
     position: relative;
 }
 
+.dropdown {
+    position: relative;
+    margin-left: auto;
+}
+
 .navbar .dropdown-toggle {
     font-weight: 600;
     padding: 0.5rem 1rem;
@@ -56,7 +61,7 @@
 .navbar .dropdown-menu {
     border-radius: 0.375rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    min-width: 200px;
+    min-width: 157px;
     background-color: #fff;
     border: 1px solid #ddd;
 }
@@ -79,10 +84,92 @@
     margin-right: 1rem;
 }
 
+@media (min-width: 320px) {
+    .dropdown {
+        float: right;
+    }
+
+    .g-5 {
+        --bs-gutter-y: 3rem;
+        justify-content: center; /* Center horizontally */
+        display: flex; /* Enable flexbox */
+        position: relative;
+        margin-left: 50px;
+    }
+}
+
+@media (min-width: 375px) {
+    .dropdown {
+        float: right;
+    }
+
+    .g-5 {
+        --bs-gutter-y: 3rem;
+        justify-content: center; /* Center horizontally */
+        display: flex; /* Enable flexbox */
+        position: relative;
+        margin-left: 50px;
+    }
+}
+
+@media (min-width: 425px) {
+    .dropdown {
+        float: right;
+    }
+
+    .g-5 {
+        --bs-gutter-y: 3rem;
+        justify-content: center; /* Center horizontally */
+        display: flex; /* Enable flexbox */
+        position: relative;
+        margin-left: 70px;
+    }
+}
+
+@media (min-width: 768px) {
+    .dropdown {
+        float: right;
+    }
+
+    .g-5 {
+        --bs-gutter-y: 3rem;
+        display: flex; /* Enable flexbox */
+        position: relative;
+        margin-left: 80px;
+    }
+}
+
+@media (min-width: 1024px) {
+        .g-5 {
+        --bs-gutter-y: 3rem;
+        display: flex; /* Enable flexbox */
+        position: relative;
+        margin-left: 60px;
+    }
+
+    .navbar-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .navbar-nav .nav-item {
+        margin-right: 0.5rem;
+        flex: 1 1 auto;
+        max-width: calc(100% / 6);
+        margin: 2px;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
 /* Responsive Navbar - Collapse on Small Screens */
 @media (max-width: 992px) {
     .navbar .navbar-nav {
-        text-align: center;
+        text-align: right;
     }
 
     .navbar .navbar-toggler {
@@ -96,7 +183,7 @@
     color: #ffffff;
     padding-top: 40px;
     padding-bottom: 40px;
-    text-align: center;
+    text-align: right;
 }
 
 /* Footer Links */

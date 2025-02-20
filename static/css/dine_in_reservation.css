@@ -24,6 +24,7 @@ h1, h5 {
 label {
   font-weight: 500;
   color: #333;
+  margin-bottom: 0.5rem;
 }
 
 input, textarea, select {
@@ -232,27 +233,29 @@ button {
   font-weight: 600;
   border-radius: 6px;
   border: none;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: all 0.3s ease;
 }
 
 button.btn-primary {
-  background-color: #007bff;
-  color: #fff;
-}
+  background-color: #8a2be2;
+  color: white;
+  box-shadow: 0 4px 6px rgba(138, 43, 226, 0.2);
 
 button.btn-primary:hover {
-  background-color: #0056b3;
+  background-color: #7b1cd3;
   transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(138, 43, 226, 0.3);
 }
 
-button.btn-secondary {
-  background-color: #6c757d;
-  color: #fff;
+#cancelButton {
+  background-color: #f0f0f0;
+  color: #333;
 }
 
-button.btn-secondary:hover {
-  background-color: #565e64;
+#cancelButton:hover {
+  background-color: #e0e0e0;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Error messages positioned directly under the input */
