@@ -14,8 +14,8 @@ urlpatterns = [
 
     # Visitors
     path('api/get-visitors/', views_.get_visitors_count_view, name='get-visitors'),
-
-
+  
+    
     # Customers
     path('api/customers/', views_customers.CustomerListCreateView.as_view(), name='api-customer-list-create'),
     path('api/customers/<int:pk>/', views_customers.CustomerDetailView.as_view(), name='api-customer-detail'),

@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "Alfresco": 2,
     };
 
+    const MAX_GUESTS_PER_SESSION = 35; // 🔥 Maximum allowed guests per session
+
     const urlParams = new URLSearchParams(window.location.search);
     let selectedDate = urlParams.get("date");  
     let selectedPlace = urlParams.get("place");
@@ -15,59 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("🏠 Preferred Area ID:", preferredAreaId);  
 
     if (selectedDate) {
-        try {
-            console.log("📅 URL Selected Date (Raw):", selectedDate);
-    
-            // Extract date components from format: "Saturday, Feb 15, 2025"
-            const dateRegex = /([A-Za-z]+),\s([A-Za-z]+)\s(\d{1,2}),\s(\d{4})/;
-            const match = selectedDate.match(dateRegex);
-    
-            if (!match) {
-                throw new Error("Invalid date format");
-            }
-    
-            const [_, dayOfWeek, monthStr, day, year] = match;
-    
-            // Convert month string (e.g., "Feb") to month index (0-11)
-            const monthNames = {
-                "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "May": 4, "Jun": 5,
-                "Jul": 6, "Aug": 7, "Sep": 8, "Oct": 9, "Nov": 10, "Dec": 11
-            };
-    
-            if (!(monthStr in monthNames)) {
-                throw new Error("Invalid month name");
-            }
-    
-            const month = monthNames[monthStr];
-    
-            // Create date object without timezone shift
-            const localDate = new Date(year, month, day);
-    
-            // Format into YYYY-MM-DD for backend
-            const formattedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    
-            console.log("📅 Final Date Sent to Backend:", formattedDate);
-    
-            // Display formatted date in human-readable format
-            document.getElementById("selectedDate").textContent = localDate.toLocaleDateString("en-GB", {
-                weekday: "long",
-                month: "short",
-                day: "2-digit",
-                year: "numeric"
-            });
-    
-            document.getElementById("selectedDateInput").value = formattedDate; // Send correct format to backend
-    
-        } catch (error) {
-            console.error("❌ Invalid date format:", selectedDate, error);
-            Swal.fire("Error", "Invalid date format. Please select a valid date.", "error");
-            return;
-        }
+        document.getElementById("selectedDate").textContent = new Date(selectedDate).toLocaleDateString("en-GB", {
+            weekday: "long",
+            month: "short",
+            day: "2-digit",
+            year: "numeric"
+        });
+
+        document.getElementById("selectedDateInput").value = selectedDate; 
     }
     
-    
-    
-    // Set the place if available
     if (selectedPlace) {
         document.getElementById("selectedPlace").textContent = selectedPlace;
         document.getElementById("preferredAreaIdInput").value = preferredAreaId; 
@@ -75,42 +34,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!preferredAreaId) {
         console.error("❌ Invalid preferred area:", selectedPlace);
-    } else {
-        document.getElementById("preferredAreaIdInput").value = preferredAreaId;
     }
 
-    // Validate and properly format `selectedTimeSlot`
     if (selectedTimeSlot) {
         const formattedTimeSlot = selectedTimeSlot.toUpperCase();
-        const match = formattedTimeSlot.match(/(\d{1,2}):(\d{2})(?:\s?(am|pm))?/i);
-        if (!match) {
-            console.error("❌ Invalid time format:", formattedTimeSlot);
-            Swal.fire("Error", "Invalid time format. Please select a valid time.", "error");
-            return;
-        }
-
-        let hours = parseInt(match[1], 10);
-        const minutes = match[2];
-        let modifier = match[3] ? match[3].toUpperCase() : "AM"; 
-
-        if (hours > 12) {
-            hours -= 12;
-            modifier = "PM"; 
-        } else if (hours === 12) {
-            modifier = "PM"; 
-        } else {
-            modifier = "AM"; 
-        }
-
-        const formattedTime = `${String(hours).padStart(2, "0")}:${minutes} ${modifier}`;
-        document.getElementById("selectedTimeSlot").textContent = formattedTime;
-        document.getElementById("selectedTimeSlotInput").value = formattedTime;
+        document.getElementById("selectedTimeSlot").textContent = formattedTimeSlot;
+        document.getElementById("selectedTimeSlotInput").value = formattedTimeSlot;
     } else {
         console.error("❌ No time slot found in URL!");
         Swal.fire("Error", "No time slot found in the URL.", "error");
         return;
     }
- 
+
     // Hide payment method initially
     const paymentMethodSection = document.querySelector(".form-group");
     paymentMethodSection.style.display = "none";
@@ -198,6 +133,95 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
     
+    // Convert time to 24-hour format
+    function formatTo24HourTime(timeStr) {
+        const match = timeStr.match(/(\d{1,2}):(\d{2})\s?(AM|PM)?/i);
+        if (!match) return null;
+    
+        let hours = parseInt(match[1], 10);
+        const minutes = match[2];
+        const modifier = match[3] ? match[3].toUpperCase() : "AM";
+    
+        if (modifier === "PM" && hours !== 12) {
+            hours += 12;
+        } else if (modifier === "AM" && hours === 12) {
+            hours = 0;
+        }
+    
+        return `${String(hours).padStart(2, "0")}:${minutes}:00`;
+    }
+    
+
+    // Get session type based on time
+    function getSessionType(time) {
+        const hour = parseInt(time.split(":")[0], 10);
+        if (hour >= 9 && hour < 12) return "Morning";
+        if (hour >= 12 && hour < 18) return "Afternoon";
+        if (hour >= 18 && hour <= 21) return "Evening";
+        return null;
+    }
+    
+    // Fetch available slots per session before submitting
+    async function fetchAvailableSlots(date, session) {
+        try {
+            if (!date || !session) {
+                console.error("❌ Missing date or session in fetchAvailableSlots");
+                return 0;
+            }
+
+            const url = `/api/dine-in-calendar/?date=${encodeURIComponent(date)}&session=${encodeURIComponent(session)}`;
+            console.log(`🔍 Fetching slots: ${url}`);
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("❌ API Error:", errorData);
+                throw new Error(errorData.detail || "Failed to fetch available slots.");
+            }
+
+            const data = await response.json();
+            console.log(`🟢 Available Slots for ${session} on ${date}:`, data.available_slots);
+            return data.available_slots;
+        } catch (error) {
+            console.error("❌ Error fetching available slots:", error);
+            return 0;
+        }
+    }
+
+
+    // ** Validate Guest Count and Auto-Correct If Exceeding Limit **
+    async function validateGuestCount() {
+        const guestsInput = document.getElementById("guests");
+        const guestsError = document.getElementById("guestsError");
+    
+        const selectedDate = document.getElementById("selectedDateInput").value;
+        const selectedTime = document.getElementById("selectedTimeSlotInput").value;
+        const formattedTime = formatTo24HourTime(selectedTime);
+        const sessionType = getSessionType(formattedTime);
+    
+        if (!sessionType) {
+            showError(guestsInput, "Invalid time slot. Please select a valid time.", guestsError);
+            return;
+        }
+    
+        const availableSlots = await fetchAvailableSlots(selectedDate, sessionType);
+        let guestsRequested = parseInt(guestsInput.value, 10);
+    
+        if (guestsRequested > availableSlots) {
+            guestsInput.value = availableSlots; // 🔥 Auto-adjust input to max available slots
+            showError(guestsInput, `Only ${availableSlots} slots left in the ${sessionType} session.`, guestsError);
+        } else {
+            clearError(guestsInput, guestsError);
+        }
+    }
+    
+    // Attach guest validation on input change
+    document.getElementById("guests").addEventListener("input", validateGuestCount);
+    
+
+    // Attach guest validation on input change
+    document.getElementById("guests").addEventListener("input", validateGuestCount);
 
     // Menu filtering and rendering logic
     const searchBar = document.getElementById("searchBar");
@@ -431,53 +455,46 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
+    // ** Form Submission Logic **
     document.getElementById("bookingForm").addEventListener("submit", async (event) => {
         event.preventDefault();
-    
+
         const formData = new FormData(event.target);
-    
+
         const selectedDateInput = document.getElementById("selectedDateInput").value;
-        const dateParts = selectedDateInput.split('-'); // Prevents UTC conversion
-        const formattedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`; // Keep YYYY-MM-DD
-        console.log("📅 Final Date Sent to Backend:", formattedDate); // Debugging
-        formData.set("reservation_date", formattedDate);
-        
+        formData.set("reservation_date", selectedDateInput);
+
         const timeInput = document.getElementById("selectedTimeSlotInput");
-    
-        // Ensure timeInput exists and has a value
         if (!timeInput || !timeInput.value) {
-            console.error("Error: No time slot selected.");
+            Swal.fire("Error", "No time slot selected.", "error");
             return;
         }
-    
+
         const rawTime = timeInput.value;
-        console.log(`Raw Time: ${rawTime}`); // 🔥 Debugging log
-    
-        // Extract time and modifier (am/pm)
-        const match = rawTime.match(/(\d{1,2}):(\d{2})(\s?(am|pm))?/i);
-        if (!match) {
-            console.error("Error: Invalid time format.", { rawTime });
+        let formattedTime = formatTo24HourTime(rawTime);
+        if (!formattedTime) {
+            Swal.fire("Error", "Invalid time format.", "error");
             return;
         }
-    
-        let hours = parseInt(match[1], 10);
-        const minutes = match[2];
-        const modifier = match[4] ? match[4].toLowerCase() : "";
-    
-        // Convert to 24-hour format if necessary
-        if (modifier === "pm" && hours !== 12) {
-            hours += 12;
-        }
-        if (modifier === "am" && hours === 12) {
-            hours = 0;
-        }
-    
-        // Ensure it's properly formatted as HH:MM:SS
-        const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
-        console.log(`Formatted Time (24H): ${formattedTime}`);
-    
         formData.set("reservation_time", formattedTime);
-        
+
+        const sessionType = getSessionType(formattedTime);
+        if (!sessionType) {
+            Swal.fire("Error", "Invalid reservation time. Please select a valid time slot.", "error");
+            return;
+        }
+
+        console.log(`✅ Reservation Time: ${formattedTime}, Session: ${sessionType}`);
+
+        // 🔥 Fetch available slots per session BEFORE submitting
+        const availableSlots = await fetchAvailableSlots(selectedDateInput, sessionType);
+        const guestsRequested = parseInt(document.getElementById("guests").value, 10);
+
+        if (guestsRequested > availableSlots) {
+            Swal.fire("Error", `Only ${availableSlots} slots left in the ${sessionType} session.`, "error");
+            return;
+        }
+
         // Prepare advance orders
         const advanceOrder = [];
         document.querySelectorAll(".menu-checkbox:checked").forEach((checkbox) => {

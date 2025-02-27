@@ -7,7 +7,7 @@ from ..models import *
 from ..serializers import *
 import json, uuid
 from datetime import datetime
-from django.http import JsonResponse
+from django.db.models import Sum
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -52,16 +52,42 @@ class DineInReservationListCreateView(views.APIView):
             )
 
         try:
-            # Validate and parse reservation date & time
-            try:
-                raw_date = request.data['reservation_date']
-                reservation_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
-                raw_time = request.data['reservation_time']
-                reservation_time = datetime.strptime(raw_time, "%H:%M:%S").time()
-            except ValueError:
-                logger.error(f"Invalid date/time format: {raw_date} {raw_time}")
+            raw_date = request.data['reservation_date']
+            reservation_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
+            raw_time = request.data['reservation_time']
+            reservation_time = datetime.strptime(raw_time, "%H:%M:%S").time()
+
+            preferred_area = DiningArea.objects.get(pk=request.data['preferred_area_id'])
+
+            # ✅ Determine the session type (Morning, Afternoon, Evening)
+            session_type = None
+            hour = reservation_time.hour
+
+            if 9 <= hour < 12:
+                session_type = "Morning"
+            elif 12 <= hour < 18:
+                session_type = "Afternoon"
+            elif 18 <= hour <= 21:
+                session_type = "Evening"
+
+            if not session_type:
                 return Response(
-                    {"detail": "Invalid date/time format. Use YYYY-MM-DD and HH:MM:SS."},
+                    {"detail": "Invalid reservation time. Please select a valid time slot."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # ✅ Check total guests already booked in the selected session
+            existing_guest_count = DineInReservation.objects.filter(
+                reservation_date=reservation_date,
+                reservation_time__hour__gte=(9 if session_type == "Morning" else (12 if session_type == "Afternoon" else 18)),
+                reservation_time__hour__lt=(12 if session_type == "Morning" else (18 if session_type == "Afternoon" else 21))
+            ).aggregate(Sum('number_of_guests'))['number_of_guests__sum'] or 0
+
+            # ✅ Enforce 35-guest limit per session
+            new_guest_count = int(request.data['number_of_guests'])
+            if existing_guest_count + new_guest_count > 35:
+                return Response(
+                    {"detail": f"Only {35 - existing_guest_count} slots left in the {session_type} session."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -251,4 +277,3 @@ class DineInReservationDetailView(views.APIView):
 
         reservation.delete()
         return Response({"detail": "Deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-
