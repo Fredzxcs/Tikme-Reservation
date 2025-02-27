@@ -8,15 +8,16 @@
 <div class="calendar-page">
     <a href="{% url 'customer-website' %}" class="exit-icon" id="exitIcon">×</a>
     <div class="header">
-        <h2>Dine In Booking Calendar</h2>
+        <h2>Dine-In Booking Calendar</h2>
     </div>
     <div class="main-content">
+        <!-- Calendar Section -->
         <div class="calendar-container">
             <div class="calendar">
                 <div class="calendar-header">
                     <div class="month-selector">
                         <button class="arrow-btn" id="prevMonth">←</button>
-                        <span id="currentMonth">November 2024</span>
+                        <span id="currentMonth">March 2025</span>
                         <button class="arrow-btn" id="nextMonth">→</button>
                     </div>
                 </div>
@@ -32,15 +33,40 @@
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>          
         </div>
+
+        <!-- Dine-In Places & Time Selection -->
         <div class="places-container">
-            <h3>Dine In Places</h3>
+            <h3>Dine-In Places</h3>
             <div class="places-list" id="placesList"></div>
+
+            <!-- Reservation Time Dropdown -->
+            <h3>Select Time</h3>
+            <select id="reservationTimeDropdown" class="time-dropdown">
+                <option value="" disabled selected>Select Time Slot</option>
+            </select>
+            
+            <!-- Slot Availability Indicator -->
+            <div class="slot-availability" id="slotAvailability">
+                <h3>Available Slots</h3>
+                <p id="availableSlotsText">Select a time to see available slots</p>
+            </div>
+
+            <!-- Static Schedule Summary -->
+            <div class="schedule-summary">
+                <h3>Reservation Schedule</h3>
+                <p><strong>Monday – Saturday</strong></p>
+                <p><strong>Morning (Umaga):</strong> 09:00 AM – 12:30 PM</p>
+                <p><strong>Afternoon (Hapon):</strong> 01:00 PM – 04:30 PM</p>
+                <p><strong>Evening (Gabi):</strong> 05:00 PM – 09:00 PM</p>
+
+                <p><strong>Sunday</strong></p>
+                <p><strong>Morning (Umaga):</strong> 09:00 AM – 12:30 PM</p>
+                <p><strong>Afternoon (Hapon):</strong> 01:00 PM – 04:30 PM</p>
+                <p><strong>Evening (Gabi):</strong> 05:00 PM – 10:00 PM</p>
+            </div>
         </div>
     </div>
-    <div class="time-slots" id="timeSlots">
-        <h3>Available Times</h3>
-        <div class="time-slot-container" id="timeSlotContainer"></div>
-    </div>
+
     <button id="continueBtn" class="continue-btn">Continue</button>
 </div>
 {% endblock %}
