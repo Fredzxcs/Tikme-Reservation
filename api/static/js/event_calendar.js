@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!response.ok) throw new Error("Failed to fetch reservations.");
             const reservations = await response.json();
 
-            // ✅ Store fully booked dates
             reservedDates = new Set(reservations.map(res => res.reservation_date));
             generateCalendar(currentDate); // Refresh calendar
         } catch (error) {
@@ -47,7 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         for (let i = 0; i < startingDay; i++) {
             const emptyDay = document.createElement('div');
-            emptyDay.className = 'calendar-day';
+            emptyDay.className = 'calendar-day empty';
             calendarGrid.appendChild(emptyDay);
         }
 
@@ -58,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const currentDateObj = new Date(date.getFullYear(), date.getMonth(), day);
             const today = new Date();
-            const formattedDate = currentDateObj.toISOString().split('T')[0];
+            const formattedDate = formatDateForComparison(currentDateObj);
 
             if (currentDateObj < today || reservedDates.has(formattedDate) || isWithinRestrictedDays(currentDateObj)) {
                 dayElement.classList.add('disabled');
@@ -66,15 +65,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 dayElement.addEventListener('click', () => selectDate(currentDateObj));
             }
 
-            if (selectedDate &&
-                selectedDate.getDate() === day &&
-                selectedDate.getMonth() === date.getMonth() &&
-                selectedDate.getFullYear() === date.getFullYear()) {
+            if (selectedDate && formattedDate === formatDateForComparison(selectedDate)) {
                 dayElement.classList.add('selected');
             }
 
             calendarGrid.appendChild(dayElement);
         }
+    }
+
+    function formatDateForComparison(dateObj) {
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     function isWithinRestrictedDays(date) {
@@ -95,12 +98,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function updatePlaces() {
         const placesList = document.getElementById('placesList');
-
-        if (!placesList) {
-            console.error("❌ Error: Element with ID 'placesList' not found.");
-            return;
-        }
-
         placesList.innerHTML = ''; // ✅ Clear previous list
 
         eventPlaces.forEach(place => {
@@ -110,8 +107,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             placeElement.addEventListener('click', () => selectPlace(place));
             placesList.appendChild(placeElement);
         });
-
-        console.log("✅ Places updated:", eventPlaces);
     }
 
     function selectPlace(place) {
@@ -164,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (selectedDate && selectedPlace && selectedTimeSlot) {
             Swal.fire({
                 title: 'Confirm Your Selection',
-                html: `<p>Date: ${selectedDate.toDateString()}</p>
+                html: `<p>Date: ${selectedDate.toLocaleDateString('en-CA')}</p>
                        <p>Place: ${selectedPlace}</p>
                        <p>Time: ${selectedTimeSlot}</p>`,
                 icon: 'info',
@@ -173,7 +168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = `/event-reservation/?date=${selectedDate.toISOString()}&place=${encodeURIComponent(selectedPlace)}&time=${encodeURIComponent(selectedTimeSlot)}`;
+                    window.location.href = `/event-reservation/?date=${encodeURIComponent(formatDateForComparison(selectedDate))}&place=${encodeURIComponent(selectedPlace)}&time=${encodeURIComponent(selectedTimeSlot)}`;
                 }
             });
         } else {

@@ -6,23 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formatDateForBackend = (dateString) => {
         try {
-            if (!dateString) {
-                throw new Error("No date provided.");
-            }
+            if (!dateString) throw new Error("No date provided.");
     
-            // Convert to Date object (ensures correct parsing)
-            const dateObj = new Date(dateString);
-    
-            if (isNaN(dateObj.getTime())) {
-                throw new Error("Invalid date format");
-            }
-    
-            // Extract year, month, and day manually (avoids UTC shift)
-            const year = dateObj.getFullYear();
-            const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // Ensure two digits
-            const day = String(dateObj.getDate()).padStart(2, "0"); // Ensure two digits
-    
-            return `${year}-${month}-${day}`; // Returns YYYY-MM-DD format
+            // ✅ Prevents timezone shifting by treating it as a local date
+            const [year, month, day] = dateString.split("-");
+            return `${year}-${month}-${day}`; // Correct YYYY-MM-DD format
     
         } catch (error) {
             console.error("❌ Error formatting date for backend:", error);
@@ -30,8 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
     
-    
-
     // Venue capacities and corresponding IDs
     const venueCapacities = {
         "Violeta": { id: 1, capacity: 80 },

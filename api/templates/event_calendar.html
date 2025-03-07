@@ -11,12 +11,13 @@
         <h2>Event Booking Calendar</h2>
     </div>
     <div class="main-content">
+        <!-- Left: Calendar Section -->
         <div class="calendar-container">
             <div class="calendar">
                 <div class="calendar-header">
                     <div class="month-selector">
                         <button class="arrow-btn" id="prevMonth">←</button>
-                        <span id="currentMonth">November 2024</span>
+                        <span id="currentMonth">March 2025</span>
                         <button class="arrow-btn" id="nextMonth">→</button>
                     </div>
                 </div>
@@ -32,16 +33,25 @@
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
         </div>
-        <div class="places-container">
-            <h3>Event Places</h3>
-            <div class="places-list" id="placesList"></div>
+    
+        <!-- Right: Event Places & Time Slots -->
+        <div class="right-container">
+            <!-- Event Places -->
+            <div class="places-container">
+                <h3>Event Places</h3>
+                <div class="places-list" id="placesList"></div>
+            </div>
+    
+            <!-- Available Time Slots -->
+            <div class="time-slots-container">
+                <h3>Available Times</h3>
+                <div class="time-slot-container" id="timeSlotContainer"></div>
+            </div>
         </div>
     </div>
-    <div class="time-slots" id="timeSlots">
-        <h3>Available Times</h3>
-        <div class="time-slot-container" id="timeSlotContainer"></div>
-    </div>
+    
     <button id="continueBtn" class="continue-btn">Continue</button>
+    
 </div>
 {% endblock %}
 

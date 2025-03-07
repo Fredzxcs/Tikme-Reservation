@@ -21,40 +21,58 @@ class DineInReservationListCreateView(views.APIView):
     """
     Handles listing all dine-in reservations and creating new reservations.
     """
+
     def get(self, request):
-            date = request.GET.get('date')
-            session = request.GET.get('session')
+        """
+        Fetch available slots for a given date and session.
+        """
+        date_str = request.GET.get("date")
+        session = request.GET.get("session")
 
-            if not date or not session:
-                return Response({"detail": "Missing date or session parameter."}, status=status.HTTP_400_BAD_REQUEST)
+        if not date_str or not session:
+            return Response({"detail": "Missing required parameters: date and session."}, status=status.HTTP_400_BAD_REQUEST)
 
-            reservation_date = datetime.strptime(date, "%Y-%m-%d").date()
+        try:
+            reservation_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+
             session_time_ranges = {
-                "Morning": (datetime.strptime("09:00:00", "%H:%M:%S").time(), datetime.strptime("12:30:00", "%H:%M:%S").time()),
-                "Afternoon": (datetime.strptime("13:00:00", "%H:%M:%S").time(), datetime.strptime("16:30:00", "%H:%M:%S").time()),
-                "Evening": (datetime.strptime("17:00:00", "%H:%M:%S").time(), datetime.strptime("21:00:00", "%H:%M:%S").time()),
+                "Morning": (9, 13),
+                "Afternoon": (13, 17),
+                "Evening": (17, 21),
             }
 
             if session not in session_time_ranges:
-                return Response({"detail": "Invalid session type."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"detail": f"Invalid session type '{session}'. Choose Morning, Afternoon, or Evening."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-            start_time, end_time = session_time_ranges[session]
+            start_hour, end_hour = session_time_ranges[session]
 
             total_guests = DineInReservation.objects.filter(
                 reservation_date=reservation_date,
-                reservation_time__gte=start_time,
-                reservation_time__lt=end_time
-            ).aggregate(Sum('number_of_guests'))['number_of_guests__sum'] or 0
+                reservation_time__hour__gte=start_hour,
+                reservation_time__hour__lt=end_hour,
+            ).aggregate(Sum("number_of_guests"))["number_of_guests__sum"] or 0
 
-            available_slots = max(0, 35 - total_guests)
-            return Response({"available_slots": available_slots})
+            MAX_CAPACITY = 35
+            available_slots = max(0, MAX_CAPACITY - total_guests)
+
+            return Response({"available_slots": available_slots, "session": session, "date": date_str}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
-        logger.info("Received POST request for creating a dine-in reservation.")
-        
+        """
+        Handles creating a new dine-in reservation with proper session validation.
+        """
+        logger.info("Received POST request for dine-in reservation.")
+
         required_fields = [
-            'reservation_date', 'reservation_time', 'preferred_area_id',
-            'first_name', 'last_name', 'phone_number', 'email', 'number_of_guests', 'payment_method'
+            "reservation_date", "reservation_time", "preferred_area_id",
+            "first_name", "last_name", "phone_number", "email",
+            "number_of_guests", "payment_method"
         ]
         missing_fields = [field for field in required_fields if field not in request.data]
 
@@ -66,127 +84,73 @@ class DineInReservationListCreateView(views.APIView):
             )
 
         try:
-            raw_date = request.data['reservation_date']
-            reservation_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
-            raw_time = request.data['reservation_time']
-            reservation_time = datetime.strptime(raw_time, "%H:%M:%S").time()
+            # ✅ Parse and validate date/time
+            reservation_date = datetime.strptime(request.data["reservation_date"], "%Y-%m-%d").date()
+            reservation_time = datetime.strptime(request.data["reservation_time"], "%H:%M:%S").time()
 
-            preferred_area = DiningArea.objects.get(pk=request.data['preferred_area_id'])
+            if reservation_date < datetime.today().date():
+                return Response({"detail": "Reservations cannot be made for past dates."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ✅ Determine the session type (Morning, Afternoon, Evening)
+            # ✅ Determine session type
             session_type = None
-            hour = reservation_time.hour
+            session_time_ranges = {
+                "Morning": (9, 13),
+                "Afternoon": (13, 17),
+                "Evening": (17, 21),
+            }
 
-            if 9 <= hour < 12:
-                session_type = "Morning"
-            elif 12 <= hour < 18:
-                session_type = "Afternoon"
-            elif 18 <= hour <= 21:
-                session_type = "Evening"
+            for session, (start_hour, end_hour) in session_time_ranges.items():
+                if start_hour <= reservation_time.hour < end_hour:
+                    session_type = session
+                    break
 
             if not session_type:
-                return Response(
-                    {"detail": "Invalid reservation time. Please select a valid time slot."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response({"detail": "Invalid reservation time. Please select a valid time slot."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ✅ Check total guests already booked in the selected session
+            # ✅ Fetch preferred dining area
+            try:
+                preferred_area = DiningArea.objects.get(pk=request.data["preferred_area_id"])
+            except DiningArea.DoesNotExist:
+                return Response({"detail": "Invalid dining area ID."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # ✅ Check available slots for the session
             existing_guest_count = DineInReservation.objects.filter(
                 reservation_date=reservation_date,
-                reservation_time__hour__gte=(9 if session_type == "Morning" else (12 if session_type == "Afternoon" else 18)),
-                reservation_time__hour__lt=(12 if session_type == "Morning" else (18 if session_type == "Afternoon" else 21))
-            ).aggregate(Sum('number_of_guests'))['number_of_guests__sum'] or 0
+                reservation_time__hour__gte=session_time_ranges[session_type][0],
+                reservation_time__hour__lt=session_time_ranges[session_type][1]
+            ).aggregate(Sum("number_of_guests"))["number_of_guests__sum"] or 0
 
-            # ✅ Enforce 35-guest limit per session
-            new_guest_count = int(request.data['number_of_guests'])
-            if existing_guest_count + new_guest_count > 35:
+            MAX_CAPACITY = 35
+            new_guest_count = int(request.data["number_of_guests"])
+
+            if existing_guest_count + new_guest_count > MAX_CAPACITY:
                 return Response(
-                    {"detail": f"Only {35 - existing_guest_count} slots left in the {session_type} session."},
+                    {"detail": f"Only {MAX_CAPACITY - existing_guest_count} slots left in the {session_type} session."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Fetch preferred dining area
-            try:
-                preferred_area = DiningArea.objects.get(pk=request.data['preferred_area_id'])
-            except DiningArea.DoesNotExist:
-                logger.error(f"Dining area not found with ID: {request.data['preferred_area_id']}")
-                return Response(
-                    {"detail": "Invalid dining area ID."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            # ✅ Validate payment method
+            VALID_PAYMENT_METHODS = ["none", "gcash", "grab_pay", "card", "qrph", "brankas_bdo", "brankas_landbank", "paymaya"]
+            payment_method = request.data.get("payment_method", "none").lower()
 
-            # Validate payment method
-            payment_method = request.data.get('payment_method', 'none').lower()
             if payment_method not in VALID_PAYMENT_METHODS:
-                logger.warning(f"Invalid payment method received: {payment_method}")
                 return Response(
                     {"detail": f"Invalid payment method: {payment_method}. Choose from {', '.join(VALID_PAYMENT_METHODS)}"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
-
-            # Create or get the customer
-            customer_data = {
-                "first_name": request.data['first_name'],
-                "last_name": request.data['last_name'],
-                "phone_number": request.data['phone_number'],
-                "email_address": request.data['email'],
-            }
-            customer, created = Customer.objects.get_or_create(
-                email_address=customer_data['email_address'],
-                defaults=customer_data
+            # ✅ Always create a new customer, even if the email exists
+            customer = Customer.objects.create(
+                first_name=request.data["first_name"],
+                last_name=request.data["last_name"],
+                phone_number=request.data["phone_number"],
+                email_address=request.data["email"],
             )
 
-            if created:
-                logger.info(f"New customer created: {customer_data['email_address']}")
-            else:
-                logger.info(f"Customer already exists: {customer_data['email_address']}")
+            # ✅ Parse advance order (if any)
+            advance_order = json.loads(request.data.get("advance_order", "[]"))
+            total_bill = sum(Decimal(item["quantity"]) * Decimal(item["price"]) for item in advance_order) if advance_order else Decimal(0)
 
-            # Validate payment method ONLY if an order exists
-            payment_method = request.data.get('payment_method', '').lower()
-            advance_order_raw = request.data.get('advance_order', '[]')
-
-            # Parse advance order
-            try:
-                advance_order = json.loads(advance_order_raw) if isinstance(advance_order_raw, str) else advance_order_raw
-            except json.JSONDecodeError:
-                logger.error(f"Invalid JSON format for advance_order: {advance_order_raw}")
-                return Response(
-                    {"detail": "Invalid format for advance_order. It must be a JSON array."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if advance_order:
-                if payment_method not in VALID_PAYMENT_METHODS:
-                    logger.warning(f"Invalid or missing payment method: {payment_method}")
-                    return Response(
-                        {"detail": f"Invalid payment method: {payment_method}. Choose from {', '.join(VALID_PAYMENT_METHODS)}"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-            else:
-                # ❌ PROBLEM: This sets None, causing DB constraint errors
-                # payment_method = None 
-
-                # ✅ FIX: Set it to "none" explicitly
-                payment_method = "none"
-
-            # Validate advance order items
-            total_bill = Decimal(0)
-            for item in advance_order:
-                try:
-                    price = Decimal(str(item.get('price', 0)))
-                    quantity = int(item.get('quantity', 0))
-                    total_bill += price * quantity
-                except (ValueError, TypeError, Decimal.InvalidOperation):
-                    logger.error(f"Invalid item in advance_order: {item}")
-                    return Response(
-                        {"detail": "Invalid advance order item. Ensure price and quantity are numeric."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
-            logger.info(f"Total bill calculated: {total_bill}")
-
-            # Generate a unique reference number
+            # ✅ Generate unique reference number
             def generate_reference_number():
                 while True:
                     ref_number = f"RES-{uuid.uuid4().hex[:8].upper()}"
@@ -194,25 +158,24 @@ class DineInReservationListCreateView(views.APIView):
                         return ref_number
 
             reference_number = generate_reference_number()
-            logger.debug(f"Generated reference number: {reference_number}")
 
-            # Create the reservation
+            # ✅ Create reservation
             reservation = DineInReservation.objects.create(
                 customer=customer,
-                number_of_guests=int(request.data['number_of_guests']),
+                number_of_guests=new_guest_count,
                 reservation_date=reservation_date,
                 reservation_time=reservation_time,
-                parking_slots_needed=int(request.data.get('parking_slots_needed', 0)),
+                parking_slots_needed=int(request.data.get("parking_slots_needed", 0)),
                 preferred_area=preferred_area,
-                special_request=request.data.get('special_request', None),
+                special_request=request.data.get("special_request", None),
                 advance_order=advance_order,
                 payment_method=payment_method,
-                status='Confirmed',
+                status="Confirmed",
                 total_bill=total_bill,
                 reference_number=reference_number
             )
 
-            # Prepare email context
+            # ✅ Send confirmation email
             email_context = {
                 "customer_name": f"{customer.first_name} {customer.last_name}",
                 "reservation_date": reservation.reservation_date,

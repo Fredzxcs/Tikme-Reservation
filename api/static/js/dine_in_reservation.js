@@ -151,6 +151,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${String(hours).padStart(2, "0")}:${minutes}:00`;
     }
     
+    const guestsInput = document.getElementById("guests");
+    const availableSlotsDisplay = document.createElement("p");
+    availableSlotsDisplay.classList.add("text-muted");
+    guestsInput.parentNode.appendChild(availableSlotsDisplay);
 
     async function fetchAvailableSlots(date, session) {
         try {
@@ -158,14 +162,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("❌ Missing date or session.");
                 return 0;
             }
-
+    
             const url = `/api/dine-in-calendar/?date=${date}&session=${session}`;
-            console.log(`🔍 Fetching slots: ${url}`);
-
+            console.log(`🔍 Fetching slots from API: ${url}`);
+    
             const response = await fetch(url);
-            if (!response.ok) throw new Error("Failed to fetch slots.");
-
-            const data = await response.json();
+            const responseText = await response.text(); // Read full response for debugging
+    
+            if (!response.ok) {
+                console.error(`❌ API Error: ${response.status} - ${responseText}`);
+                return 0;
+            }
+    
+            const data = JSON.parse(responseText);
             console.log(`🟢 Available Slots: ${data.available_slots}`);
             return data.available_slots;
         } catch (error) {
@@ -173,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return 0;
         }
     }
-
+    
     function formatTo24HourTime(timeStr) {
         const match = timeStr.match(/(\d{1,2}):(\d{2})\s?(AM|PM)?/i);
         if (!match) return null;
@@ -188,45 +197,82 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${String(hours).padStart(2, "0")}:${minutes}:00`;
     }
 
+   // ✅ Adjusted session time detection
     function getSessionType(time) {
-        const hour = parseInt(time.split(":")[0]);
-        if (hour >= 9 && hour < 12) return "Morning";
-        if (hour >= 12 && hour < 18) return "Afternoon";
-        if (hour >= 18 && hour <= 21) return "Evening";
+        const hour = parseInt(time.split(":")[0], 10);
+        console.log(`⏰ Extracted Hour for Session Type: ${hour}`);
+
+        if (hour >= 9 && hour < 13) return "Morning";    // ✅ Morning (09:00 AM - 12:30 PM)
+        if (hour >= 13 && hour < 17) return "Afternoon"; // ✅ Afternoon (01:00 PM - 04:30 PM)
+        if (hour >= 17 && hour <= 21) return "Evening";  // ✅ Evening (05:00 PM - 09:00 PM)
+
+        console.error(`🚨 Invalid time detected: ${time}`);
         return null;
     }
 
+
+    async function fetchAvailableSlots(date, place) {
+        try {
+            if (!date || !place) {
+                console.error("❌ Missing date or place.");
+                return { Morning: 0, Afternoon: 0, Evening: 0 };
+            }
+    
+            const url = `/api/dine-in-calendar/?date=${encodeURIComponent(date)}&place=${encodeURIComponent(place)}`;
+            console.log(`🔍 Fetching slots from API: ${url}`);
+    
+            const response = await fetch(url);
+            const responseText = await response.text(); // Debug full response
+    
+            if (!response.ok) {
+                console.error(`❌ API Error: ${response.status} - ${responseText}`);
+                return { Morning: 0, Afternoon: 0, Evening: 0 };
+            }
+    
+            const data = JSON.parse(responseText);
+            console.log(`🟢 Available Slots Data:`, data.available_slots);
+            return data.available_slots; // ✅ Now returns an object {Morning: X, Afternoon: X, Evening: X}
+        } catch (error) {
+            console.error("❌ Error fetching slots:", error);
+            return { Morning: 0, Afternoon: 0, Evening: 0 };
+        }
+    }
+    
+    
     async function updateSlotAvailability() {
         const selectedDate = document.getElementById("selectedDateInput").value;
         const selectedTime = document.getElementById("selectedTimeSlotInput").value;
-        
-        if (!selectedDate || !selectedTime) return;
-
+        const selectedPlace = document.getElementById("selectedPlace").textContent;
+    
+        console.log(`📅 Selected Date: ${selectedDate}, 🏠 Selected Place: ${selectedPlace}, ⏰ Selected Time: ${selectedTime}`);
+    
+        if (!selectedDate || !selectedTime || !selectedPlace) return;
+    
         const formattedTime = formatTo24HourTime(selectedTime);
         const sessionType = getSessionType(formattedTime);
-
+    
         if (!sessionType) {
+            console.error("🚨 Invalid sessionType:", formattedTime);
             showError(guestsInput, "Invalid time slot. Please select a valid time.", guestsError);
             return;
         }
-
-        const availableSlots = await fetchAvailableSlots(selectedDate, sessionType);
-        document.getElementById("availableSlots").textContent = `${availableSlots} slots left`;
-
-        // Set max guests input limit
-        guestsInput.max = availableSlots;
-
-        // Auto-correct guest input if exceeding limit
-        if (guestsInput.value > availableSlots) {
-            guestsInput.value = availableSlots;
-            showError(guestsInput, `Only ${availableSlots} slots left.`, guestsError);
+    
+        console.log(`✅ Checking availability for session: ${sessionType}`);
+        const availableSlots = await fetchAvailableSlots(selectedDate, selectedPlace);
+        const sessionSlots = availableSlots[sessionType]; // ✅ Fetch slots for the correct session
+    
+        availableSlotsDisplay.textContent = `Only ${sessionSlots} slots left in the ${sessionType} session.`;
+    
+        guestsInput.max = sessionSlots;
+    
+        if (guestsInput.value > sessionSlots) {
+            guestsInput.value = sessionSlots;
+            showError(guestsInput, `Only ${sessionSlots} slots left.`, guestsError);
         } else {
             clearError(guestsInput, guestsError);
         }
     }
-
-    guestsInput.addEventListener("input", updateSlotAvailability);
-
+    
     // Menu filtering and rendering logic
     const searchBar = document.getElementById("searchBar");
     const categoryCheckboxes = document.querySelectorAll(".category-checkbox");
@@ -770,6 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
     });
+    
     updateSlotAvailability();
     fetchMenuItems();
 });

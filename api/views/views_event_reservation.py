@@ -43,20 +43,30 @@ class EventReservationListCreateView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        try:
-            venue = Venue.objects.get(pk=request.data['venue_id'])
-            package = Package.objects.get(pk=request.data['package_id'])
+        # ✅ Fix: Move customer lookup outside the try-except block
+        customer_data = {
+            "first_name": request.data['first_name'],
+            "last_name": request.data['last_name'],
+            "phone_number": request.data['phone_number'],
+            "email_address": request.data['email'],
+        }
 
-            customer_data = {
-                "first_name": request.data['first_name'],
-                "last_name": request.data['last_name'],
-                "phone_number": request.data['phone_number'],
-                "email_address": request.data['email'],
-            }
+        try:
+            # ✅ Fix: Prevent multiple customer error
             customer, created = Customer.objects.get_or_create(
                 email_address=customer_data['email_address'],
                 defaults=customer_data
             )
+            # ✅ Fix: If a customer exists, check if the name is different and create a new entry
+            if not created and (customer.first_name != customer_data['first_name'] or customer.last_name != customer_data['last_name']):
+                customer = Customer.objects.create(**customer_data)
+        except Customer.MultipleObjectsReturned:
+            logger.warning(f"Multiple customers found for email {customer_data['email_address']}. Using the first entry.")
+            customer = Customer.objects.filter(email_address=customer_data['email_address']).first()
+
+        try:
+            venue = Venue.objects.get(pk=request.data['venue_id'])
+            package = Package.objects.get(pk=request.data['package_id'])
 
             number_of_guests = int(request.data.get('number_of_guests', 0))
             parking_slots_needed = int(request.data.get('parking_slots_needed', 0))
@@ -74,7 +84,7 @@ class EventReservationListCreateView(views.APIView):
                 venue=venue,
                 package=package,
                 number_of_guests=number_of_guests,
-                reservation_date=request.data['reservation_date'],
+                reservation_date=datetime.strptime(request.data['reservation_date'], "%Y-%m-%d").date(),
                 reservation_time=request.data['reservation_time'],
                 parking_slots_needed=parking_slots_needed,
                 special_request=request.data.get('special_request', None),
