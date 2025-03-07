@@ -152,76 +152,80 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
 
-    // Get session type based on time
+    async function fetchAvailableSlots(date, session) {
+        try {
+            if (!date || !session) {
+                console.error("❌ Missing date or session.");
+                return 0;
+            }
+
+            const url = `/api/dine-in-calendar/?date=${date}&session=${session}`;
+            console.log(`🔍 Fetching slots: ${url}`);
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Failed to fetch slots.");
+
+            const data = await response.json();
+            console.log(`🟢 Available Slots: ${data.available_slots}`);
+            return data.available_slots;
+        } catch (error) {
+            console.error("❌ Error fetching slots:", error);
+            return 0;
+        }
+    }
+
+    function formatTo24HourTime(timeStr) {
+        const match = timeStr.match(/(\d{1,2}):(\d{2})\s?(AM|PM)?/i);
+        if (!match) return null;
+
+        let hours = parseInt(match[1], 10);
+        const minutes = match[2];
+        const modifier = match[3]?.toUpperCase() || "AM";
+
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        else if (modifier === "AM" && hours === 12) hours = 0;
+
+        return `${String(hours).padStart(2, "0")}:${minutes}:00`;
+    }
+
     function getSessionType(time) {
-        const hour = parseInt(time.split(":")[0], 10);
+        const hour = parseInt(time.split(":")[0]);
         if (hour >= 9 && hour < 12) return "Morning";
         if (hour >= 12 && hour < 18) return "Afternoon";
         if (hour >= 18 && hour <= 21) return "Evening";
         return null;
     }
-    
-    // Fetch available slots per session before submitting
-    async function fetchAvailableSlots(date, session) {
-        try {
-            if (!date || !session) {
-                console.error("❌ Missing date or session in fetchAvailableSlots");
-                return 0;
-            }
 
-            const url = `/api/dine-in-calendar/?date=${encodeURIComponent(date)}&session=${encodeURIComponent(session)}`;
-            console.log(`🔍 Fetching slots: ${url}`);
-
-            const response = await fetch(url);
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("❌ API Error:", errorData);
-                throw new Error(errorData.detail || "Failed to fetch available slots.");
-            }
-
-            const data = await response.json();
-            console.log(`🟢 Available Slots for ${session} on ${date}:`, data.available_slots);
-            return data.available_slots;
-        } catch (error) {
-            console.error("❌ Error fetching available slots:", error);
-            return 0;
-        }
-    }
-
-
-    // ** Validate Guest Count and Auto-Correct If Exceeding Limit **
-    async function validateGuestCount() {
-        const guestsInput = document.getElementById("guests");
-        const guestsError = document.getElementById("guestsError");
-    
+    async function updateSlotAvailability() {
         const selectedDate = document.getElementById("selectedDateInput").value;
         const selectedTime = document.getElementById("selectedTimeSlotInput").value;
+        
+        if (!selectedDate || !selectedTime) return;
+
         const formattedTime = formatTo24HourTime(selectedTime);
         const sessionType = getSessionType(formattedTime);
-    
+
         if (!sessionType) {
             showError(guestsInput, "Invalid time slot. Please select a valid time.", guestsError);
             return;
         }
-    
+
         const availableSlots = await fetchAvailableSlots(selectedDate, sessionType);
-        let guestsRequested = parseInt(guestsInput.value, 10);
-    
-        if (guestsRequested > availableSlots) {
-            guestsInput.value = availableSlots; // 🔥 Auto-adjust input to max available slots
-            showError(guestsInput, `Only ${availableSlots} slots left in the ${sessionType} session.`, guestsError);
+        document.getElementById("availableSlots").textContent = `${availableSlots} slots left`;
+
+        // Set max guests input limit
+        guestsInput.max = availableSlots;
+
+        // Auto-correct guest input if exceeding limit
+        if (guestsInput.value > availableSlots) {
+            guestsInput.value = availableSlots;
+            showError(guestsInput, `Only ${availableSlots} slots left.`, guestsError);
         } else {
             clearError(guestsInput, guestsError);
         }
     }
-    
-    // Attach guest validation on input change
-    document.getElementById("guests").addEventListener("input", validateGuestCount);
-    
 
-    // Attach guest validation on input change
-    document.getElementById("guests").addEventListener("input", validateGuestCount);
+    guestsInput.addEventListener("input", updateSlotAvailability);
 
     // Menu filtering and rendering logic
     const searchBar = document.getElementById("searchBar");
@@ -766,5 +770,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
     });
+    updateSlotAvailability();
     fetchMenuItems();
 });

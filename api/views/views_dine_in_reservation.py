@@ -21,19 +21,33 @@ class DineInReservationListCreateView(views.APIView):
     """
     Handles listing all dine-in reservations and creating new reservations.
     """
-
     def get(self, request):
-        try:
-            logger.info("Fetching all dine-in reservations.")
-            reservation = DineInReservation.objects.select_related('preferred_area').all()
-            serializer = DineInReservationSerializer(reservation, many=True)
-            return Response(serializer.data)
-        except Exception as e:
-            logger.error(f"Error fetching dine-in reservations: {str(e)}")
-            return Response(
-                {"detail": "An error occurred while fetching reservations."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            date = request.GET.get('date')
+            session = request.GET.get('session')
+
+            if not date or not session:
+                return Response({"detail": "Missing date or session parameter."}, status=status.HTTP_400_BAD_REQUEST)
+
+            reservation_date = datetime.strptime(date, "%Y-%m-%d").date()
+            session_time_ranges = {
+                "Morning": (datetime.strptime("09:00:00", "%H:%M:%S").time(), datetime.strptime("12:30:00", "%H:%M:%S").time()),
+                "Afternoon": (datetime.strptime("13:00:00", "%H:%M:%S").time(), datetime.strptime("16:30:00", "%H:%M:%S").time()),
+                "Evening": (datetime.strptime("17:00:00", "%H:%M:%S").time(), datetime.strptime("21:00:00", "%H:%M:%S").time()),
+            }
+
+            if session not in session_time_ranges:
+                return Response({"detail": "Invalid session type."}, status=status.HTTP_400_BAD_REQUEST)
+
+            start_time, end_time = session_time_ranges[session]
+
+            total_guests = DineInReservation.objects.filter(
+                reservation_date=reservation_date,
+                reservation_time__gte=start_time,
+                reservation_time__lt=end_time
+            ).aggregate(Sum('number_of_guests'))['number_of_guests__sum'] or 0
+
+            available_slots = max(0, 35 - total_guests)
+            return Response({"available_slots": available_slots})
 
     def post(self, request):
         logger.info("Received POST request for creating a dine-in reservation.")

@@ -2,29 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedDate = null;
     let selectedPlace = null;
     let selectedTimeSlot = null;
-
-    const maxGuestsPerSlot = 35; // Maximum allowed guests per slot
-    const timeSlots = {
-        weekday: generateTimeSlots("09:00", "20:00"), // 9:00 AM - 8:00 PM
-        sunday: generateTimeSlots("09:00", "21:00")   // 9:00 AM - 9:00 PM
-    };
-
     const eventPlaces = ["Air Conditioning", "Alfresco"];
     let currentDate = new Date();
-
-    // ✅ Generate time slots every 30 minutes
-    function generateTimeSlots(startTime, endTime) {
-        let slots = [];
-        let current = new Date(`2025-01-01T${startTime}`);
-        let end = new Date(`2025-01-01T${endTime}`);
-
-        while (current <= end) {
-            let formattedTime = current.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-            slots.push(formattedTime);
-            current.setMinutes(current.getMinutes() + 30);
-        }
-        return slots;
-    }
 
     // ✅ Generate Calendar
     function generateCalendar(date) {
@@ -51,14 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
             dayElement.textContent = day;
 
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Normalize time to avoid conflicts
+            today.setHours(0, 0, 0, 0);
             const minDate = new Date(today);
-            minDate.setDate(today.getDate() + 1); // Ensure at least 1 day before
+            minDate.setDate(today.getDate() + 1);
 
             const currentDateObj = new Date(date.getFullYear(), date.getMonth(), day);
 
             if (currentDateObj.getTime() < minDate.getTime()) {
-                dayElement.classList.add("disabled"); // Prevent selection of past & same-day dates
+                dayElement.classList.add("disabled");
             } else {
                 dayElement.addEventListener("click", () => selectDate(currentDateObj));
             }
@@ -75,20 +54,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function selectDate(date) {
-        // Ensure the selected date is correct
-        selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0); // Add 12:00 noon to avoid timezone shifts
+        selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
         
-        console.log("📌 Raw Selected Date Object:", selectedDate);
-        console.log("🗓️ Corrected Selected Date:", 
-            `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
-        ); 
+        console.log("📌 Selected Date:", selectedDate.toISOString().split("T")[0]);
         
         selectedPlace = null;
         selectedTimeSlot = null;
         generateCalendar(currentDate);
         updatePlaces();
-        document.getElementById("availableSlotsText").textContent = "Select a time to see available slots.";
-        document.getElementById("reservationTimeDropdown").innerHTML = `<option value="" disabled selected>Select Time</option>`;
     }
     
     function updatePlaces() {
@@ -111,90 +84,75 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     
         if (selectedDate) {
-            console.log(`✅ Fetching slots for: ${selectedDate.toISOString().split("T")[0]}`); // Debugging
-            await updateTimeDropdown(); // ✅ Ensure it fetches the correct date
+            console.log(`✅ Fetching slots for: ${selectedDate.toISOString().split("T")[0]}`);
+            await updateTimeSlots();
         } else {
             console.warn("⚠ No date selected yet!");
         }
     }
     
-    async function updateTimeDropdown() {
-        console.log("📌 Updating time dropdown...");
-        
-        const dropdown = document.getElementById("reservationTimeDropdown");
-        dropdown.innerHTML = `<option value="" disabled selected>Loading...</option>`;
-    
+    async function updateTimeSlots() {
+        console.log("📌 Updating time slots...");
+
         if (!selectedDate || !selectedPlace) {
             console.warn("🚨 No date or place selected yet.");
-            dropdown.innerHTML = `<option value="" disabled selected>Select Time</option>`;
             return;
         }
-    
-        const dayOfWeek = selectedDate.getDay();
-        const slots = (dayOfWeek === 0) ? timeSlots.sunday : timeSlots.weekday;
-        const formattedDate = selectedDate.toISOString().split("T")[0];
-    
-        dropdown.innerHTML = `<option value="" disabled selected>Select Time</option>`;
-    
-        for (const time of slots) {
-            console.log(`⏳ Checking availability for ${time}...`);
-    
-            // Fetch only the available slots **within the session**
-            const availableGuests = await fetchAvailableGuests(formattedDate, selectedPlace, time);
-            const option = document.createElement("option");
-            option.value = time;
-            option.textContent = time;
-    
-            // ✅ Disable option if the session is fully booked
-            if (availableGuests <= 0) {
-                option.disabled = true;
-                option.textContent += " (Fully Booked)";
-            }
-    
-            dropdown.appendChild(option);
-        }
-    
-        dropdown.addEventListener("change", function () {
-            selectedTimeSlot = this.value;
-            updateSlotAvailability();
-        });
-    
-        console.log("✅ Time dropdown updated!");
-    }
-    
-    async function fetchAvailableGuests(date, place, time) {
-        try {
-            // Ensure proper spacing in the time format (09:00 AM instead of 09:00AM)
-            const formattedTime = time.replace(/(AM|PM)/, " $1");
-    
-            const apiUrl = `/api/dine-in-calendar/?date=${encodeURIComponent(date)}&place=${encodeURIComponent(place)}&time=${encodeURIComponent(formattedTime)}`;
-            console.log(`🔍 Fetching available guests from: ${apiUrl}`); 
-            
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-            const data = await response.json();
-            console.log(`🟢 API Response:`, data);
-    
-            return data.available_slots; 
-        } catch (error) {
-            console.error("❌ Error fetching available guests:", error);
-            return maxGuestsPerSlot;
-        }
-    }
-    
-    
-    function updateSlotAvailability() {
-        const availableText = document.getElementById("availableSlotsText");
 
-        if (selectedTimeSlot) {
-            fetchAvailableGuests(selectedDate.toISOString().split("T")[0], selectedPlace, selectedTimeSlot)
-                .then(availableGuests => {
-                    availableText.textContent = `Available Slots: ${availableGuests} Guests`;
-                });
-        } else {
-            availableText.textContent = "Select a time to see available slots.";
+        const formattedDate = selectedDate.toISOString().split("T")[0];
+
+        document.getElementById("morningSlots").textContent = "Loading...";
+        document.getElementById("afternoonSlots").textContent = "Loading...";
+        document.getElementById("eveningSlots").textContent = "Loading...";
+        
+        try {
+            const response = await fetch(`/api/dine-in-calendar/?date=${encodeURIComponent(formattedDate)}&place=${encodeURIComponent(selectedPlace)}`);
+            const data = await response.json();
+
+            console.log("🟢 Available Slots Data:", data);
+
+            document.getElementById("morningSlots").textContent = `${data.available_slots.Morning} Slots Available`;
+            document.getElementById("afternoonSlots").textContent = `${data.available_slots.Afternoon} Slots Available`;
+            document.getElementById("eveningSlots").textContent = `${data.available_slots.Evening} Slots Available`;
+
+            generateSessionTimes("morningTimes", "Morning", data.available_slots.Morning);
+            generateSessionTimes("afternoonTimes", "Afternoon", data.available_slots.Afternoon);
+            generateSessionTimes("eveningTimes", "Evening", data.available_slots.Evening);
+
+        } catch (error) {
+            console.error("❌ Error fetching available slots:", error);
         }
+    }
+    
+    function generateSessionTimes(containerId, session, availableSlots) {
+        const timeContainer = document.getElementById(containerId);
+        timeContainer.innerHTML = "";
+
+        const timeSlots = {
+            "Morning": ["09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM"],
+            "Afternoon": ["01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM"],
+            "Evening": ["05:00 PM", "05:30 PM", "06:00 PM", "06:30 PM", "07:00 PM", "07:30 PM", "08:00 PM", "08:30 PM"]
+        };
+
+        timeSlots[session].forEach(time => {
+            const button = document.createElement("button");
+            button.className = "time-slot";
+            button.textContent = time;
+
+            if (availableSlots <= 0) {
+                button.disabled = true;
+                button.textContent += " (Fully Booked)";
+            }
+
+            button.addEventListener("click", (event) => selectTimeSlot(event, time));
+            timeContainer.appendChild(button);
+        });
+    }
+
+    function selectTimeSlot(event, time) {
+        selectedTimeSlot = time;
+        document.querySelectorAll(".time-slot").forEach(btn => btn.classList.remove("selected"));
+        event.target.classList.add("selected");
     }
 
     document.getElementById("prevMonth").addEventListener("click", () => {
@@ -209,16 +167,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("continueBtn").addEventListener("click", () => {
         if (selectedDate && selectedPlace && selectedTimeSlot) {
-            const formattedDate = selectedDate.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "short",
-                day: "2-digit"
-            });
-
             Swal.fire({
                 title: "Confirm Your Selection",
-                html: `<p>Date: ${formattedDate}</p>
+                html: `<p>Date: ${selectedDate.toDateString()}</p>
                        <p>Place: ${selectedPlace}</p>
                        <p>Time: ${selectedTimeSlot}</p>`,
                 icon: "info",
@@ -227,8 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cancelButtonText: "Cancel"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const url = `/dine-in-reservation/?date=${selectedDate.toISOString().split("T")[0]}&place=${encodeURIComponent(selectedPlace)}&time=${encodeURIComponent(selectedTimeSlot)}`;
-                    window.location.href = url;
+                    window.location.href = `/dine-in-reservation/?date=${selectedDate.toISOString().split("T")[0]}&place=${encodeURIComponent(selectedPlace)}&time=${encodeURIComponent(selectedTimeSlot)}`;
                 }
             });
         } else {

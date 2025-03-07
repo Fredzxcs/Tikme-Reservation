@@ -39,30 +39,27 @@
             <h3>Dine-In Places</h3>
             <div class="places-list" id="placesList"></div>
 
-            <!-- Reservation Time Dropdown -->
-            <h3>Select Time</h3>
-            <select id="reservationTimeDropdown" class="time-dropdown">
-                <option value="" disabled selected>Select Time Slot</option>
-            </select>
-            
-            <!-- Slot Availability Indicator -->
-            <div class="slot-availability" id="slotAvailability">
-                <h3>Available Slots</h3>
-                <p id="availableSlotsText">Select a time to see available slots</p>
-            </div>
+            <!-- Time Slots Section -->
+            <div class="time-slot-section">
+                <h3>Reservation Time Slots</h3>
 
-            <!-- Static Schedule Summary -->
-            <div class="schedule-summary">
-                <h3>Reservation Schedule</h3>
-                <p><strong>Monday – Saturday</strong></p>
-                <p><strong>Morning (Umaga):</strong> 09:00 AM – 12:30 PM</p>
-                <p><strong>Afternoon (Hapon):</strong> 01:00 PM – 04:30 PM</p>
-                <p><strong>Evening (Gabi):</strong> 05:00 PM – 09:00 PM</p>
+                <!-- Morning Session -->
+                <div class="session-container">
+                    <div class="session-header">Morning (09:00 AM – 12:30 PM) - <span id="morningSlots">Loading...</span></div>
+                    <div class="time-slots" id="morningTimes"></div>
+                </div>
 
-                <p><strong>Sunday</strong></p>
-                <p><strong>Morning (Umaga):</strong> 09:00 AM – 12:30 PM</p>
-                <p><strong>Afternoon (Hapon):</strong> 01:00 PM – 04:30 PM</p>
-                <p><strong>Evening (Gabi):</strong> 05:00 PM – 10:00 PM</p>
+                <!-- Afternoon Session -->
+                <div class="session-container">
+                    <div class="session-header">Afternoon (01:00 PM – 04:30 PM) - <span id="afternoonSlots">Loading...</span></div>
+                    <div class="time-slots" id="afternoonTimes"></div>
+                </div>
+
+                <!-- Evening Session -->
+                <div class="session-container">
+                    <div class="session-header">Evening (05:00 PM – 09:00 PM) - <span id="eveningSlots">Loading...</span></div>
+                    <div class="time-slots" id="eveningTimes"></div>
+                </div>
             </div>
         </div>
     </div>

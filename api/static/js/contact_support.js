@@ -35,31 +35,28 @@ document.getElementById('contactForm').addEventListener('submit', function (even
         body: JSON.stringify(emailData)
     })
         .then(response => {
-            if (response.ok) {
-                console.log('Email sent successfully.');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Your message has been sent successfully.',
-                });
-                document.getElementById('contactForm').reset(); // Clear the form
-            } else {
+            if (!response.ok) {
                 return response.json().then(data => {
-                    console.error('Failed to send email:', data);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Failed',
-                        text: data.error || 'Failed to send your message. Please try again later.',
-                    });
+                    throw new Error(data.error || 'Failed to send message.');
                 });
             }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Email sent successfully.');
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Your message has been sent successfully.',
+            });
+            document.getElementById('contactForm').reset();
         })
         .catch(error => {
             console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'An unexpected error occurred. Please try again later.',
+                text: error.message || 'An unexpected error occurred. Please try again later.',
             });
         });
 });

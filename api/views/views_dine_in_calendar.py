@@ -14,18 +14,13 @@ class DineInCalendarListCreateView(views.APIView):
 
     def get(self, request):
         """
-        Fetch available slots for a given date, place, and time, grouped by Morning, Afternoon, and Evening sessions.
+        Fetch all available slots for a given date and place in one request.
         """
         date_str = request.query_params.get("date")
         place = request.query_params.get("place")
-        time_str = request.query_params.get("time")
-        session_param = request.query_params.get("session")  # New parameter for direct session filtering
 
-        if not date_str:
-            return Response(
-                {"detail": "Missing required query parameter: date."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        if not date_str or not place:
+            return Response({"detail": "Missing required parameters: date and place."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             reservation_date = datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -34,78 +29,38 @@ class DineInCalendarListCreateView(views.APIView):
             if reservation_date < today:
                 return Response({"detail": "Past dates are not allowed."}, status=status.HTTP_400_BAD_REQUEST)
 
-            if place:
-                preferred_area = DiningArea.objects.filter(area_name__iexact=place.strip()).first()
-                if not preferred_area:
-                    return Response({"detail": "Invalid dining place."}, status=status.HTTP_400_BAD_REQUEST)
+            preferred_area = DiningArea.objects.filter(area_name__iexact=place.strip()).first()
+            if not preferred_area:
+                return Response({"detail": "Invalid dining place."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ✅ Define time slots for Morning, Afternoon, and Evening
+            # Define session time ranges
             time_ranges = {
                 "Morning": (9, 12),
                 "Afternoon": (12, 18),
                 "Evening": (18, 21),
             }
 
-            session_type = None
+            available_slots = {}
 
-            if time_str:
-                try:
-                    # ✅ Accept both 12-hour (04:30 PM) and 24-hour (16:30:00) formats
-                    try:
-                        reservation_time = datetime.strptime(time_str, "%I:%M %p").time()  # 12-hour format
-                    except ValueError:
-                        reservation_time = datetime.strptime(time_str, "%H:%M:%S").time()  # 24-hour format
+            for session, (start_hour, end_hour) in time_ranges.items():
+                # Fetch total guests for the session
+                total_guests = DineInReservation.objects.filter(
+                    reservation_date=reservation_date,
+                    reservation_time__hour__gte=start_hour,
+                    reservation_time__hour__lt=end_hour,
+                    preferred_area=preferred_area
+                ).aggregate(Sum("number_of_guests"))["number_of_guests__sum"] or 0
 
-                    hour = reservation_time.hour
+                max_capacity = 35
+                remaining_slots = max(0, max_capacity - total_guests)
 
-                    for session, (start_hour, end_hour) in time_ranges.items():
-                        if start_hour <= hour < end_hour:
-                            session_type = session
-                            break
+                available_slots[session] = remaining_slots  # Store slots per session
 
-                    if not session_type:
-                        return Response({"detail": "Invalid time slot selection."}, status=status.HTTP_400_BAD_REQUEST)
-
-                except ValueError:
-                    return Response({"detail": "Invalid time format. Use HH:MM AM/PM or HH:MM:SS."}, status=status.HTTP_400_BAD_REQUEST)
-
-            elif session_param:
-                session_type = session_param.capitalize()
-                if session_type not in time_ranges:
-                    return Response({"detail": "Invalid session type. Choose Morning, Afternoon, or Evening."}, status=status.HTTP_400_BAD_REQUEST)
-
-            if not session_type:
-                return Response({"detail": "Missing required query parameter: session or time."}, status=status.HTTP_400_BAD_REQUEST)
-
-            session_start, session_end = time_ranges[session_type]
-
-            # ✅ Fetch total guests for the entire session
-            filters = {
-                "reservation_date": reservation_date,
-                "reservation_time__hour__gte": session_start,
-                "reservation_time__hour__lt": session_end,
-            }
-
-            if place:
-                filters["preferred_area"] = preferred_area
-
-            total_guests = DineInReservation.objects.filter(**filters).aggregate(Sum("number_of_guests"))["number_of_guests__sum"] or 0
-
-            max_capacity = 35  # ✅ Enforce per-session guest limit
-            available_slots = max(0, max_capacity - total_guests)
-
-            logger.info(f"📅 Date: {reservation_date}, 🏠 Place: {place}, ⏰ Session: {session_type}")
-            logger.info(f"🔍 Available Slots: {available_slots} (Max: {max_capacity})")
-
-            return Response({
-                "session_type": session_type,
-                "available_slots": available_slots,
-                "total_reservations": total_guests
-            }, status=status.HTTP_200_OK)
+            return Response({"available_slots": available_slots}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            logger.error(f"❌ Server error fetching reservations: {str(e)}")
-            return Response({"error": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     def post(self, request):
         """

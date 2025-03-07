@@ -1,11 +1,12 @@
 /* General Styles */
 body {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #e0c3fc 100%);
   min-height: 100vh;
   font-family: 'Roboto', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 /* Card Styles */
@@ -14,6 +15,9 @@ body {
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  background: #ffffff;
+  width: 100%;
+  max-width: 600px; /* Ensures it does not stretch too wide */
 }
 
 /* Form Wrapper */
@@ -31,7 +35,7 @@ body {
 }
 
 .progress-bar {
-  background-color: #0d6efd;
+  background-color: #743c88 !important;
   transition: width 0.4s ease-in-out;
 }
 
@@ -48,14 +52,14 @@ body {
   text-align: center;
   font-size: 1.5rem;
   border-radius: 10px;
-  border: 2px solid #dee2e6;
+  border: 2px solid #b37cc5;
   transition: all 0.2s ease-in-out;
 }
 
 .otp-input:focus {
-  border-color: #0d6efd;
+  border-color: #743c88 !important;
   outline: none;
-  box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
+  box-shadow: 0 0 5px rgba(116, 60, 136, 0.5);
 }
 
 /* Success Checkmark */
@@ -74,16 +78,17 @@ body {
 
 /* Button Styles */
 .btn-primary {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #743c88 !important;
+  border-color: #743c88 !important;
   font-weight: bold;
   padding: 10px;
   border-radius: 8px;
+  font-size: 1rem;
 }
 
 .btn-primary:hover {
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
+  background-color: #5c2e6d !important;
+  border-color: #5c2e6d !important;
 }
 
 .btn-danger {
@@ -118,4 +123,64 @@ body {
 #resendOtp:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+/* ========================= */
+/* 📱 RESPONSIVE MEDIA QUERIES */
+/* ========================= */
+
+/* Small devices (phones, 320px and up) */
+@media (max-width: 576px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .reset-card {
+    padding: 15px;
+    width: 100%;
+  }
+
+  .otp-input {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .btn-primary,
+  .btn-danger {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  .text-center h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Medium devices (Tablets, 768px and up) */
+@media (max-width: 768px) {
+  .reset-card {
+    padding: 20px;
+  }
+
+  .otp-input {
+    width: 45px;
+    height: 45px;
+  }
+
+  .btn-primary,
+  .btn-danger {
+    font-size: 1rem;
+  }
+}
+
+/* Large devices (Laptops and up) */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 900px;
+  }
+
+  .reset-card {
+    max-width: 600px;
+  }
 }

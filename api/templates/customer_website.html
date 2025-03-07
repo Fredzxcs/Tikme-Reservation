@@ -33,7 +33,8 @@
     <div class="wave wave3"></div>
 </section>
 
- <!-- About Section -->
+
+<!-- About Section -->
 <section id="about" class="container-xxl py-5">
     <div class="container">
         <div class="row z-5 align-items-center">
@@ -60,11 +61,10 @@
                 <h5 class="section-title ff-secondary text-start text-primary fw-normal wow fadeInLeft" data-wow-delay="0.1s">About Us</h5>
                 <h1 class="mb-4 wow fadeInLeft" data-wow-delay="0.2s">Welcome to Tikme Dine</h1>
                 <p class="mb-4 wow fadeInLeft" data-wow-delay="0.3s">
-                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos erat ipsum et lorem et sit, sed stet lorem sit.
+                    Tikme Dine is your premier destination for an exquisite fine dining experience. With a focus on elegance, flavor, and exceptional service, we craft unforgettable culinary moments. Whether you're celebrating a special occasion or indulging in gourmet dishes, our team is dedicated to delivering sophistication on every plate.
                 </p>
-                <p class="mb-4 wow fadeInLeft" data-wow-delay="0.3s
-">
-                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet.
+                <p class="mb-4 wow fadeInLeft" data-wow-delay="0.3s">
+                    Our menu features a fusion of classic and contemporary flavors, curated by top chefs who prioritize quality and authenticity. Enjoy an intimate ambiance, carefully selected wines, and an exceptional dining journey that caters to every discerning palate.
                 </p>
                 <div class="row g-4 mb-4">
                     <div class="col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
@@ -87,10 +87,19 @@
                     </div>
                 </div>
                 <a class="btn btn-primary py-3 px-5 mt-2" href="">Read More</a>
+
+                <!-- Video Section -->
+                <div class="mt-4 wow fadeInUp" data-wow-delay="0.6s">
+                    <video controls class="w-100 rounded" style="max-height: 500px;">
+                        <source src="{% static 'video/tikme.mp4' %}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
 
 <!-- Menu Section -->
 <section id="menu" class="menu-section">
@@ -1429,7 +1438,6 @@
     <div class="container">
         <div class="row">
             <div class="section-header text-center wow fadeIn" data-wow-delay="0.1s">
-                <h4 class="sub-title">Special Event</h4>
                 <h2 class="title">Upcoming Events</h2>
             </div>
             
@@ -1504,7 +1512,7 @@
 <!-- Services Section -->
 <section id="services" class="wow fadeInLeft" data-wow-delay="0.3s">
     <div class="container">
-        <h1 class="text-center section-heading mb-4 wow fadeInLeft" data-wow-delay="0.3s">SERVICES</h1>
+        <h1 class="services-title text-center wow fadeInLeft" data-wow-delay="0.3s">Services</h1>
     </div>
     <div class="container">
         <div class="swiper tranding-slider">
@@ -1614,6 +1622,49 @@
 </section>
 
 
+<!-- Gallery Section -->
+<section id="gallery" class="gallery py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title wow fadeIn" data-wow-delay="0.1s">Gallery</h2>          
+        </div>
+        <div class="row g-4">
+            {% for i in "12345678" %}
+            <div class="col-md-3 col-sm-6 wow fadeInUp" data-wow-delay="0.{{ forloop.counter }}s">
+                <div class="gallery-item">
+                    <img src="{% static 'images/gallery'|add:i|add:'.jpg' %}" class="img-fluid rounded shadow" data-bs-toggle="modal" data-bs-target="#galleryModal{{ i }}" alt="Gallery Image {{ i }}">
+                </div>
+            </div>
+
+            <!-- Modal for Fullscreen Image -->
+            <div class="modal fade" id="galleryModal{{ i }}" tabindex="-1" aria-labelledby="galleryModalLabel{{ i }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body p-0">
+                            <img src="{% static 'images/gallery'|add:i|add:'.jpg' %}" class="img-fluid rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section id="team" class="team-section">
+    <div class="container text-center">
+        <h1 class="team-title wow fadeInLeft" data-wow-delay="0.3s">Our Team</h1>
+        <p class="team-description wow fadeInLeft" data-wow-delay="0.4s">
+            Meet the passionate individuals behind Tikme Dine, dedicated to providing you with an unforgettable dining experience.
+        </p>
+        <div class="team-photo wow fadeInUp" data-wow-delay="0.5s">
+            <img src="{% static 'images/team.jpg' %}" alt="Our Team">
+        </div>
+    </div>
+</section>
+
+
 <!-- FAQ Section -->
 <section id="faqs" class="faq">
     <h2 class="wow fadeIn" data-wow-delay="0.2s">Frequently Asked Questions (FAQ)</h2>
@@ -1662,7 +1713,7 @@
 
             <div class="col-lg-6 col-md-12 wow fadeIn" data-wow-delay="0.3s">
                 <div class="form-container">
-                    <h2>Contact Us <span>Get In Touch</span></h2>
+                    <h2>Get In Touch</h2>
                     <p>If you have any questions, feel free to reach out to us!</p>
                     <form id="contactForm" method="POST" novalidate>
                         {% csrf_token %}
@@ -1693,6 +1744,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'js/customer_website.js' %}"></script>
 <script src="{% static 'js/contact_support.js' %}"></script>
 {% endblock %}
