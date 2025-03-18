@@ -165,7 +165,7 @@ address {
 }
 
 ol,ul {
-    padding-left: 2rem
+    padding-left: 1rem
 }
 
 ol,ul,dl {
@@ -634,10 +634,9 @@ progress {
     flex-shrink: 0;
     width: 100%;
     max-width: 100%;
-    padding-right: calc(var(--bs-gutter-x) / 2);
-    padding-left: calc(var(--bs-gutter-x) / 2);
     margin-top: var(--bs-gutter-y);
     text-align: left;
+    padding-left: 25px;
 }
 
 .col {
@@ -841,7 +840,7 @@ progress {
     justify-content: center; /* Center horizontally */
     display: flex; /* Enable flexbox */
     position: relative;
-    margin-left: 200px;
+    margin-left: 50px;
 
 }
 
@@ -4018,15 +4017,9 @@ textarea.form-control-lg {
 .navbar-nav {
     display: flex;
     flex-direction: column;
-    padding-left: 0;
     margin-bottom: 0;
     list-style: none;
     margin-left: auto;
-}
-
-.navbar-nav .nav-link {
-    padding-right: 0;
-    padding-left: 0
 }
 
 .navbar-nav .dropdown-menu {
@@ -4051,7 +4044,8 @@ textarea.form-control-lg {
     background-color: transparent;
     border: 1px solid transparent;
     border-radius: 2px;
-    transition: box-shadow 0.15s ease-in-out
+    transition: box-shadow 0.15s ease-in-out;
+    color: white;
 }
 
 @media (prefers-reduced-motion: reduce) {

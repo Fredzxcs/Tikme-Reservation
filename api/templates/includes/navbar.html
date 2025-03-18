@@ -1,45 +1,30 @@
+{% load static %}
+
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg">
-    <div class="container"> 
+    <div class="container">
         <a href="#home" class="navbar-brand">
             <h1>Tikme Dine</h1>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span class="fa fa-bars"></span>
+            <span class="fas fa-bars me-2"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <!-- Center the nav links using mx-auto -->
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <a href="#home" class="nav-link">HOME</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#about" class="nav-link">ABOUT</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#menu" class="nav-link">MENU</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#events" class="nav-link">EVENTS</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#services" class="nav-link">SERVICES</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#gallery" class="nav-link">GALLERY</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#team" class="nav-link">TEAM</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#faqs" class="nav-link">FAQ'S</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#contact" class="nav-link">CONTACT</a>
-                </li>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a href="#home" class="nav-link">HOME</a></li>
+                <li class="nav-item"><a href="#about" class="nav-link">ABOUT</a></li>
+                <li class="nav-item"><a href="#menu" class="nav-link">MENU</a></li>
+                <li class="nav-item"><a href="#events" class="nav-link">EVENTS</a></li>
+                <li class="nav-item"><a href="#services" class="nav-link">SERVICES</a></li>
+                <li class="nav-item"><a href="#gallery" class="nav-link">GALLERY</a></li>
+                <li class="nav-item"><a href="#team" class="nav-link">TEAM</a></li>
+                <li class="nav-item"><a href="#faqs" class="nav-link">FAQs</a></li>
+                <li class="nav-item"><a href="#contact" class="nav-link">CONTACT</a></li>
             </ul>
+
             <!-- Dropdown for "Reserve Now" button -->
-            <div class="dropdown ms-auto">
+            <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                     Reserve Now!
                 </button>
