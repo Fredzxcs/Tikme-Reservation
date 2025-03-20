@@ -28,6 +28,7 @@
         background-color: #743C88;
     }
 
+
     .dropdown-toggle {
         margin-top: 5px;
     }
@@ -186,4 +187,46 @@
 
 .footer {
     background-color: #743C88;  
+}
+
+.back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: #fff;
+    text-align: center;
+    line-height: 36px;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 99;
+    transition: all 0.3s ease-in-out;
+}
+
+.back-to-top:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
+    color: #fff;
+}
+
+/* Show button when scrolling */
+.show-back-to-top {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Optional: Smooth fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
